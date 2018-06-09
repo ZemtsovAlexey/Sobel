@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
 
 namespace ScannerNet.Extensions
 {
@@ -47,18 +48,47 @@ namespace ScannerNet.Extensions
 
             unsafe
             {
-                for (int y = 0; y < bitmap.Height; y++)
+                int imageHeight = bitmap.Height;
+                int imageWidth = bitmap.Width;
+                
+                Parallel.For(0, imageHeight, (int y) =>
                 {
                     var pRow = (byte*)bitmapData.Scan0 + y * bitmapData.Stride;
-                    var offset = 0;
                     
-                    for (int x = 0; x < bitmap.Width; x++)
+                    Parallel.For(0, imageWidth, (int x) =>
                     {
+                        var offset = x * step;
                         result[y, x] = step == 1 ? pRow[offset] : (pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3;
-                        
-                        offset += step;
-                    }
-                }
+                    });
+                });
+            }
+            
+            bitmap.UnlockBits(bitmapData);
+
+            return result;
+        }
+        
+        public static double[,] GetDoubleMatrix(this Bitmap bitmap)
+        {
+            var result = new double[bitmap.Height, bitmap.Width];
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+            var step = bitmap.GetStep();
+
+            unsafe
+            {
+                int imageHeight = bitmap.Height;
+                int imageWidth = bitmap.Width;
+                
+                Parallel.For(0, imageHeight, (int y) =>
+                {
+                    var pRow = (byte*)bitmapData.Scan0 + y * bitmapData.Stride;
+                    
+                    Parallel.For(0, imageWidth, (int x) =>
+                    {
+                        var offset = x * step;
+                        result[y, x] = step == 1 ? pRow[offset] : (pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3;
+                    });
+                });
             }
             
             bitmap.UnlockBits(bitmapData);

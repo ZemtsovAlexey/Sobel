@@ -8,6 +8,7 @@ namespace Neuro.Layers
 {
     public class ActivationLayer : ILayer
     {
+        public LayerType Type { get; set; } = LayerType.FullyConnected;
         public ActivationNeuron[] Neurons;
         public double[] Outputs;
         public int NeuronsCount => Neurons.Length;

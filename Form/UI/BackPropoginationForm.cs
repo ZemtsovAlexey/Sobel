@@ -110,9 +110,10 @@ namespace Sobel.UI
             var st = new Stopwatch();
             st.Start();
 
-            var result = _networkNew.Network.Compute(vector);
+            var result = _networkNew.Compute(bitmap);
 
             var time = st.ElapsedMilliseconds;
+            MessageBox.Show(time.ToString());
             
             int maxIter = 0;
             double maxRes = 0;

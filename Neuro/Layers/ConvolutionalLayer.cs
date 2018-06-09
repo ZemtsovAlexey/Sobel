@@ -1,16 +1,17 @@
 ﻿using System.Linq;
 using System.Numerics;
 using Neuro.ActivationFunctions;
-using Neuro.ConvolutionalNetworks;
 using Neuro.Models;
 using Neuro.Models.Outputs;
+using Neuro.Neurons;
 
 namespace Neuro.Layers
 {
-    public class ConvolutionalLayer// : Layer
+    public class ConvolutionalLayer : ILayer
     {
-        public new ConvolutionalNeuron[] Neurons { get; set; }
-        public new ConvInputVarible Outputs { get; set; }
+        public LayerType Type { get; set; } = LayerType.ConvolutionWithMaxpooling;
+        public ConvolutionalNeuron[] Neurons { get; set; }
+        public double[][,] Outputs { get; set; }
         public int OutputWidht { get; }
         public int OutputHeight { get; }
 
@@ -25,7 +26,7 @@ namespace Neuro.Layers
                 Neurons[i] = new ConvolutionalNeuron(activationFunction, inputWidth, inputHeitght, kernelSize);
             }
             
-            Outputs = new ConvInputVarible { Value = new double[neuronsCount][,] };
+            Outputs = new double[neuronsCount][,];
         }
 
         public void Randomize()
@@ -36,12 +37,11 @@ namespace Neuro.Layers
             }
         }
 
-        public InputValue Compute(InputValue input)
+        public double[][,] Compute(double[][,] input)
         {
-            var convInput = (ConvInputVarible) input;
-            var outputs = Neurons.Select(n => n.Compute(convInput.Value)).ToArray();
+            var outputs = Neurons.Select(n => n.Compute(input)).ToArray();
 
-            Outputs = new ConvInputVarible {Value = outputs};
+            Outputs = outputs;
 
             return Outputs;
         }

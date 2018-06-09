@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -185,7 +186,11 @@ namespace Sobel
 
         private void grayFilterButton_Click(object sender, EventArgs e)
         {
+            var sw = new Stopwatch();
+            sw.Start();
             pictureBox1.Image = new Bitmap(pictureBox1.Image).GetGrayMap().ToBitmap();
+            MessageBox.Show(sw.ElapsedMilliseconds.ToString());
+            sw.Stop();
         }
 
         private void BackPropoginationOpenButton_Click(object sender, EventArgs e)

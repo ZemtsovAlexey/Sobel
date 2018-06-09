@@ -1,7 +1,11 @@
-﻿namespace Neuro.Layers
+﻿using Neuro.Models;
+
+namespace Neuro.Layers
 {
     public interface ILayer
     {
+        LayerType Type { get; set; }
+        
         void Randomize();
     }
 }

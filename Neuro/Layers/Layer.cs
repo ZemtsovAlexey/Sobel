@@ -24,6 +24,7 @@ namespace Neuro.Layers
 //            Outputs = new double[neuronsCount];
         }
 
+        public LayerType Type { get; set; }
         public abstract void Randomize();
 
         public abstract double[,] Compute(double[,] input);

@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Linq;
 using Neuro.ActivationFunctions;
-using Neuro.Neurons;
 
-namespace Neuro.ConvolutionalNetworks
+namespace Neuro.Neurons
 {
-    public class ConvolutionalNeuron : Neuron
+    public class ConvolutionalNeuron //: Neuron
     {
         private static readonly Random Random = new Random((int)DateTime.Now.Ticks);
+        public IActivationFunction Function { get; set; }
         private int _kernelSize = 3;
-        private int inputWidth = 0;
-        private int inputHeight = 0;
 
 //        public IActivationFunction Function { get; set; }
         public new double[,] Weights { get; set; }
@@ -23,15 +20,13 @@ namespace Neuro.ConvolutionalNetworks
                 throw new ArgumentException("Размер ядра должен быть не четным");
             }
 
-            inputWidth = inWidth;
-            inputHeight = inHeight;
             this._kernelSize = kernelSize;
             Weights = new double[kernelSize, kernelSize];
             Output = new double[inHeight - kernelSize + 1, inWidth - kernelSize + 1];
             Function = function;
         }
 
-        public override void Randomize()
+        public void Randomize()
         {
             int y, x;
 
@@ -43,13 +38,8 @@ namespace Neuro.ConvolutionalNetworks
                 }
             }
         }
-
-        public override double Compute(double[] input)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override double[,] Compute(double[][,] input)
+        
+        public double[,] Compute(double[][,] input)
         {
             int i, y, x, h, w;
             var outputHeight = Output.GetLength(0);
@@ -58,6 +48,7 @@ namespace Neuro.ConvolutionalNetworks
             var inputWidth = input[0].GetLength(1);
             double[,] inputSum = new double[inputHeight, inputWidth];
 
+            //суммируем все входные изображения
             for (i = 0; i < input.Length; i++)
             {
                 for (y = 0; y < inputHeight; y++)
@@ -69,6 +60,7 @@ namespace Neuro.ConvolutionalNetworks
                 }
             }
             
+            //сканируем изображение ядром
             for (y = 0; y < outputHeight; y++)
             {
                 for (x = 0; x < outputWidth; x++)
