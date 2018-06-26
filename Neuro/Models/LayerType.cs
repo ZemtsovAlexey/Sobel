@@ -2,7 +2,7 @@
 {
     public enum LayerType
     {
-        ConvolutionWithMaxpooling = 0,
+        Convolution = 0,
         FullyConnected = 1,
         MaxPoolingLayer = 2
     }

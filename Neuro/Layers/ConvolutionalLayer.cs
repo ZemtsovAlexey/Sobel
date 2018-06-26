@@ -7,9 +7,9 @@ namespace Neuro.Layers
 {
     public class ConvolutionalLayer : IConvolutionalLayer
     {
-        public LayerType Type { get; set; } = LayerType.ConvolutionWithMaxpooling;
+        public LayerType Type { get; set; } = LayerType.Convolution;
         public ConvolutionalNeuron[] Neurons { get; set; }
-        public double[][,] Outputs { get; set; }
+        public double[][,] Outputs { get; private set; }
         public int OutputWidht { get; }
         public int OutputHeight { get; }
 

@@ -95,7 +95,7 @@ namespace Neuro.Learning
                 var outputs = layerEl.Index == 0 ? input : network.Layers[layerEl.Index - 1].Neurons.Select(x => x.Output).ToArray();
                 
                 layerEl.layer.Neurons
-                    .Select((neuron, i) => new {neuron = (ActivationNeuron)neuron, Index = i})
+                    .Select((neuron, i) => new {neuron, Index = i})
                     .AsParallel()
                     .ForAll(neuronEl =>
                     {

@@ -1,24 +1,24 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Neuro.Layers;
 
 namespace Neuro.Networks
 {
     public class ConvolutionalNetwork
     {
-        public ILayer[] Layers { get; set; }
-        public int LayersCount => Layers.Length;
+        public IConvolutionalLayer[] ConvLayers { get; set; }
+        public IFullyConnectedLayer[] FullyConnectedLayers { get; set; }
         public double[] Output;
         private double[][,] _output;
         
-        public ConvolutionalNetwork(params ILayer[] layers)
+        public ConvolutionalNetwork(IConvolutionalLayer[] convLayers, IFullyConnectedLayer[] fullyConnectedLayers)
         {
-            Layers = layers;
+            ConvLayers = convLayers;
+            FullyConnectedLayers = fullyConnectedLayers;
         }
 
         public void Randomize()
         {
-            foreach (var layer in Layers)
+            foreach (var layer in ConvLayers)
             {
                 layer.Randomize();
             }
@@ -28,37 +28,40 @@ namespace Neuro.Networks
         {
             _output = new[] {input};
 
-            foreach (var layer in Layers.Where(l => l.Type == Models.LayerType.ConvolutionWithMaxpooling || l.Type == Models.LayerType.MaxPoolingLayer))
+            foreach (var layer in ConvLayers)
             {
-                _output = ((IConvolutionalLayer)layer).Compute(_output);
+                _output = layer.Compute(_output);
             }
 
-            var imageHeight = _output[0].GetLength(0);
-            var imageWidth = _output[0].GetLength(1);
+            Output = MapToArray(_output);
 
-            Output = new double[_output.Length * imageHeight * imageWidth];
-
-            var imageNumber = 0;
+            foreach (var layer in FullyConnectedLayers)
+            {
+                Output = layer.Compute(Output);
+            }
             
-            foreach (var image in _output)
+            return Output;
+        }
+        
+        private static double[] MapToArray(double[][,] outputs)
+        {
+            var imageHeight = outputs[0].GetLength(0);
+            var imageWidth = outputs[0].GetLength(1);
+            var result = new double[outputs.Length * imageHeight * imageWidth];
+
+            Parallel.For(0, outputs.Length, (int i) =>
             {
                 Parallel.For(0, imageHeight, (int h) =>
                 {
                     Parallel.For(0, imageWidth, (int w) =>
                     {
-                        Output[imageNumber * (h * imageWidth + w)] = image[h, w];
+                        var position = (i * imageWidth * imageHeight) + (h * imageWidth + w);
+                        result[position] = outputs[i][h, w];
                     });
                 });
+            });
 
-                imageNumber++;
-            }
-
-            foreach (var layer in Layers.Where(l => l.Type == Models.LayerType.FullyConnected))
-            {
-                Output = ((IFullyConnectedLayer)layer).Compute(Output);
-            }
-            
-            return Output;
+            return result;
         }
     }
 }

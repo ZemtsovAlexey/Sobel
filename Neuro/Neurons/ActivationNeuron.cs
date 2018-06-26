@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Neuro.ActivationFunctions;
 
@@ -6,9 +7,9 @@ namespace Neuro.Neurons
 {
     public class ActivationNeuron
     {
-        public double[] Weights { get; set; }
-        public double Output { get; set; }
-        public IActivationFunction Function { get; set; }
+        public double[] Weights { get; }
+        public double Output { get; private set; }
+        public IActivationFunction Function { get; }
         
         private static readonly Random Random = new Random((int) DateTime.Now.Ticks);
 
@@ -27,9 +28,9 @@ namespace Neuro.Neurons
             }
         }
 
-        public double Compute(double[] input)
+        public double Compute(IEnumerable<double> input)
         {
-            var e = input.Select((Xn, n) => Weights[n] * Xn).Sum();
+            var e = input.Select((xn, n) => Weights[n] * xn).Sum();
 
             Output = Function.Activation(e);
 

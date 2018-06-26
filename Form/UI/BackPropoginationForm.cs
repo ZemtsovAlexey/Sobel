@@ -162,7 +162,7 @@ namespace Sobel.UI
                     input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 0 };
 
-                    if (_networkNew.Compute(input)[0] >= 0.7)
+                    if (_networkNew.Compute(bitmap)[0] >= 0.7)
                     {
                         _networkNew.SearchSolution(input, output);
                         succeses = 0;
@@ -180,7 +180,7 @@ namespace Sobel.UI
                     input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 1 };
 
-                    if (_networkNew.Compute(input)[0] < 0.7)
+                    if (_networkNew.Compute(bitmap)[0] < 0.7)
                     {
                         _networkNew.SearchSolution(input, output);
                         succeses = 0;
@@ -231,7 +231,7 @@ namespace Sobel.UI
                     input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 0 };
 
-                    if (_networkNew.Compute(input)[0] >= 0.7)
+                    if (_networkNew.Compute(bitmap)[0] >= 0.7)
                     {
                         _networkNew.SearchSolution(input, output);
                         succeses = 0;
@@ -249,7 +249,7 @@ namespace Sobel.UI
                     input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 1 };
 
-                    if (_networkNew.Compute(input)[0] < 0.7)
+                    if (_networkNew.Compute(bitmap)[0] < 0.7)
                     {
                         _networkNew.SearchSolution(input, output);
                         succeses = 0;

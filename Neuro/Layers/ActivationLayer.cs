@@ -9,8 +9,8 @@ namespace Neuro.Layers
     public class ActivationLayer : IFullyConnectedLayer
     {
         public LayerType Type { get; set; } = LayerType.FullyConnected;
-        public ActivationNeuron[] Neurons;
-        public double[] Outputs;
+        public ActivationNeuron[] Neurons { get; }
+        public double[] Outputs { get; }
         public int NeuronsCount => Neurons.Length;
         public ActivationNeuron this[int index] => Neurons[index];
         
