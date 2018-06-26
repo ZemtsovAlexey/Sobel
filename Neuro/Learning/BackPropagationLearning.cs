@@ -84,19 +84,6 @@ namespace Neuro.Learning
                     }
                 }
             }
-            
-//            foreach (var layer in layers)
-//            {
-//                var neurons = layer.layer.Neurons.Select((neuron, i) => new {neuron = (ActivationNeuron)neuron, neuronIndex = i});
-//
-//                foreach (var neuron in neurons)
-//                {
-//                    for (var i = 0; i < neuron.neuron.Weights.Length; i++)
-//                    {
-//                        neuron.neuron.Weights[i] += LearningRate * neuronErrors[layer.layerIndex][neuron.neuronIndex] * neuron.neuron.Function.Derivative(neuron.neuron.Output);
-//                    }
-//                }
-//            }
         }
         
         private void UpdateWeightsParallel(double[] input)

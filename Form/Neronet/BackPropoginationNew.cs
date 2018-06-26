@@ -10,8 +10,7 @@ namespace Sobel.Neronet
 {
     public class BackPropoginationNew
     {
-        public ActivationNetwork Network;
-        public ConvolutionalNetwork ConvNetwork;
+        public ConvolutionalNetwork Network;
 
         public int Iterations = 2000;
         public double LearningRate = 0.05;
@@ -24,11 +23,16 @@ namespace Sobel.Neronet
         {
             var activation = new BipolarSigmoidFunction();
 
-            ConvNetwork = new ConvolutionalNetwork(
+            Network = new ConvolutionalNetwork(
                 new ConvolutionalLayer(activation, 5, 20, 20),
-                new ConvolutionalLayer(activation, 10, 18, 18));
-            
-            Network = new ActivationNetwork(activation, 400, 15, 15, 15, 15, 1);
+                new MaxPoolingLayer(5, 18, 18),
+                new ActivationLayer(15, 405, activation),
+                new ActivationLayer(15, 15, activation),
+                new ActivationLayer(15, 15, activation),
+                new ActivationLayer(1, 15, activation)
+                );
+
+            //Network = new ActivationNetwork(activation, 400, 15, 15, 15, 15, 1);
 
             //Network = new ActivationNetwork(
             //    new ActivationLayer(50, 400, activation),
@@ -36,7 +40,7 @@ namespace Sobel.Neronet
             //    new ActivationLayer(1, 25, activation)
             //    );
 
-            ConvNetwork.Randomize();
+            //ConvNetwork.Randomize();
             Network.Randomize();
 
 //            Network = new Network(
@@ -46,7 +50,7 @@ namespace Sobel.Neronet
 //                new ActivationLayer(1, 6, activation)
 //                );
             
-            Network.Randomize();
+            //Network.Randomize();
         }
 
         public double[] Compute(double[] inputs)
@@ -56,8 +60,8 @@ namespace Sobel.Neronet
         
         public double[] Compute(Bitmap bmp)
         {
-            var a = ConvNetwork.Compute(bmp.GetDoubleMatrix());
-            return Network.Compute(bmp.ToDoubles());
+            var a = Network.Compute(bmp.GetDoubleMatrix());
+            return a;// Network.Compute(bmp.ToDoubles());
         }
 
         public void SearchSolution(double[] inputs, double[] outputs)

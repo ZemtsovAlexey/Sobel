@@ -6,7 +6,7 @@ using Neuro.Neurons;
 
 namespace Neuro.Layers
 {
-    public class ActivationLayer : ILayer
+    public class ActivationLayer : IFullyConnectedLayer
     {
         public LayerType Type { get; set; } = LayerType.FullyConnected;
         public ActivationNeuron[] Neurons;

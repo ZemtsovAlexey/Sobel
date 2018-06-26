@@ -1,38 +1,17 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Neuro.ActivationFunctions;
 using Neuro.Layers;
-using Neuro.Models;
-using Neuro.Neurons;
 
 namespace Neuro.Networks
 {
     public class ConvolutionalNetwork
     {
-        public ConvolutionalLayer[] Layers { get; set; }
+        public ILayer[] Layers { get; set; }
         public int LayersCount => Layers.Length;
-//        public ConvolutionalLayer this[int index] => Layers[index];
         public double[] Output;
         private double[][,] _output;
         
-//        public ConvolutionalNetwork(IActivationFunction function, int inputWidth, int inputHeight, int kernelSize, int neuronsCount)
-//        {
-//            for (var i = 0; i < neuronsCount; i++)
-//            {
-//                Layers[i] = new ConvolutionalLayer(
-//                    function, 
-//                    neuronsCount, 
-//                    i == 0 ? inputWidth : Layers[i - 1].OutputWidht,
-//                    i == 0 ? inputHeight : Layers[i - 1].OutputHeight,
-//                    kernelSize
-//                    );
-//            }
-//        }
-        
-        public ConvolutionalNetwork(params ConvolutionalLayer[] layers)
+        public ConvolutionalNetwork(params ILayer[] layers)
         {
             Layers = layers;
         }
@@ -49,15 +28,17 @@ namespace Neuro.Networks
         {
             _output = new[] {input};
 
-            foreach (var layer in Layers)
+            foreach (var layer in Layers.Where(l => l.Type == Models.LayerType.ConvolutionWithMaxpooling || l.Type == Models.LayerType.MaxPoolingLayer))
             {
-                _output = layer.Compute(_output);
+                _output = ((IConvolutionalLayer)layer).Compute(_output);
             }
 
             var imageHeight = _output[0].GetLength(0);
             var imageWidth = _output[0].GetLength(1);
 
             Output = new double[_output.Length * imageHeight * imageWidth];
+
+            var imageNumber = 0;
             
             foreach (var image in _output)
             {
@@ -65,11 +46,18 @@ namespace Neuro.Networks
                 {
                     Parallel.For(0, imageWidth, (int w) =>
                     {
-                        Output.Append(image[h, w]);
+                        Output[imageNumber * (h * imageWidth + w)] = image[h, w];
                     });
                 });
+
+                imageNumber++;
             }
 
+            foreach (var layer in Layers.Where(l => l.Type == Models.LayerType.FullyConnected))
+            {
+                Output = ((IFullyConnectedLayer)layer).Compute(Output);
+            }
+            
             return Output;
         }
     }

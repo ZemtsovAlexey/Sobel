@@ -1,13 +1,11 @@
 ﻿using System.Linq;
-using System.Numerics;
 using Neuro.ActivationFunctions;
 using Neuro.Models;
-using Neuro.Models.Outputs;
 using Neuro.Neurons;
 
 namespace Neuro.Layers
 {
-    public class ConvolutionalLayer : ILayer
+    public class ConvolutionalLayer : IConvolutionalLayer
     {
         public LayerType Type { get; set; } = LayerType.ConvolutionWithMaxpooling;
         public ConvolutionalNeuron[] Neurons { get; set; }
