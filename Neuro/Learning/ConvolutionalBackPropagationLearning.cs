@@ -75,7 +75,7 @@ namespace Neuro.Learning
             }
         }
 
-        private void CalculateConvLayersError(double[] desiredOutput)
+        private void CalculateConvLayersError(double[,] desiredOutput)
         {
             IConvolutionalLayer layer, layerNext;
             double[] output, errors, errorsNext;
@@ -89,7 +89,13 @@ namespace Neuro.Learning
 
             Parallel.For(0, layer.NeuronsCount, (int i) =>
             {
-                errors[i] = (desiredOutput[i] - output[i]) * layer[i].Function.Derivative(output[i]);
+                for (var h = 0; h < layer.Neurons[i].Weights.GetLength(0); h++)
+                {
+                    for (var w = 0; w < layer.Neurons[i].Weights.GetLength(1); w++)
+                    {
+                        
+                    }
+                }
             });
         }
         
