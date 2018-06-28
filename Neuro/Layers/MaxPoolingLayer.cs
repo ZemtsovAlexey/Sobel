@@ -4,11 +4,13 @@ using Neuro.Neurons;
 
 namespace Neuro.Layers
 {
-    public class MaxPoolingLayer : IConvolutionalLayer
+    public class MaxPoolingLayer// : IConvolutionalLayer
     {
         public LayerType Type { get; set; } = LayerType.MaxPoolingLayer;
         public MaxPoolingNeuron[] Neurons { get; set; }
         public double[][,] Outputs { get; set; }
+        
+        public int NeuronsCount => Neurons.Length;
 
         public MaxPoolingLayer(int neuronsCount, int inputWidth, int inputHeitght, int kernelSize = 2)
         {

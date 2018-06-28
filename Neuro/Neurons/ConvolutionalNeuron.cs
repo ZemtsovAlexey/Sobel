@@ -6,12 +6,11 @@ namespace Neuro.Neurons
     public class ConvolutionalNeuron //: Neuron
     {
         private static readonly Random Random = new Random((int)DateTime.Now.Ticks);
-        public IActivationFunction Function { get; set; }
-        private int _kernelSize = 3;
+        private readonly int _kernelSize;
 
-//        public IActivationFunction Function { get; set; }
-        public new double[,] Weights { get; set; }
-        public new double[,] Output { get; set; }
+        public IActivationFunction Function { get; set; }
+        public double[,] Weights { get; set; }
+        public double[,] Output { get; set; }
 
         public ConvolutionalNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3)
         {
@@ -20,7 +19,7 @@ namespace Neuro.Neurons
                 throw new ArgumentException("Размер ядра должен быть не четным");
             }
 
-            this._kernelSize = kernelSize;
+            _kernelSize = kernelSize;
             Weights = new double[kernelSize, kernelSize];
             Output = new double[inHeight - kernelSize + 1, inWidth - kernelSize + 1];
             Function = function;

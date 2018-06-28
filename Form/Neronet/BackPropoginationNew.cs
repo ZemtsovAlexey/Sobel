@@ -27,7 +27,7 @@ namespace Sobel.Neronet
                 new IConvolutionalLayer[]
                 {
                     new ConvolutionalLayer(activation, 5, 20, 20),
-                    new MaxPoolingLayer(5, 18, 18)
+//                    new MaxPoolingLayer(5, 18, 18)
                 },
                 new IFullyConnectedLayer[]
                 {
@@ -45,9 +45,9 @@ namespace Sobel.Neronet
             return Network.Compute(bmp.GetDoubleMatrix());
         }
 
-        public void SearchSolution(double[] inputs, double[] outputs)
+        public void SearchSolution(double[,] inputs, double[] outputs)
         {
-            var teacher = new BackPropagationLearning(Network)
+            var teacher = new ConvolutionalBackPropagationLearning(Network)
             {
                 LearningRate = LearningRate
             };

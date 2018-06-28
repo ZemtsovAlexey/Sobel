@@ -13,6 +13,9 @@ namespace Neuro.Layers
         public int OutputWidht { get; }
         public int OutputHeight { get; }
 
+        public int NeuronsCount => Neurons.Length;
+        public ConvolutionalNeuron this[int index] => Neurons[index];
+        
         public ConvolutionalLayer(IActivationFunction activationFunction, int neuronsCount, int inputWidth, int inputHeitght, int kernelSize = 3)
         {
             OutputWidht = inputWidth - kernelSize + 1;

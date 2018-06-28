@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Neuro.Layers;
+using Neuro.Models;
 using Neuro.Networks;
 using Neuro.Neurons;
 
@@ -9,6 +11,7 @@ namespace Neuro.Learning
     {
         private ConvolutionalNetwork network;
         private double[][] fullyConnectedNeuronErrors;
+        private double[][] convNeuronErrors;
 
         public double LearningRate { get; set; } = 0.05f;
 
@@ -16,11 +19,19 @@ namespace Neuro.Learning
         {
             this.network = network;
 
+            var convLayers = network.ConvLayers.Where(x => x.Type == LayerType.Convolution).ToList();
+
             fullyConnectedNeuronErrors = new double[network.FullyConnectedLayers.Length][];
+            convNeuronErrors = new double[convLayers.Count][];
 
             for (var i = 0; i < network.FullyConnectedLayers.Length; i++)
             {
                 fullyConnectedNeuronErrors[i] = new double[network.FullyConnectedLayers[i].NeuronsCount];
+            }
+            
+            for (var i = 0; i < convLayers.Count; i++)
+            {
+                convNeuronErrors[i] = new double[convLayers[i].NeuronsCount];
             }
         }
 
@@ -32,7 +43,7 @@ namespace Neuro.Learning
 
             return 0;
         }
-
+        
         private void CalculateError(double[] desiredOutput)
         {        
             IFullyConnectedLayer layer, layerNext;
@@ -62,6 +73,24 @@ namespace Neuro.Learning
                     errors[i] = layer[i].Function.Derivative(layer[i].Output) * sum;
                 } 
             }
+        }
+
+        private void CalculateConvLayersError(double[] desiredOutput)
+        {
+            IConvolutionalLayer layer, layerNext;
+            double[] output, errors, errorsNext;
+
+            layer = network.ConvLayers.Last();
+
+            for (var j = network.ConvLayers.Length - 1; j >= 0; j--)
+            {
+                layer = network.ConvLayers[j];
+            }
+
+            Parallel.For(0, layer.NeuronsCount, (int i) =>
+            {
+                errors[i] = (desiredOutput[i] - output[i]) * layer[i].Function.Derivative(output[i]);
+            });
         }
         
         private void UpdateWeightsParallel(double[] input)
