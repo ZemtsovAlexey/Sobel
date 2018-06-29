@@ -11,7 +11,7 @@ namespace Neuro.Learning
     {
         private ConvolutionalNetwork network;
         private double[][] fullyConnectedNeuronErrors;
-        private double[][] convNeuronErrors;
+        private double[][][,] convNeuronErrors;
 
         public double LearningRate { get; set; } = 0.05f;
 
@@ -22,7 +22,7 @@ namespace Neuro.Learning
             var convLayers = network.ConvLayers.Where(x => x.Type == LayerType.Convolution).ToList();
 
             fullyConnectedNeuronErrors = new double[network.FullyConnectedLayers.Length][];
-            convNeuronErrors = new double[convLayers.Count][];
+            convNeuronErrors = new double[convLayers.Count][][,];
 
             for (var i = 0; i < network.FullyConnectedLayers.Length; i++)
             {
@@ -31,7 +31,7 @@ namespace Neuro.Learning
             
             for (var i = 0; i < convLayers.Count; i++)
             {
-                convNeuronErrors[i] = new double[convLayers[i].NeuronsCount];
+                convNeuronErrors[i] = new double[convLayers[i].NeuronsCount][,];
             }
         }
 
@@ -89,11 +89,22 @@ namespace Neuro.Learning
 
             Parallel.For(0, layer.NeuronsCount, (int i) =>
             {
-                for (var h = 0; h < layer.Neurons[i].Weights.GetLength(0); h++)
+                var kernelHeight = layer.Neurons[i].Weights.GetLength(0);
+                var kernelWidth = layer.Neurons[i].Weights.GetLength(1);
+                var inputHeight = layer.Neurons[i].Input.GetLength(0) - kernelHeight;
+                var inputWidth = layer.Neurons[i].Input.GetLength(1) - kernelWidth;
+                
+                for (var y = 0; y < inputHeight; y++)
                 {
-                    for (var w = 0; w < layer.Neurons[i].Weights.GetLength(1); w++)
+                    for (var x = 0; x < inputWidth; x++)
                     {
-                        
+                        for (int h = 0; h < kernelHeight; h++)
+                        {
+                            for (int w = 0; w < kernelWidth; w++)
+                            {
+                                convNeuronErrors[network.ConvLayers.Length - 1][i][h, w] += layer.Neurons[i].Weights[h, w] * desiredOutput[h, w];
+                            }
+                        }
                     }
                 }
             });

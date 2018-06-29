@@ -9,6 +9,7 @@ namespace Neuro.Neurons
         private readonly int _kernelSize;
 
         public IActivationFunction Function { get; set; }
+        public double[,] Input { get; private set; }
         public double[,] Weights { get; set; }
         public double[,] Output { get; set; }
 
@@ -41,11 +42,12 @@ namespace Neuro.Neurons
         public double[,] Compute(double[][,] input)
         {
             int i, y, x, h, w;
-            var outputHeight = Output.GetLength(0);
-            var outputWidth = Output.GetLength(1);
+            var outputHeight = Output.GetLength(0) - _kernelSize;
+            var outputWidth = Output.GetLength(1) - _kernelSize;
             var inputHeight = input[0].GetLength(0);
             var inputWidth = input[0].GetLength(1);
-            double[,] inputSum = new double[inputHeight, inputWidth];
+
+            Input = new double[inputHeight, inputWidth];
 
             //суммируем все входные изображения
             for (i = 0; i < input.Length; i++)
@@ -54,7 +56,7 @@ namespace Neuro.Neurons
                 {
                     for (x = 0; x < inputWidth; x++)
                     {
-                        inputSum[y, x] += input[i][y, x];
+                        Input[y, x] += input[i][y, x];
                     }
                 }
             }
@@ -68,7 +70,7 @@ namespace Neuro.Neurons
                     {
                         for (w = 0; w < _kernelSize; w++)
                         {
-                            Output[y, x] += inputSum[y + h, x + w] * Weights[h, w];
+                            Output[y, x] += Input[y + h, x + w] * Weights[h, w];
                         }
                     }
 
