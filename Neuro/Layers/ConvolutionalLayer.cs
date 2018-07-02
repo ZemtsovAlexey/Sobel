@@ -12,6 +12,7 @@ namespace Neuro.Layers
         public double[][,] Outputs { get; private set; }
         public int OutputWidht { get; }
         public int OutputHeight { get; }
+        public int KernelSize { get; }
 
         public int NeuronsCount => Neurons.Length;
         public ConvolutionalNeuron this[int index] => Neurons[index];

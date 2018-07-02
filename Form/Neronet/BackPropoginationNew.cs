@@ -26,12 +26,17 @@ namespace Sobel.Neronet
             Network = new ConvolutionalNetwork(
                 new IConvolutionalLayer[]
                 {
-                    new ConvolutionalLayer(activation, 5, 20, 20),
+                    new ConvolutionalLayer(activation, 2, 20, 20),
+                    new ConvolutionalLayer(activation, 3, 18, 18),
+                    new ConvolutionalLayer(activation, 4, 16, 16),
+                    new ConvolutionalLayer(activation, 4, 14, 14),
+                    new ConvolutionalLayer(activation, 4, 12, 12),
+                    new ConvolutionalLayer(activation, 4, 10, 10),
 //                    new MaxPoolingLayer(5, 18, 18)
                 },
                 new IFullyConnectedLayer[]
                 {
-                    new ActivationLayer(15, 405, activation),
+                    new ActivationLayer(15, 400, activation),
                     new ActivationLayer(15, 15, activation),
                     new ActivationLayer(15, 15, activation),
                     new ActivationLayer(1, 15, activation)
@@ -45,14 +50,14 @@ namespace Sobel.Neronet
             return Network.Compute(bmp.GetDoubleMatrix());
         }
 
-        public void SearchSolution(double[,] inputs, double[] outputs)
+        public void SearchSolution(Bitmap bmp, double[] outputs)
         {
             var teacher = new ConvolutionalBackPropagationLearning(Network)
             {
                 LearningRate = LearningRate
             };
 
-            teacher.Run(inputs, outputs);
+            teacher.Run(bmp.GetDoubleMatrix(), outputs);
         }
 
         public void SearchSolutionStop()

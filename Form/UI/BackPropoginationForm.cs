@@ -82,7 +82,7 @@ namespace Sobel.UI
             ShowGraffic(e.I, e.Success);
         }
 
-        private async void startLearnButton_Click(object sender, EventArgs e)
+        private void startLearnButton_Click(object sender, EventArgs e)
         {
             var st = new Stopwatch();
             st.Start();
@@ -91,7 +91,8 @@ namespace Sobel.UI
             _neadToStopLearning = false;
             InitLerningChart();
 
-            await Task.Run(() => LearnNew());
+            LearnNew();
+//            Task.Factory.StartNew(() => LearnNew());
 
             totalTimeText.Text = st.ElapsedMilliseconds.ToString();
         }
@@ -164,7 +165,7 @@ namespace Sobel.UI
 
                     if (_networkNew.Compute(bitmap)[0] >= 0.7)
                     {
-                        _networkNew.SearchSolution(input, output);
+                        _networkNew.SearchSolution(bitmap, output);
                         succeses = 0;
                     }
                     else
@@ -182,7 +183,7 @@ namespace Sobel.UI
 
                     if (_networkNew.Compute(bitmap)[0] < 0.7)
                     {
-                        _networkNew.SearchSolution(input, output);
+                        _networkNew.SearchSolution(bitmap, output);
                         succeses = 0;
                     }
                     else
@@ -233,7 +234,7 @@ namespace Sobel.UI
 
                     if (_networkNew.Compute(bitmap)[0] >= 0.7)
                     {
-                        _networkNew.SearchSolution(input, output);
+                        _networkNew.SearchSolution(bitmap, output);
                         succeses = 0;
                     }
                     else
@@ -251,7 +252,7 @@ namespace Sobel.UI
 
                     if (_networkNew.Compute(bitmap)[0] < 0.7)
                     {
-                        _networkNew.SearchSolution(input, output);
+                        _networkNew.SearchSolution(bitmap, output);
                         succeses = 0;
                     }
                     else
@@ -278,10 +279,10 @@ namespace Sobel.UI
 
             if (open.ShowDialog() == DialogResult.OK)
             {
-                var data = _networkNew.Network.Save();
-                var file = open.OpenFile();
-
-                file.Write(data, 0, data.Length);
+//                var data = _networkNew.Network.Save();
+//                var file = open.OpenFile();
+//
+//                file.Write(data, 0, data.Length);
             }
         }
 
@@ -291,8 +292,8 @@ namespace Sobel.UI
 
             if (open.ShowDialog() == DialogResult.OK)
             {
-                var a = File.ReadAllBytes(open.FileName);
-                _networkNew.Network = (ActivationNetwork)_networkNew.Network.Load(a);
+//                var a = File.ReadAllBytes(open.FileName);
+//                _networkNew.Network = (ActivationNetwork)_networkNew.Network.Load(a);
             }
         }
     }

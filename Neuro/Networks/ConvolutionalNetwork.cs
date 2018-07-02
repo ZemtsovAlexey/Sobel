@@ -22,6 +22,11 @@ namespace Neuro.Networks
             {
                 layer.Randomize();
             }
+            
+            foreach (var layer in FullyConnectedLayers)
+            {
+                layer.Randomize();
+            }
         }
         
         public double[] Compute(double[,] input)

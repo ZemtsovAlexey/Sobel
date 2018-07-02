@@ -6,6 +6,8 @@ namespace Neuro.Layers
     {
         int NeuronsCount { get; }
         
+        int KernelSize { get; }
+        
         ConvolutionalNeuron[] Neurons { get; set; }
         
         double[][,] Outputs { get; }
