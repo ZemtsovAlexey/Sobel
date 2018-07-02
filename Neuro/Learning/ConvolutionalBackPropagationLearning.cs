@@ -81,6 +81,38 @@ namespace Neuro.Learning
             double[] output, errors, errorsNext;
 
             layer = network.ConvLayers.Last();
+            var firstFullyConnectedLayer = network.FullyConnectedLayers[0];
+            errorsNext = fullyConnectedNeuronErrors[0];
+
+            for (int nIndex = 0; nIndex < layer.NeuronsCount; nIndex++)
+            {
+                var outputHeight = layer.Neurons[nIndex].Output.GetLength(0);
+                var outputWidth = layer.Neurons[nIndex].Output.GetLength(1);
+
+                convNeuronErrors[network.ConvLayers.Length - 1][nIndex] = new double[outputHeight, outputWidth];
+
+                for (int y = 0; y < outputHeight; y++)
+                {
+                    for (int x = 0; x < outputWidth; x++)
+                    {
+                        var linerNeuronIndex = (nIndex * layer.NeuronsCount) + (y * layer.Outputs.GetLength(1) + x);
+                        var sum = firstFullyConnectedLayer.Neurons.Select((neuron, ni) => new { neuron, ni }).Sum(j => j.neuron.Weights[linerNeuronIndex] * errorsNext[j.ni]);
+
+                        convNeuronErrors[network.ConvLayers.Length - 1][nIndex][x, y] = layer.Neurons[nIndex].Function.Derivative(layer.Neurons[nIndex].Output[y, x]) * sum;
+                    }
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
 
             for (var j = network.ConvLayers.Length - 1; j >= 0; j--)
             {
@@ -91,20 +123,27 @@ namespace Neuro.Learning
             {
                 var kernelHeight = layer.Neurons[i].Weights.GetLength(0);
                 var kernelWidth = layer.Neurons[i].Weights.GetLength(1);
-                var inputHeight = layer.Neurons[i].Input.GetLength(0) - kernelHeight;
-                var inputWidth = layer.Neurons[i].Input.GetLength(1) - kernelWidth;
-                
+                var inputHeight = layer.Neurons[i].Input.GetLength(0);
+                var inputWidth = layer.Neurons[i].Input.GetLength(1);
+
+                convNeuronErrors[network.ConvLayers.Length - 1][i] = new double[inputHeight, inputWidth];
+
                 for (var y = 0; y < inputHeight; y++)
                 {
                     for (var x = 0; x < inputWidth; x++)
                     {
-                        for (int h = 0; h < kernelHeight; h++)
+                        if (x < inputWidth - kernelHeight && y < inputHeight - kernelHeight)
                         {
-                            for (int w = 0; w < kernelWidth; w++)
+                            for (int h = 0; h < kernelHeight; h++)
                             {
-                                convNeuronErrors[network.ConvLayers.Length - 1][i][h, w] += layer.Neurons[i].Weights[h, w] * desiredOutput[h, w];
+                                for (int w = 0; w < kernelWidth; w++)
+                                {
+                                    convNeuronErrors[network.ConvLayers.Length - 1][i][y + h, x + w] += layer.Neurons[i].Weights[h, w] * desiredOutput[h, w];
+                                }
                             }
                         }
+
+                        convNeuronErrors[network.ConvLayers.Length - 1][i][y, x] *= layer.Neurons[i].Function.Derivative(layer.Neurons[i].Input[y, x]);
                     }
                 }
             });
