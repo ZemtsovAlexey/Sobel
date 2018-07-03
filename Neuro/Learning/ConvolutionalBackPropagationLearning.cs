@@ -116,25 +116,25 @@ namespace Neuro.Learning
                 {
                     errorsNext = convNeuronErrors[lIndex + 1][nIndex];
 
+                    var weights = layerNext.Neurons[nIndex].Weights;
                     var errorHeight = errorsNext.GetLength(0);
                     var errorWidth = errorsNext.GetLength(1);
+                    var outStepY = weights.GetLength(0) - 1;
+                    var outStepX = weights.GetLength(1) - 1;
                     
-                    convNeuronErrors[lIndex][nIndex] = new double[errorHeight + 2, errorWidth + 2];
+                    convNeuronErrors[lIndex][nIndex] = new double[errorHeight + weights.GetLength(0) - 1, errorWidth + weights.GetLength(1) - 1];
 
                     //сканируем карту ошибок предыдущего слоя перевернутым ядром
-                    for (var y = -1; y < errorHeight; y++)
+                    for (var y = -(outStepY); y < errorHeight + outStepY - 1; y++)
                     {
-                        for (var x = -1; x < errorWidth; x++)
+                        for (var x = -(outStepX); x < errorHeight + outStepX - 1; x++)
                         {
                             //rotate kernel to 180 degrees
-                            for (var h = layerNext.KernelSize - 1; h >= 0; h--)
+                            for (var h = y < 0 ? 0 - y : 0; h < (y + weights.GetLength(0) > errorHeight ? (errorHeight - (y + weights.GetLength(0))) + weights.GetLength(0) : weights.GetLength(0)); h++)
                             {
-                                for (var w = layerNext.KernelSize - 1; w >= 0; w--)
+                                for (var w = x < 0 ? 0 - x : 0; w < (x + weights.GetLength(1) > errorWidth ? (errorWidth - (x + weights.GetLength(1))) + weights.GetLength(1) : weights.GetLength(1)); w++)
                                 {
-                                    if (y + h < 0 || y + h >= errorHeight || x + w < 0 || x + w >= errorWidth)
-                                        continue;
-						
-                                    convNeuronErrors[lIndex][nIndex][y + 1, x + 1] += errorsNext[y + h, x + w] * layerNext.Neurons[nIndex].Weights[h, w];
+                                    convNeuronErrors[lIndex][nIndex][y + outStepY, x + outStepY] += errorsNext[y + h, x + w] * layerNext.Neurons[nIndex].Weights[layerNext.Neurons[nIndex].Weights.GetLength(0) - 1 - h, layerNext.Neurons[nIndex].Weights.GetLength(1) - 1 - w];
                                 }
                             }
                         }
