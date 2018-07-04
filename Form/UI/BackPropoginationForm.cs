@@ -9,6 +9,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 using Neuro.Models;
 using Neuro.Networks;
 using ScannerNet;
+using ScannerNet.Extensions;
 using Sobel.Neronet;
 
 namespace Sobel.UI
@@ -82,7 +83,7 @@ namespace Sobel.UI
             ShowGraffic(e.I, e.Success);
         }
 
-        private void startLearnButton_Click(object sender, EventArgs e)
+        private async void startLearnButton_Click(object sender, EventArgs e)
         {
             var st = new Stopwatch();
             st.Start();
@@ -92,7 +93,7 @@ namespace Sobel.UI
             InitLerningChart();
 
             LearnNew();
-//            Task.Factory.StartNew(() => LearnNew());
+            //await Task.Run(() => LearnNew());
 
             totalTimeText.Text = st.ElapsedMilliseconds.ToString();
         }
@@ -114,7 +115,7 @@ namespace Sobel.UI
             var result = _networkNew.Compute(bitmap);
 
             var time = st.ElapsedMilliseconds;
-            MessageBox.Show(time.ToString());
+            //MessageBox.Show(time.ToString());
             
             int maxIter = 0;
             double maxRes = 0;
@@ -220,6 +221,11 @@ namespace Sobel.UI
 
             long i = 0;
 
+            var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
+            {
+                LearningRate = Convert.ToDouble(learningRateNumeric.Value)
+            };
+
             while (succeses < (int)learningStopNumeric.Value && i < iterations)
             {
                 if (_neadToStopLearning) break;
@@ -234,7 +240,7 @@ namespace Sobel.UI
 
                     if (_networkNew.Compute(bitmap)[0] >= 0.7)
                     {
-                        _networkNew.SearchSolution(bitmap, output);
+                        teacher.Run(bitmap.GetDoubleMatrix(), output);
                         succeses = 0;
                     }
                     else
@@ -252,7 +258,7 @@ namespace Sobel.UI
 
                     if (_networkNew.Compute(bitmap)[0] < 0.7)
                     {
-                        _networkNew.SearchSolution(bitmap, output);
+                        teacher.Run(bitmap.GetDoubleMatrix(), output);
                         succeses = 0;
                     }
                     else

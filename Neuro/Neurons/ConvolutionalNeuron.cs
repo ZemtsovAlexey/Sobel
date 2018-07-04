@@ -7,6 +7,8 @@ namespace Neuro.Neurons
     {
         private static readonly Random Random = new Random((int)DateTime.Now.Ticks);
         private readonly int _kernelSize;
+        private readonly int _inWidth;
+        private readonly int _inHeight;
 
         public IActivationFunction Function { get; set; }
         public double[,] Input { get; private set; }
@@ -15,11 +17,13 @@ namespace Neuro.Neurons
 
         public ConvolutionalNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3)
         {
-            if (kernelSize % 2 == 0)
-            {
-                throw new ArgumentException("Размер ядра должен быть не четным");
-            }
+            //if (kernelSize % 2 == 0)
+            //{
+            //    throw new ArgumentException("Размер ядра должен быть не четным");
+            //}
 
+            _inWidth = inWidth;
+            _inHeight = inHeight;
             _kernelSize = kernelSize;
             Weights = new double[kernelSize, kernelSize];
             Output = new double[inHeight - kernelSize + 1, inWidth - kernelSize + 1];
@@ -42,11 +46,12 @@ namespace Neuro.Neurons
         public double[,] Compute(double[][,] input)
         {
             int i, y, x, h, w;
-            var outputHeight = Output.GetLength(0) - _kernelSize;
-            var outputWidth = Output.GetLength(1) - _kernelSize;
+            var outputHeight = Output.GetLength(0);
+            var outputWidth = Output.GetLength(1);
             var inputHeight = input[0].GetLength(0);
             var inputWidth = input[0].GetLength(1);
 
+            Output = new double[_inHeight - _kernelSize + 1, _inWidth - _kernelSize + 1];
             Input = new double[inputHeight, inputWidth];
 
             //суммируем все входные изображения

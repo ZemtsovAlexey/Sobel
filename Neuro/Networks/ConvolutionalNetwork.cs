@@ -48,7 +48,7 @@ namespace Neuro.Networks
             return Output;
         }
         
-        private static double[] MapToArray(double[][,] outputs)
+        public double[] MapToArray(double[][,] outputs)
         {
             var imageHeight = outputs[0].GetLength(0);
             var imageWidth = outputs[0].GetLength(1);

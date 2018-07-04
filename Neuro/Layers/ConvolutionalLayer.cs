@@ -12,13 +12,14 @@ namespace Neuro.Layers
         public double[][,] Outputs { get; private set; }
         public int OutputWidht { get; }
         public int OutputHeight { get; }
-        public int KernelSize { get; }
+        public int KernelSize { get; private set; }
 
         public int NeuronsCount => Neurons.Length;
         public ConvolutionalNeuron this[int index] => Neurons[index];
         
         public ConvolutionalLayer(IActivationFunction activationFunction, int neuronsCount, int inputWidth, int inputHeitght, int kernelSize = 3)
         {
+            KernelSize = kernelSize;
             OutputWidht = inputWidth - kernelSize + 1;
             OutputHeight = inputHeitght - kernelSize + 1;
             Neurons = new ConvolutionalNeuron[neuronsCount];

@@ -22,21 +22,21 @@ namespace Sobel.Neronet
         public BackPropoginationNew()
         {
             var activation = new BipolarSigmoidFunction();
+            var relu = new ReluFunction();
 
             Network = new ConvolutionalNetwork(
                 new IConvolutionalLayer[]
                 {
-                    new ConvolutionalLayer(activation, 2, 20, 20),
-                    new ConvolutionalLayer(activation, 3, 18, 18),
-                    new ConvolutionalLayer(activation, 4, 16, 16),
-                    new ConvolutionalLayer(activation, 4, 14, 14),
-                    new ConvolutionalLayer(activation, 4, 12, 12),
-                    new ConvolutionalLayer(activation, 4, 10, 10),
+                    new ConvolutionalLayer(activation, 5, 20, 20, 7),
+                    new ConvolutionalLayer(activation, 8, 14, 14, 5),
+                    new ConvolutionalLayer(activation, 10, 10, 10, 5),
+                    new ConvolutionalLayer(activation, 15, 6, 6),
+                    new ConvolutionalLayer(activation, 20, 4, 4, 3),
 //                    new MaxPoolingLayer(5, 18, 18)
                 },
                 new IFullyConnectedLayer[]
                 {
-                    new ActivationLayer(15, 400, activation),
+                    new ActivationLayer(15, 80, activation),
                     new ActivationLayer(15, 15, activation),
                     new ActivationLayer(15, 15, activation),
                     new ActivationLayer(1, 15, activation)
