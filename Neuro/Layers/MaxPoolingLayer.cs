@@ -4,11 +4,11 @@ using Neuro.Neurons;
 
 namespace Neuro.Layers
 {
-    public class MaxPoolingLayer// : IConvolutionalLayer
+    public class MaxPoolingLayer : IMaxPoolingLayer
     {
-        public LayerType Type { get; set; } = LayerType.MaxPoolingLayer;
+        public LayerType Type { get; } = LayerType.MaxPoolingLayer;
         public MaxPoolingNeuron[] Neurons { get; set; }
-        public double[][,] Outputs { get; set; }
+        public double[][,] Outputs { get; private set; }
         
         public int NeuronsCount => Neurons.Length;
 
@@ -22,14 +22,6 @@ namespace Neuro.Layers
             }
             
             Outputs = new double[neuronsCount][,];
-        }
-
-        public void Randomize()
-        {
-            foreach (var neuron in Neurons)
-            {
-                neuron.Randomize();
-            }
         }
 
         public double[][,] Compute(double[][,] input)

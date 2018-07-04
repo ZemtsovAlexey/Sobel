@@ -92,8 +92,8 @@ namespace Sobel.UI
             _neadToStopLearning = false;
             InitLerningChart();
 
-            LearnNew();
-            //await Task.Run(() => LearnNew());
+//            LearnNew();
+            await Task.Run(() => LearnNew());
 
             totalTimeText.Text = st.ElapsedMilliseconds.ToString();
         }

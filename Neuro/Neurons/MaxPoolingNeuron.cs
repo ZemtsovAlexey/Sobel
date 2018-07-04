@@ -7,7 +7,6 @@ namespace Neuro.Neurons
         private static readonly Random Random = new Random((int)DateTime.Now.Ticks);
         private int _kernelSize = 2;
 
-        public double[,] Weights { get; set; }
         public double[,] Output { get; set; }
 
         public MaxPoolingNeuron(int inWidth, int inHeight, int kernelSize = 2)
@@ -18,21 +17,7 @@ namespace Neuro.Neurons
             }
 
             this._kernelSize = kernelSize;
-            Weights = new double[kernelSize, kernelSize];
             Output = new double[inHeight / kernelSize, inWidth / kernelSize];
-        }
-
-        public void Randomize()
-        {
-            int y, x;
-
-            for (y = 0; y < _kernelSize; y++)
-            {
-                for (x = 0; x < _kernelSize; x++)
-                {
-                    Weights[y, x] = Random.NextDouble() * 255;
-                }
-            }
         }
         
         public double[,] Compute(double[,] input)

@@ -4,8 +4,6 @@ namespace Neuro.Layers
 {
     public interface ILayer
     {
-        LayerType Type { get; set; }
-        
-        void Randomize();
+        LayerType Type { get; }
     }
 }
