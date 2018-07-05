@@ -2,7 +2,7 @@
 
 namespace Neuro.Layers
 {
-    public interface IConvolutionalLayer : ILayer, IWithWeightsLayer
+    public interface IConvolutionalLayer : ILayer, IRandomize, IMatrixCompute
     {
         int NeuronsCount { get; }
         int KernelSize { get; }
@@ -10,7 +10,6 @@ namespace Neuro.Layers
         double[][,] Outputs { get; }
         ConvolutionalNeuron this[int index] { get; }
         
-        double[][,] Compute(double[][,] input);
         double[] GetLinereOutput();
     }
 }

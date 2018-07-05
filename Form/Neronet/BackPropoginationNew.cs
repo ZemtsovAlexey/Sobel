@@ -46,11 +46,11 @@ namespace Sobel.Neronet
             Network = new ConvolutionalNetwork();
 
             Network.InitLayers(
-                new ConvolutionalLayer(relu, 5, 20, 20, 7),
-                new ConvolutionalLayer(relu, 8, 14, 14, 3),
-                new ActivationLayer(13, 1152, activation),
-                new ActivationLayer(13, 13, activation),
-                new ActivationLayer(1, 13, activation)
+                new ConvolutionalLayer(activation, 10, 20, 20, 7),
+                new ConvolutionalLayer(activation, 15, 14, 14, 5),
+                new ActivationLayer(15, 1500, activation),
+                new ActivationLayer(15, 15, activation),
+                new ActivationLayer(1, 15, activation)
                 );
             
             Network.Randomize();

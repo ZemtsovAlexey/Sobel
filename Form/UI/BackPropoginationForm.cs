@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using Neuro.Models;
 using Neuro.Networks;
 using ScannerNet;
 using ScannerNet.Extensions;

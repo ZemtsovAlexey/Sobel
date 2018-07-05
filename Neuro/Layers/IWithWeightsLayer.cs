@@ -1,6 +1,6 @@
 ﻿namespace Neuro.Layers
 {
-    public interface IWithWeightsLayer
+    public interface IRandomize
     {
         void Randomize();
     }

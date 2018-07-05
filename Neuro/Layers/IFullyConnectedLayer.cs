@@ -2,7 +2,7 @@
 
 namespace Neuro.Layers
 {
-    public interface IFullyConnectedLayer : ILayer, IWithWeightsLayer
+    public interface IFullyConnectedLayer : ILayer, IRandomize, ILinearCompute
     {
         int NeuronsCount { get; }
         

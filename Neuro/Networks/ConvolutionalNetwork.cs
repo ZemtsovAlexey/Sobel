@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Neuro.Extensions;
 using Neuro.Layers;
 using Neuro.Models;
 
@@ -6,8 +7,8 @@ namespace Neuro.Networks
 {
     public class ConvolutionalNetwork
     {
-        public IConvolutionalLayer[] ConvLayers { get; set; }
-        public IFullyConnectedLayer[] FullyConnectedLayers { get; set; }
+        //public IConvolutionalLayer[] ConvLayers { get; set; }
+        //public IFullyConnectedLayer[] FullyConnectedLayers { get; set; }
         public ILayer[] Layers;
         public double[] Output;
         private double[][,] _output;
@@ -16,8 +17,8 @@ namespace Neuro.Networks
         
         public ConvolutionalNetwork(IConvolutionalLayer[] convLayers, IFullyConnectedLayer[] fullyConnectedLayers)
         {
-            ConvLayers = convLayers;
-            FullyConnectedLayers = fullyConnectedLayers;
+            //ConvLayers = convLayers;
+            //FullyConnectedLayers = fullyConnectedLayers;
         }
         
         public void InitLayers(params ILayer[] layers) 
@@ -32,7 +33,7 @@ namespace Neuro.Networks
 
         public void Randomize()
         {
-            foreach (IWithWeightsLayer layer in Layers.Where(l => l.Type == LayerType.Convolution || l.Type == LayerType.FullyConnected))
+            foreach (IRandomize layer in Layers.Where(l => l.Type == LayerType.Convolution || l.Type == LayerType.FullyConnected))
             {
                 layer.Randomize();
             }
@@ -52,14 +53,14 @@ namespace Neuro.Networks
         {
             _output = new[] {input};
 
-            foreach (var layer in ConvLayers)
+            foreach (IMatrixCompute layer in Layers.Where(l => l.Type == LayerType.Convolution || l.Type == LayerType.MaxPoolingLayer))
             {
                 _output = layer.Compute(_output);
             }
 
-            Output = ConvLayers.Last().GetLinereOutput();
+            Output = _output.ToLinearArray();
 
-            foreach (var layer in FullyConnectedLayers)
+            foreach (ILinearCompute layer in Layers.Where(l => l.Type == LayerType.FullyConnected))
             {
                 Output = layer.Compute(Output);
             }
