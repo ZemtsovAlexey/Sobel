@@ -1,13 +1,14 @@
 ﻿using System;
+using Neuro.Models;
 
 namespace Neuro.Neurons
 {
     public class MaxPoolingNeuron
     {
-        private static readonly Random Random = new Random((int)DateTime.Now.Ticks);
         private int _kernelSize = 2;
 
-        public double[,] Output { get; set; }
+        public double[,] Outputs { get; }
+        public Сoordinate[] OutputCords { get; }
 
         public MaxPoolingNeuron(int inWidth, int inHeight, int kernelSize = 2)
         {
@@ -16,15 +17,16 @@ namespace Neuro.Neurons
                 throw new ArgumentException("Размер входного изображения должен быть кратным размеру ядра");
             }
 
-            this._kernelSize = kernelSize;
-            Output = new double[inHeight / kernelSize, inWidth / kernelSize];
+            _kernelSize = kernelSize;
+            Outputs = new double[inHeight / kernelSize, inWidth / kernelSize];
+            OutputCords = new Сoordinate[(inHeight / kernelSize) * (inWidth / kernelSize)];
         }
         
         public double[,] Compute(double[,] input)
         {
             int i, y, x, h, w;
-            var outputHeight = Output.GetLength(0);
-            var outputWidth = Output.GetLength(1);
+            var outputHeight = Outputs.GetLength(0);
+            var outputWidth = Outputs.GetLength(1);
             
             //сканируем изображение ядром
             for (y = 0; y < outputHeight; y += _kernelSize)
@@ -35,13 +37,17 @@ namespace Neuro.Neurons
                     {
                         for (w = 0; w < _kernelSize; w++)
                         {
-                            Output[y, x] = Output[y, x] > input[y + h, x + w] ? Output[y, x] : input[y + h, x + w];
+                            if (Outputs[y, x] < input[y + h, x + w])
+                            {
+                                Outputs[y, x] = input[y + h, x + w];
+                                OutputCords[(y * outputWidth) + x] = new Сoordinate(x + w, y + h);
+                            }
                         }
                     }
                 }
             }
 
-            return Output;
+            return Outputs;
         }
     }
 }

@@ -16,7 +16,6 @@ namespace Sobel.UI
     {
         private BackPropoginationNew _networkNew = new BackPropoginationNew();
         private Random _random = new Random();
-        private Network _network;
         private Series _seriesStop;
         private Series _seriesSuccess;
         private int _succeses = 0;

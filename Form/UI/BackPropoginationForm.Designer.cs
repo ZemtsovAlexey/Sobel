@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.loadButton = new System.Windows.Forms.Button();
             this.saveButton = new System.Windows.Forms.Button();
@@ -47,6 +47,8 @@
             this.textViewPicture = new System.Windows.Forms.PictureBox();
             this.startLearnButton = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.learningStopNumeric = new System.Windows.Forms.NumericUpDown();
             this.label10 = new System.Windows.Forms.Label();
             this.resultErrorText = new System.Windows.Forms.TextBox();
             this.totalTimeText = new System.Windows.Forms.TextBox();
@@ -59,17 +61,15 @@
             this.stopLearnButton = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.label11 = new System.Windows.Forms.Label();
-            this.learningStopNumeric = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.textRotateNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.textViewPicture)).BeginInit();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.learningStopNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.learningRateNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.learnIterationsNumeric)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.learningStopNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -88,9 +88,9 @@
             this.groupBox1.Controls.Add(this.recognizedText);
             this.groupBox1.Controls.Add(this.textViewPicture);
             this.groupBox1.Location = new System.Drawing.Point(24, 23);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(6);
             this.groupBox1.Size = new System.Drawing.Size(880, 362);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
@@ -99,7 +99,7 @@
             // loadButton
             // 
             this.loadButton.Location = new System.Drawing.Point(564, 300);
-            this.loadButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.loadButton.Margin = new System.Windows.Forms.Padding(6);
             this.loadButton.Name = "loadButton";
             this.loadButton.Size = new System.Drawing.Size(150, 44);
             this.loadButton.TabIndex = 42;
@@ -110,7 +110,7 @@
             // saveButton
             // 
             this.saveButton.Location = new System.Drawing.Point(404, 300);
-            this.saveButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.saveButton.Margin = new System.Windows.Forms.Padding(6);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(150, 44);
             this.saveButton.TabIndex = 41;
@@ -131,7 +131,7 @@
             // realAnswerText
             // 
             this.realAnswerText.Location = new System.Drawing.Point(564, 231);
-            this.realAnswerText.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.realAnswerText.Margin = new System.Windows.Forms.Padding(6);
             this.realAnswerText.MaxLength = 1;
             this.realAnswerText.Name = "realAnswerText";
             this.realAnswerText.Size = new System.Drawing.Size(298, 31);
@@ -150,7 +150,7 @@
             // regnizeButton
             // 
             this.regnizeButton.Location = new System.Drawing.Point(718, 300);
-            this.regnizeButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.regnizeButton.Margin = new System.Windows.Forms.Padding(6);
             this.regnizeButton.Name = "regnizeButton";
             this.regnizeButton.Size = new System.Drawing.Size(150, 44);
             this.regnizeButton.TabIndex = 38;
@@ -162,7 +162,7 @@
             // 
             this.textRotateNumeric.DecimalPlaces = 2;
             this.textRotateNumeric.Location = new System.Drawing.Point(718, 138);
-            this.textRotateNumeric.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.textRotateNumeric.Margin = new System.Windows.Forms.Padding(6);
             this.textRotateNumeric.Maximum = new decimal(new int[] {
             359,
             0,
@@ -195,7 +195,7 @@
             // trueAnswerText
             // 
             this.trueAnswerText.Location = new System.Drawing.Point(718, 87);
-            this.trueAnswerText.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.trueAnswerText.Margin = new System.Windows.Forms.Padding(6);
             this.trueAnswerText.MaxLength = 1;
             this.trueAnswerText.Name = "trueAnswerText";
             this.trueAnswerText.Size = new System.Drawing.Size(144, 31);
@@ -215,7 +215,7 @@
             // recognizedText
             // 
             this.recognizedText.Location = new System.Drawing.Point(718, 37);
-            this.recognizedText.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.recognizedText.Margin = new System.Windows.Forms.Padding(6);
             this.recognizedText.MaxLength = 1;
             this.recognizedText.Name = "recognizedText";
             this.recognizedText.Size = new System.Drawing.Size(144, 31);
@@ -227,7 +227,7 @@
             this.textViewPicture.BackColor = System.Drawing.SystemColors.ControlDark;
             this.textViewPicture.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textViewPicture.Location = new System.Drawing.Point(12, 37);
-            this.textViewPicture.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.textViewPicture.Margin = new System.Windows.Forms.Padding(6);
             this.textViewPicture.Name = "textViewPicture";
             this.textViewPicture.Size = new System.Drawing.Size(318, 306);
             this.textViewPicture.TabIndex = 0;
@@ -236,7 +236,7 @@
             // startLearnButton
             // 
             this.startLearnButton.Location = new System.Drawing.Point(211, 345);
-            this.startLearnButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.startLearnButton.Margin = new System.Windows.Forms.Padding(6);
             this.startLearnButton.Name = "startLearnButton";
             this.startLearnButton.Size = new System.Drawing.Size(150, 44);
             this.startLearnButton.TabIndex = 3;
@@ -260,13 +260,41 @@
             this.groupBox2.Controls.Add(this.stopLearnButton);
             this.groupBox2.Controls.Add(this.startLearnButton);
             this.groupBox2.Location = new System.Drawing.Point(12, 36);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(6);
             this.groupBox2.Size = new System.Drawing.Size(400, 465);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Net settings";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(12, 147);
+            this.label11.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(143, 25);
+            this.label11.TabIndex = 44;
+            this.label11.Text = "Learning stop";
+            // 
+            // learningStopNumeric
+            // 
+            this.learningStopNumeric.Location = new System.Drawing.Point(240, 143);
+            this.learningStopNumeric.Margin = new System.Windows.Forms.Padding(6);
+            this.learningStopNumeric.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.learningStopNumeric.Name = "learningStopNumeric";
+            this.learningStopNumeric.Size = new System.Drawing.Size(148, 31);
+            this.learningStopNumeric.TabIndex = 43;
+            this.learningStopNumeric.Value = new decimal(new int[] {
+            200,
+            0,
+            0,
+            0});
             // 
             // label10
             // 
@@ -282,7 +310,7 @@
             // 
             this.resultErrorText.Enabled = false;
             this.resultErrorText.Location = new System.Drawing.Point(243, 214);
-            this.resultErrorText.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.resultErrorText.Margin = new System.Windows.Forms.Padding(6);
             this.resultErrorText.MaxLength = 1;
             this.resultErrorText.Name = "resultErrorText";
             this.resultErrorText.Size = new System.Drawing.Size(144, 31);
@@ -293,7 +321,7 @@
             // 
             this.totalTimeText.Enabled = false;
             this.totalTimeText.Location = new System.Drawing.Point(243, 264);
-            this.totalTimeText.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.totalTimeText.Margin = new System.Windows.Forms.Padding(6);
             this.totalTimeText.MaxLength = 1;
             this.totalTimeText.Name = "totalTimeText";
             this.totalTimeText.Size = new System.Drawing.Size(144, 31);
@@ -339,7 +367,7 @@
             0,
             131072});
             this.learningRateNumeric.Location = new System.Drawing.Point(240, 92);
-            this.learningRateNumeric.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.learningRateNumeric.Margin = new System.Windows.Forms.Padding(6);
             this.learningRateNumeric.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -349,7 +377,7 @@
             this.learningRateNumeric.Size = new System.Drawing.Size(148, 31);
             this.learningRateNumeric.TabIndex = 11;
             this.learningRateNumeric.Value = new decimal(new int[] {
-            5,
+            1,
             0,
             0,
             131072});
@@ -367,7 +395,7 @@
             // learnIterationsNumeric
             // 
             this.learnIterationsNumeric.Location = new System.Drawing.Point(240, 42);
-            this.learnIterationsNumeric.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.learnIterationsNumeric.Margin = new System.Windows.Forms.Padding(6);
             this.learnIterationsNumeric.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -377,7 +405,7 @@
             this.learnIterationsNumeric.Size = new System.Drawing.Size(148, 31);
             this.learnIterationsNumeric.TabIndex = 9;
             this.learnIterationsNumeric.Value = new decimal(new int[] {
-            200,
+            2000,
             0,
             0,
             0});
@@ -385,7 +413,7 @@
             // stopLearnButton
             // 
             this.stopLearnButton.Location = new System.Drawing.Point(49, 345);
-            this.stopLearnButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.stopLearnButton.Margin = new System.Windows.Forms.Padding(6);
             this.stopLearnButton.Name = "stopLearnButton";
             this.stopLearnButton.Size = new System.Drawing.Size(150, 44);
             this.stopLearnButton.TabIndex = 4;
@@ -398,9 +426,9 @@
             this.groupBox3.Controls.Add(this.chart1);
             this.groupBox3.Controls.Add(this.groupBox2);
             this.groupBox3.Location = new System.Drawing.Point(24, 396);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(6);
             this.groupBox3.Size = new System.Drawing.Size(1417, 513);
             this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
@@ -408,47 +436,19 @@
             // 
             // chart1
             // 
-            chartArea2.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.chart1.Legends.Add(legend2);
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
             this.chart1.Location = new System.Drawing.Point(438, 36);
             this.chart1.Name = "chart1";
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            this.chart1.Series.Add(series2);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chart1.Series.Add(series1);
             this.chart1.Size = new System.Drawing.Size(955, 362);
             this.chart1.TabIndex = 5;
             this.chart1.Text = "chart1";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(12, 147);
-            this.label11.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(143, 25);
-            this.label11.TabIndex = 44;
-            this.label11.Text = "Learning stop";
-            // 
-            // learningStopNumeric
-            // 
-            this.learningStopNumeric.Location = new System.Drawing.Point(240, 143);
-            this.learningStopNumeric.Margin = new System.Windows.Forms.Padding(6);
-            this.learningStopNumeric.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.learningStopNumeric.Name = "learningStopNumeric";
-            this.learningStopNumeric.Size = new System.Drawing.Size(148, 31);
-            this.learningStopNumeric.TabIndex = 43;
-            this.learningStopNumeric.Value = new decimal(new int[] {
-            200,
-            0,
-            0,
-            0});
             // 
             // BackPropoginationForm
             // 
@@ -457,7 +457,7 @@
             this.ClientSize = new System.Drawing.Size(2053, 1276);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "BackPropoginationForm";
             this.Text = "BackPropogination Net";
             this.groupBox1.ResumeLayout(false);
@@ -466,11 +466,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.textViewPicture)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.learningStopNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.learningRateNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.learnIterationsNumeric)).EndInit();
             this.groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.learningStopNumeric)).EndInit();
             this.ResumeLayout(false);
 
         }

@@ -7,7 +7,7 @@ namespace Neuro.Layers
     public class MaxPoolingLayer : IMaxPoolingLayer
     {
         public LayerType Type { get; } = LayerType.MaxPoolingLayer;
-        public MaxPoolingNeuron[] Neurons { get; set; }
+        public MaxPoolingNeuron[] Neurons { get; }
         public double[][,] Outputs { get; private set; }
         
         public int NeuronsCount => Neurons.Length;

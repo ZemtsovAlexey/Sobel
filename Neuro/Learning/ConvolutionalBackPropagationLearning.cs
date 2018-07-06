@@ -105,6 +105,7 @@ namespace Neuro.Learning
                 });
             });
 
+            //расчет ошибки на внутренних слоях включая первый
             for (int lIndex = convLayers.Length - 2; lIndex >= 0; lIndex--)
             {
                 layer = convLayers[lIndex];
@@ -230,6 +231,23 @@ namespace Neuro.Learning
                             weights[wIndex] += LearningRate * fullyConnectedNeuronErrors[layerEl.Index][neuronEl.Index] * outputs[wIndex];
                         }
                     });
+            });
+        }
+
+        private double[,] GetErrorFromPoolingLayer(IMaxPoolingLayer layer, double[,] error)
+        {
+            var result = new double[layer.Neurons.Length][,];
+            
+            
+            
+            Parallel.For(0, layer.Neurons.Length, (int n) =>
+            {
+                var coordinates = layer.Neurons[n].OutputCords;
+
+                Parallel.For(0, coordinates.Length, (int c) =>
+                {
+                    
+                });
             });
         }
     }

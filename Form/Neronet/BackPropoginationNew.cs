@@ -4,7 +4,6 @@ using Neuro.Layers;
 using Neuro.Learning;
 using Neuro.Networks;
 using ScannerNet.Extensions;
-using Network = Neuro.Networks.Network;
 
 namespace Sobel.Neronet
 {
@@ -13,7 +12,7 @@ namespace Sobel.Neronet
         public ConvolutionalNetwork Network;
 
         public int Iterations = 2000;
-        public double LearningRate = 0.05;
+        public double LearningRate = 0.01;
         public double ResultError = 0;
         public int Iteration { get; set; }
 
