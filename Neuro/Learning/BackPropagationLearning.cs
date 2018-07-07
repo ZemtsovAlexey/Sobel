@@ -35,7 +35,7 @@ namespace Neuro.Learning
 
         private void CalculateError(double[] desiredOutput)
         {        
-            ActivationLayer layer, layerNext;
+            FullyConnectedLayer layer, layerNext;
             double[] output, errors, errorsNext;
 
             layer = network[network.LayersCount - 1];
@@ -65,7 +65,7 @@ namespace Neuro.Learning
         private void UpdateWeights(double[] input)
         {
             int lIndex, nIndex, wIndex;
-            ActivationNeuron[] neurons;
+            FullyConnectedNeuron[] neurons;
             double[] weights;
             double[] outputs = null;
 

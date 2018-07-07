@@ -1,16 +1,16 @@
 ﻿using Neuro.Neurons;
 
-namespace Neuro.Layers
+namespace Neuro.Domain.Layers
 {
     public interface IFullyConnectedLayer : ILayer, IRandomize, ILinearCompute
     {
         int NeuronsCount { get; }
         
-        ActivationNeuron[] Neurons { get; }
+        FullyConnectedNeuron[] Neurons { get; }
         
         double[] Outputs { get; }
         
-        ActivationNeuron this[int index] { get; }
+        FullyConnectedNeuron this[int index] { get; }
         
         double[] Compute(double[] inputs);
     }

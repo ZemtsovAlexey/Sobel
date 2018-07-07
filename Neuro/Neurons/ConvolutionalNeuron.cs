@@ -11,8 +11,8 @@ namespace Neuro.Neurons
         private readonly int _inHeight;
 
         public IActivationFunction Function { get; set; }
-        public double[,] Input { get; private set; }
-        public double[,] Weights { get; set; }
+        private double[,] Input { get; set; }
+        public double[,] Weights { get; private set; }
         public double[,] Output { get; set; }
 
         public ConvolutionalNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3)

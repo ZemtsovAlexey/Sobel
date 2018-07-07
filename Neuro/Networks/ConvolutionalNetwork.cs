@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Neuro.Domain.Layers;
 using Neuro.Extensions;
 using Neuro.Layers;
 using Neuro.Models;

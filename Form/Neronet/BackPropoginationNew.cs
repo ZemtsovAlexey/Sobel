@@ -47,9 +47,9 @@ namespace Sobel.Neronet
             Network.InitLayers(
                 new ConvolutionalLayer(activation, 10, 20, 20, 7),
                 new ConvolutionalLayer(activation, 15, 14, 14, 5),
-                new ActivationLayer(15, 1500, activation),
-                new ActivationLayer(15, 15, activation),
-                new ActivationLayer(1, 15, activation)
+                new FullyConnectedLayer(15, 1500, activation),
+                new FullyConnectedLayer(15, 15, activation),
+                new FullyConnectedLayer(1, 15, activation)
                 );
             
             Network.Randomize();

@@ -12,22 +12,22 @@ namespace Neuro.Networks
     public class ActivationNetwork// : Network
     {
         public double[] Output;
-        public ActivationLayer[] Layers { get; set; }
+        public FullyConnectedLayer[] Layers { get; set; }
         public int LayersCount => Layers.Length;
-        public ActivationLayer this[int index] => Layers[index];
+        public FullyConnectedLayer this[int index] => Layers[index];
         
         public ActivationNetwork(IActivationFunction function, int inputsCount, params int[] neuronsCount)
         {
             var layersCount = Math.Max(1, neuronsCount.Length);
-            Layers = new ActivationLayer[layersCount];
+            Layers = new FullyConnectedLayer[layersCount];
             
             for (var i = 0; i < neuronsCount.Length; i++)
             {
-                Layers[i] = new ActivationLayer(neuronsCount[i], i == 0 ? inputsCount : neuronsCount[i - 1], function);
+                Layers[i] = new FullyConnectedLayer(neuronsCount[i], i == 0 ? inputsCount : neuronsCount[i - 1], function);
             }
         }
 
-        public ActivationNetwork(params ActivationLayer[] layers)
+        public ActivationNetwork(params FullyConnectedLayer[] layers)
         {
             Layers = layers;
         }

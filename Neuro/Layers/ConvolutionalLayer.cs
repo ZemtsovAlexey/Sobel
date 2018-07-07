@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Neuro.ActivationFunctions;
+using Neuro.Domain.Layers;
 using Neuro.Extensions;
 using Neuro.Models;
 using Neuro.Neurons;

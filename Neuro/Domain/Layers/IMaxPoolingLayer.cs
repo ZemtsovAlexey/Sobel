@@ -1,6 +1,6 @@
 ﻿using Neuro.Neurons;
 
-namespace Neuro.Layers
+namespace Neuro.Domain.Layers
 {
     public interface IMaxPoolingLayer : ILayer
     {

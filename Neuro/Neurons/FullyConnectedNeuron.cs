@@ -5,7 +5,7 @@ using Neuro.ActivationFunctions;
 
 namespace Neuro.Neurons
 {
-    public class ActivationNeuron
+    public class FullyConnectedNeuron
     {
         public double[] Weights { get; }
         public double Output { get; private set; }
@@ -13,7 +13,7 @@ namespace Neuro.Neurons
         
         private static readonly Random Random = new Random((int) DateTime.Now.Ticks);
 
-        public ActivationNeuron(int inputsCount, IActivationFunction function)
+        public FullyConnectedNeuron(int inputsCount, IActivationFunction function)
         {
             inputsCount = Math.Max(1, inputsCount);
             Weights = new double[inputsCount];
