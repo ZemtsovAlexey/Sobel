@@ -17,7 +17,7 @@ namespace Sobel
 {
     public partial class Form1 : Form
     {
-        public ActivationNetwork Network = new ActivationNetwork();
+        public ConvolutionalNetwork Network = new ConvolutionalNetwork();
         private int ImageWidth = 20;
         private int ImageHeight = 20;
         private string lastImgPath = null;
@@ -72,7 +72,7 @@ namespace Sobel
         {
             byte difMin = (byte)findMinNumeric.Value;
             var result = Segmentation.ShowTextCord2(new Bitmap(pictureBox1.Image), difMin);
-            pictureBox1.Image = result.img; //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
+            pictureBox1.Image = new Bitmap(pictureBox1.Image);// result.img; //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
             cords = result.cords;
         }
 
@@ -211,7 +211,7 @@ namespace Sobel
             //cords = result.cords;
             var i = 0;
 
-            foreach (var cord in cords)
+            foreach (var cord in cords.Take(500))
             {
                 var width = cord.Right - cord.Left;
                 var height = cord.Bottom - cord.Top;
@@ -227,7 +227,7 @@ namespace Sobel
                 var bitmap = cloneBitmap.ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
                 var vector = bitmap.ToDoubles().Select(x => x / 255).ToArray();
 
-                var netResult = Network.Compute(vector);
+                var netResult = Network.Compute(bitmap.GetDoubleMatrix());
 
                 var box = new PictureBox
                 {
@@ -261,7 +261,7 @@ namespace Sobel
             if (open.ShowDialog() == DialogResult.OK)
             {
                 var setting = File.ReadAllBytes(open.FileName);
-                Network = (ActivationNetwork)Network.Load(setting);
+                Network.Load(setting);
             }
         }
     }

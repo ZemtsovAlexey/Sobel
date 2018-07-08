@@ -56,7 +56,7 @@ namespace Neuro.Networks
             return Output;
         }
         
-        public ActivationNetwork Load(byte[] data)
+        /*public ActivationNetwork Load(byte[] data)
         {
             var memStream = new MemoryStream();
             var binForm = new BinaryFormatter();
@@ -87,15 +87,15 @@ namespace Neuro.Networks
             }
             
             return network;
-        }
+        }*/
         
-        public byte[] Save()
+        /*public byte[] Save()
         {
             var data = new SaveNetworkModel {Layers = new List<LayerSaveData>()};
 
             foreach (var layer in Layers)
             {
-                var layerSaveData = new LayerSaveData {Neurons = new List<NeuronSaveData>()};
+                var layerSaveData = new LayerSaveData {Neurons = new List<FullyConnectedNeuronSaveData>()};
 
                 foreach (var neuron in layer.Neurons)
                 {
@@ -106,7 +106,7 @@ namespace Neuro.Networks
                         weights[i] = neuron.Weights[i];
                     }
                     
-                    layerSaveData.Neurons.Add(new NeuronSaveData { Weights = weights });
+                    layerSaveData.Neurons.Add(new FullyConnectedNeuronSaveData { Weights = weights });
                 }
                 
                 data.Layers.Add(layerSaveData);
@@ -121,6 +121,6 @@ namespace Neuro.Networks
             bf.Serialize(ms, data);
 
             return ms.ToArray();
-        }
+        }*/
     }
 }

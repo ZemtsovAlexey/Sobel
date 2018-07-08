@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ScannerNet;
 using Sobel.Models;
 
 namespace Sobel
@@ -393,8 +394,18 @@ namespace Sobel
 
             TextRenderer.DrawText(g, text, font, new Point(4, 4), Color.Black);
             //g.DrawString(text, font, Brushes.Black, rectf);
+
             g.Flush();
-//            g.DrawImage(mapBitmap, 0, 0, mapBitmap.Width, mapBitmap.Height);
+            //            g.DrawImage(mapBitmap, 0, 0, mapBitmap.Width, mapBitmap.Height);
+
+            var angle = random.Next(-10, 10);
+            PointF offset = new PointF((float)mapBitmap.Width / 2, (float)mapBitmap.Height / 2);
+            g.TranslateTransform(offset.X, offset.Y);
+            g.RotateTransform(angle);
+            g.TranslateTransform(-offset.X, -offset.Y);
+            g.DrawImage(mapBitmap, new Point(0, 0));
+
+            //mapBitmap = Segmentation.RotateImage(mapBitmap, angle);
 
             return mapBitmap;
         }

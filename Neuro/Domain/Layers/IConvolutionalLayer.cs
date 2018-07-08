@@ -1,15 +1,16 @@
-﻿using Neuro.Neurons;
+﻿using Neuro.Layers;
+using Neuro.Neurons;
 
 namespace Neuro.Domain.Layers
 {
-    public interface IConvolutionalLayer : ILayer, IRandomize, IMatrixCompute
+    public interface IConvolutionalLayer : IRandomize, IMatrixLayer
     {
         int NeuronsCount { get; }
         int KernelSize { get; }
         ConvolutionalNeuron[] Neurons { get; set; }
-        double[][,] Outputs { get; }
         ConvolutionalNeuron this[int index] { get; }
-        
+
+        void Init(int inputWidth, int inputHeitght);
         double[] GetLinereOutput();
     }
 }

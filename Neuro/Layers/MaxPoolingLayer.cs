@@ -10,19 +10,27 @@ namespace Neuro.Layers
         public LayerType Type { get; } = LayerType.MaxPoolingLayer;
         public MaxPoolingNeuron[] Neurons { get; }
         public double[][,] Outputs { get; private set; }
-        
+        public int OutputWidht { get; private set; }
+        public int OutputHeight { get; private set; }
         public int NeuronsCount => Neurons.Length;
+        public int KernelSize { get; set; }
 
-        public MaxPoolingLayer(int neuronsCount, int inputWidth, int inputHeitght, int kernelSize = 2)
+        public MaxPoolingLayer(int neuronsCount, int kernelSize = 2)
         {
+            KernelSize = kernelSize;
             Neurons = new MaxPoolingNeuron[neuronsCount];
-
-            for (var i = 0; i < neuronsCount; i++)
-            {
-                Neurons[i] = new MaxPoolingNeuron(inputWidth, inputHeitght, kernelSize);
-            }
-            
             Outputs = new double[neuronsCount][,];
+        }
+
+        public void Init(int inputWidth, int inputHeitght)
+        {
+            OutputHeight = inputHeitght / KernelSize;
+            OutputWidht = inputWidth / KernelSize;
+            
+            for (var i = 0; i < NeuronsCount; i++)
+            {
+                Neurons[i] = new MaxPoolingNeuron(inputWidth, inputHeitght, KernelSize);
+            }
         }
 
         public double[][,] Compute(double[][,] input)

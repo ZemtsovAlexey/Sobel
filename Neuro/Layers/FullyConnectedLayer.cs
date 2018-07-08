@@ -14,6 +14,16 @@ namespace Neuro.Layers
         public double[] Outputs { get; }
         public int NeuronsCount => Neurons.Length;
         public FullyConnectedNeuron this[int index] => Neurons[index];
+        public IActivationFunction Function { get; }
+        
+        public FullyConnectedLayer(int neuronsCount, IActivationFunction activationFunction)
+        {
+            neuronsCount = Math.Max(1, neuronsCount);
+            Neurons = new FullyConnectedNeuron[neuronsCount];
+            Outputs = new double[neuronsCount];
+            Function = activationFunction;
+
+        }
         
         public FullyConnectedLayer(int neuronsCount, int inputsCount, IActivationFunction activationFunction)
         {
@@ -29,6 +39,14 @@ namespace Neuro.Layers
 
         }
 
+        public void Init(int inputsCount)
+        {
+            for (var i = 0; i < NeuronsCount; i++)
+            {
+                Neurons[i] = new FullyConnectedNeuron(inputsCount, Function);
+            }
+        }
+        
         public void Randomize()
         {
             foreach (var neuron in Neurons)

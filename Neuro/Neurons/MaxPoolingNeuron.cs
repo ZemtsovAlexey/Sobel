@@ -7,8 +7,8 @@ namespace Neuro.Neurons
     {
         private int _kernelSize = 2;
 
-        public double[,] Outputs { get; }
-        public Сoordinate[] OutputCords { get; }
+        public double[,] Outputs { get; private set; }
+        public bool[,] OutputCords { get; }
 
         public MaxPoolingNeuron(int inWidth, int inHeight, int kernelSize = 2)
         {
@@ -19,14 +19,16 @@ namespace Neuro.Neurons
 
             _kernelSize = kernelSize;
             Outputs = new double[inHeight / kernelSize, inWidth / kernelSize];
-            OutputCords = new Сoordinate[(inHeight / kernelSize) * (inWidth / kernelSize)];
+            OutputCords = new bool[inHeight / kernelSize, inWidth / kernelSize];
         }
         
         public double[,] Compute(double[,] input)
         {
-            int i, y, x, h, w;
+            int y, x, h, w;
             var outputHeight = Outputs.GetLength(0);
             var outputWidth = Outputs.GetLength(1);
+            
+            Outputs = new double[outputHeight, outputWidth];
             
             //сканируем изображение ядром
             for (y = 0; y < outputHeight; y += _kernelSize)
@@ -40,7 +42,7 @@ namespace Neuro.Neurons
                             if (Outputs[y, x] < input[y + h, x + w])
                             {
                                 Outputs[y, x] = input[y + h, x + w];
-                                OutputCords[(y * outputWidth) + x] = new Сoordinate(x + w, y + h);
+                                OutputCords[y, x] = true;
                             }
                         }
                     }

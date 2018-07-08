@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Neuro.Models;
 
 namespace Neuro.Neurons
 {
     [Serializable]
     internal class SaveNetworkModel
     {
-        public int InputCount { get; set; } = 1;
+        public int InputWidth { get; set; }
+        
+        public int InputHeight { get; set; }
         
         public List<LayerSaveData> Layers { get; set; }
     }
@@ -14,12 +17,28 @@ namespace Neuro.Neurons
     [Serializable]
     internal class LayerSaveData
     {
-        public List<NeuronSaveData> Neurons { get; set; }
+        public LayerType Type { get; set; }
+        
+        public int OutputLength { get; set; }
+        
+        public int KernelSize { get; set; }
+        
+        public List<FullyConnectedNeuronSaveData> FullyConnectedNeurons { get; set; }
+        
+        public List<ConvNeuronSaveData> ConvNeurons { get; set; }
     }
 
     [Serializable]
-    internal class NeuronSaveData
+    internal class FullyConnectedNeuronSaveData
     {
         public double[] Weights { get; set; } 
+    }
+    
+    [Serializable]
+    internal class ConvNeuronSaveData
+    {
+        public int KernelSize { get; set; }
+
+        public double[,] Weights { get; set; } 
     }
 }

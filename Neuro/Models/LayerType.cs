@@ -1,5 +1,8 @@
-﻿namespace Neuro.Models
+﻿using System;
+
+namespace Neuro.Models
 {
+    [Serializable]
     public enum LayerType
     {
         Convolution = 0,

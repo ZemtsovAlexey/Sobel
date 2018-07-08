@@ -24,32 +24,16 @@ namespace Sobel.Neronet
             var relu = new ReluFunction();
             var sigmoid = new SigmoidFunction();
 
-            /*Network = new ConvolutionalNetwork(
-                new IConvolutionalLayer[]
-                {
-                    new ConvolutionalLayer(relu, 5, 20, 20, 7),
-                    new ConvolutionalLayer(relu, 8, 14, 14, 3),
-//                    new ConvolutionalLayer(relu, 10, 10, 10, 5),
-//                    new ConvolutionalLayer(relu, 15, 6, 6),
-//                    new ConvolutionalLayer(relu, 20, 4, 4, 3),
-//                    new MaxPoolingLayer(5, 18, 18)
-                },
-                new IFullyConnectedLayer[]
-                {
-                    new ActivationLayer(13, 1152, activation),
-                    new ActivationLayer(13, 13, activation),
-//                    new ActivationLayer(15, 15, activation),
-                    new ActivationLayer(1, 13, activation)
-                });*/
-
             Network = new ConvolutionalNetwork();
 
-            Network.InitLayers(
-                new ConvolutionalLayer(activation, 10, 20, 20, 7),
-                new ConvolutionalLayer(activation, 15, 14, 14, 5),
-                new FullyConnectedLayer(15, 1500, activation),
-                new FullyConnectedLayer(15, 15, activation),
-                new FullyConnectedLayer(1, 15, activation)
+            Network.InitLayers(20, 20,
+                new ConvolutionalLayer(activation, 20, 5),
+                new MaxPoolingLayer(20, 2),
+                new ConvolutionalLayer(activation, 30, 3),
+                new MaxPoolingLayer(30, 2),
+                new FullyConnectedLayer(20, activation),
+                new FullyConnectedLayer(20, activation),
+                new FullyConnectedLayer(1, activation)
                 );
             
             Network.Randomize();

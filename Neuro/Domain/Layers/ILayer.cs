@@ -5,5 +5,7 @@ namespace Neuro.Layers
     public interface ILayer
     {
         LayerType Type { get; }
+        
+        int NeuronsCount { get; }
     }
 }

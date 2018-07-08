@@ -12,7 +12,7 @@ namespace Neuro.Neurons
 
         public IActivationFunction Function { get; set; }
         private double[,] Input { get; set; }
-        public double[,] Weights { get; private set; }
+        public double[,] Weights { get; set; }
         public double[,] Output { get; set; }
 
         public ConvolutionalNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3)

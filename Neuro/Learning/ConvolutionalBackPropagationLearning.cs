@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Neuro.Domain.Layers;
+using Neuro.Extensions;
 using Neuro.Layers;
 using Neuro.Models;
 using Neuro.Networks;
@@ -20,33 +21,33 @@ namespace Neuro.Learning
         {
             this.network = network;
 
-            var convLayers = network.Layers.Where(x => x.Type == LayerType.Convolution).Select(x => x as IConvolutionalLayer).ToArray();
+            var matrixLayers = network.Layers.Where(x => x.Type == LayerType.Convolution || x.Type == LayerType.MaxPoolingLayer).Select(x => x as IMatrixLayer).ToArray();
             fullyConnectedLayers = network.Layers.Where(x => x.Type == LayerType.FullyConnected).Select(x => x as IFullyConnectedLayer).ToArray();
 
             fullyConnectedNeuronErrors = new double[fullyConnectedLayers.Length][];
-            convNeuronErrors = new double[convLayers.Length][][,];
+            convNeuronErrors = new double[matrixLayers.Length][][,];
 
             for (var i = 0; i < fullyConnectedLayers.Length; i++)
             {
                 fullyConnectedNeuronErrors[i] = new double[fullyConnectedLayers[i].NeuronsCount];
             }
             
-            for (var i = 0; i < convLayers.Length; i++)
+            for (var i = 0; i < matrixLayers.Length; i++)
             {
-                convNeuronErrors[i] = new double[convLayers[i == convLayers.Length - 1 ? i : i + 1].Outputs.Length][,];
+                convNeuronErrors[i] = new double[matrixLayers[i == matrixLayers.Length - 1 ? i : i + 1].Outputs.Length][,];
             }
         }
 
         public double Run(double[,] input, double[] output)
         {
             network.Compute(input);
-            CalculateError(output);
+            CalculateFullyConnectedLayersError(output);
             UpdateWeightsParallel(input);
 
             return 0;
         }
         
-        private void CalculateError(double[] desiredOutput)
+        private void CalculateFullyConnectedLayersError(double[] desiredOutput)
         {        
             IFullyConnectedLayer layer, layerNext;
             double[] output, errors, errorsNext;
@@ -81,87 +82,175 @@ namespace Neuro.Learning
 
         private void CalculateConvLayersErrorParallel()
         {
-            var convLayers = network.Layers.Where(x => x.Type == LayerType.Convolution || x.Type == LayerType.MaxPoolingLayer).ToArray();
-            ILayer layer, layerNext;
+            var convLayers = network.Layers.Where(x => x.Type == LayerType.Convolution || x.Type == LayerType.MaxPoolingLayer).Select(x => x as IMatrixLayer).ToArray();
             double[,] errorsNext;
-
-            layer = convLayers.Last();
-            var firstFullyConnectedLayer = fullyConnectedLayers[0];
-
+            
             //расчет ошибки на слое соединия с полносвязной сетью
-            if (layer.Type == LayerType.Convolution)
+            CalcLastConvErrors(convLayers);
+
+            //расчет ошибки на внутренних слоях включая первый
+            for (int l = convLayers.Length - 2; l >= 0; l--)
             {
-                var layer1 = (IConvolutionalLayer)layer;
-                Parallel.For(0, layer1.NeuronsCount, (int nIndex) => {
+                if (convLayers[l + 1].Type == LayerType.Convolution)
+                {
+                    var layerNext = (IConvolutionalLayer)convLayers[l + 1];
+
+                    Parallel.For(0, layerNext.NeuronsCount, (int n) => {
+                        errorsNext = convNeuronErrors[l + 1][n];
+    
+                        var weights = layerNext.Neurons[n].Weights;
+                        var errorHeight = errorsNext.GetLength(0);
+                        var errorWidth = errorsNext.GetLength(1);
+                        var outStepY = weights.GetLength(0) - 1;
+                        var outStepX = weights.GetLength(1) - 1;
+    
+                        convNeuronErrors[l][n] = new double[errorHeight + weights.GetLength(0) - 1, errorWidth + weights.GetLength(1) - 1];
+    
+                        //сканируем карту ошибок предыдущего слоя перевернутым ядром
+                        for (var y = -(outStepY); y < errorHeight + outStepY - 1; y++)
+                        {
+                            for (var x = -(outStepX); x < errorWidth + outStepX - 1; x++)
+                            {
+                                //rotate kernel to 180 degrees
+                                for (var h = y < 0 ? 0 - y : 0; h < (y + weights.GetLength(0) > errorHeight ? (errorHeight - (y + weights.GetLength(0))) + weights.GetLength(0) : weights.GetLength(0)); h++)
+                                {
+                                    for (var w = x < 0 ? 0 - x : 0; w < (x + weights.GetLength(1) > errorWidth ? (errorWidth - (x + weights.GetLength(1))) + weights.GetLength(1) : weights.GetLength(1)); w++)
+                                    {
+                                        convNeuronErrors[l][n][y + outStepY, x + outStepY] += errorsNext[y + h, x + w] * layerNext.Neurons[n].Weights[layerNext.Neurons[n].Weights.GetLength(0) - 1 - h, layerNext.Neurons[n].Weights.GetLength(1) - 1 - w];
+                                    }
+                                }
+                            }
+                        }
+                        //Parallel.For(-(outStepY), errorHeight + outStepY - 1, (int y) => {
+                        //    Parallel.For(-(outStepX), errorWidth + outStepX - 1, (int x) => {
+                        //        //rotate kernel to 180 degrees
+                        //        for (var h = y < 0 ? 0 - y : 0; h < (y + weights.GetLength(0) > errorHeight ? (errorHeight - (y + weights.GetLength(0))) + weights.GetLength(0) : weights.GetLength(0)); h++)
+                        //        {
+                        //            for (var w = x < 0 ? 0 - x : 0; w < (x + weights.GetLength(1) > errorWidth ? (errorWidth - (x + weights.GetLength(1))) + weights.GetLength(1) : weights.GetLength(1)); w++)
+                        //            {
+                        //                convNeuronErrors[lIndex][nIndex][y + outStepY, x + outStepY] += errorsNext[y + h, x + w] * layerNext.Neurons[nIndex].Weights[layerNext.Neurons[nIndex].Weights.GetLength(0) - 1 - h, layerNext.Neurons[nIndex].Weights.GetLength(1) - 1 - w];
+                        //            }
+                        //        }
+                        //    });
+                        //});
+                    });
+                }
+
+                if (convLayers[l].Type == LayerType.MaxPoolingLayer)
+                {
+                    var layer1 = (IMaxPoolingLayer)convLayers[l];
+
+                    //for (var nIndex = 0; nIndex < layer1.Neurons.Length; nIndex++)
+                    Parallel.For(0, layer1.NeuronsCount, (int nIndex) =>
+                    {
+                        var outputHeight = layer1.Neurons[nIndex].Outputs.GetLength(0);
+                        var outputWidth = layer1.Neurons[nIndex].Outputs.GetLength(1);
+
+                        convNeuronErrors[l][nIndex] = new double[outputHeight, outputWidth];
+
+                        for (var y = 0; y < outputHeight; y++)
+                        {
+                            for (var x = 0; x < outputWidth; x++)
+                            {
+                                if (!layer1.Neurons[nIndex].OutputCords[y, x])
+                                    continue;
+
+                                convNeuronErrors[l][nIndex][y, x] = convNeuronErrors[l + 1][nIndex][y, x];
+                            }
+                        }
+                    });
+                }
+
+                if (convLayers[l].Type == LayerType.Convolution)
+                {
+                    var layer = (IConvolutionalLayer)convLayers[l];
+                    
+                    //применяем функцию активации
+                    Parallel.For(0, layer.NeuronsCount, (int nIndex) => {
+                        var outputHeight = layer.Neurons[nIndex].Output.GetLength(0);
+                        var outputWidth = layer.Neurons[nIndex].Output.GetLength(1);
+        
+                        convNeuronErrors[l][nIndex] = new double[outputHeight, outputWidth];
+
+                        for (var y = 0; y < convNeuronErrors[l][nIndex].GetLength(0); y++)
+                        {
+                            for (var x = 0; x < convNeuronErrors[l][nIndex].GetLength(1); x++)
+                            {
+                                convNeuronErrors[l][nIndex][y, x] = layer.Neurons[nIndex].Function.Derivative(layer.Neurons[nIndex].Output[y, x]) * convNeuronErrors[l][nIndex][y, x];
+                            }
+                        }
+
+                        //Parallel.For(0, convNeuronErrors[lIndex][nIndex].GetLength(0), (int y) =>
+                        //{
+                        //    Parallel.For(0, convNeuronErrors[lIndex][nIndex].GetLength(1), (int x) => {
+                        //        convNeuronErrors[lIndex][nIndex][y, x] = layer.Neurons[nIndex].Function.Derivative(layer.Neurons[nIndex].Output[y, x]) * convNeuronErrors[lIndex][nIndex][y, x];
+                        //    });
+                        //});
+                    });
+                }
+            }
+        }
+
+        private void CalcLastConvErrors(IMatrixLayer[] convLayers)
+        {
+            var layerIndex = convLayers.Length - 1;
+            
+            if (convLayers[layerIndex].Type == LayerType.MaxPoolingLayer)
+            {
+                var layer1 = (IMaxPoolingLayer) convLayers[layerIndex];
+
+                //for (var nIndex = 0; nIndex < layer1.Neurons.Length; nIndex++)
+                Parallel.For(0, layer1.NeuronsCount, (int nIndex) =>
+                {
+                    var outputHeight = layer1.Neurons[nIndex].Outputs.GetLength(0);
+                    var outputWidth = layer1.Neurons[nIndex].Outputs.GetLength(1);
+
+                    convNeuronErrors[convLayers.Length - 1][nIndex] = new double[outputHeight, outputWidth];
+
+                    for (var y = 0; y < outputHeight; y++)
+                    {
+                        for (var x = 0; x < outputWidth; x++)
+                        {
+                            if (!layer1.Neurons[nIndex].OutputCords[y, x])
+                                continue;
+
+                            var linerNeuronIndex = (nIndex * outputHeight * outputWidth) + (y * layer1.Neurons[nIndex].Outputs.GetLength(1) + x);
+                            var sum = fullyConnectedLayers[0].Neurons.Select((neuron, ni) => new { neuron, ni }).Sum(j => j.neuron.Weights[linerNeuronIndex] * fullyConnectedNeuronErrors[0][j.ni]);
+
+                            convNeuronErrors[convLayers.Length - 1][nIndex][y, x] = sum;
+                        }
+                    }
+                });
+            }
+            
+            if (convLayers[layerIndex].Type == LayerType.Convolution)
+            {
+                var layer1 = (IConvolutionalLayer) convLayers[layerIndex];
+
+                Parallel.For(0, layer1.NeuronsCount, (int nIndex) =>
+                {
                     var outputHeight = layer1.Neurons[nIndex].Output.GetLength(0);
                     var outputWidth = layer1.Neurons[nIndex].Output.GetLength(1);
 
                     convNeuronErrors[convLayers.Length - 1][nIndex] = new double[outputHeight, outputWidth];
 
-                    Parallel.For(0, outputHeight, (int y) => {
-                        Parallel.For(0, outputWidth, (int x) => {
+                    for (var y = 0; y < outputHeight; y++)
+                    {
+                        for (var x = 0; x < outputWidth; x++)
+                        {
                             var linerNeuronIndex = (nIndex * outputHeight * outputWidth) + (y * layer1.Neurons[nIndex].Output.GetLength(1) + x);
-                            var sum = firstFullyConnectedLayer.Neurons.Select((neuron, ni) => new { neuron, ni }).Sum(j => j.neuron.Weights[linerNeuronIndex] * fullyConnectedNeuronErrors[0][j.ni]);
+                            var sum = fullyConnectedLayers[0].Neurons.Select((neuron, ni) => new {neuron, ni}).Sum(j => j.neuron.Weights[linerNeuronIndex] * fullyConnectedNeuronErrors[0][j.ni]);
 
                             convNeuronErrors[convLayers.Length - 1][nIndex][x, y] = layer1.Neurons[nIndex].Function.Derivative(layer1.Neurons[nIndex].Output[y, x]) * sum;
-                        });
-                    });
-                });
-            }
-
-            
-            //расчет ошибки на внутренних слоях включая первый
-            for (int lIndex = convLayers.Length - 2; lIndex >= 0; lIndex--)
-            {
-                layer = convLayers[lIndex];
-                layerNext = convLayers[lIndex + 1];
-
-                Parallel.For(0, layerNext.NeuronsCount, (int nIndex) => {
-                    errorsNext = convNeuronErrors[lIndex + 1][nIndex];
-
-                    var weights = layerNext.Neurons[nIndex].Weights;
-                    var errorHeight = errorsNext.GetLength(0);
-                    var errorWidth = errorsNext.GetLength(1);
-                    var outStepY = weights.GetLength(0) - 1;
-                    var outStepX = weights.GetLength(1) - 1;
-
-                    convNeuronErrors[lIndex][nIndex] = new double[errorHeight + weights.GetLength(0) - 1, errorWidth + weights.GetLength(1) - 1];
-
-                    //сканируем карту ошибок предыдущего слоя перевернутым ядром
-                    Parallel.For(-(outStepY), errorHeight + outStepY - 1, (int y) => {
-                        Parallel.For(-(outStepX), errorWidth + outStepX - 1, (int x) => {
-                            //rotate kernel to 180 degrees
-                            for (var h = y < 0 ? 0 - y : 0; h < (y + weights.GetLength(0) > errorHeight ? (errorHeight - (y + weights.GetLength(0))) + weights.GetLength(0) : weights.GetLength(0)); h++)
-                            {
-                                for (var w = x < 0 ? 0 - x : 0; w < (x + weights.GetLength(1) > errorWidth ? (errorWidth - (x + weights.GetLength(1))) + weights.GetLength(1) : weights.GetLength(1)); w++)
-                                {
-                                    convNeuronErrors[lIndex][nIndex][y + outStepY, x + outStepY] += errorsNext[y + h, x + w] * layerNext.Neurons[nIndex].Weights[layerNext.Neurons[nIndex].Weights.GetLength(0) - 1 - h, layerNext.Neurons[nIndex].Weights.GetLength(1) - 1 - w];
-                                }
-                            }
-                        });
-                    });
-                });
-
-                //применяем функцию активации
-                Parallel.For(0, layer.NeuronsCount, (int nIndex) => {
-                    var outputHeight = layer.Neurons[nIndex].Output.GetLength(0);
-                    var outputWidth = layer.Neurons[nIndex].Output.GetLength(1);
-
-                    convNeuronErrors[lIndex][nIndex] = new double[outputHeight, outputWidth];
-
-                    Parallel.For(0, convNeuronErrors[lIndex][nIndex].GetLength(0), (int y) =>
-                    {
-                        Parallel.For(0, convNeuronErrors[lIndex][nIndex].GetLength(1), (int x) => {
-                            convNeuronErrors[lIndex][nIndex][y, x] = layer.Neurons[nIndex].Function.Derivative(layer.Neurons[nIndex].Output[y, x]) * convNeuronErrors[lIndex][nIndex][y, x];
-                        });
-                    });
+                        }
+                    }
                 });
             }
         }
-
+        
         private void UpdateWeightsParallel(double[,] matrix)
         {
-            var convLayers = network.Layers.Where(x => x.Type == LayerType.Convolution).Select(x => x as IConvolutionalLayer).ToArray();
+            var convLayers = network.Layers.Where(x => x.Type == LayerType.Convolution || x.Type == LayerType.MaxPoolingLayer).Select(x => x as IMatrixLayer).ToArray();
 
             //проходимся по всем слоям сверточной сети
             //            Parallel.For(0, convLayers.Length, (int l) =>
@@ -192,32 +281,37 @@ namespace Neuro.Learning
             //                });
             //            });
 
-            for (var l = 0; l < convLayers.Length; l++)
+            Parallel.For(0, convLayers.Length, (int l) =>
             {
-                for (var e = 0; e < convNeuronErrors[l].Length; e++)
+                if (convLayers[l].Type == LayerType.Convolution)
                 {
-                    //проход по ошибкам
-                    for (var n = 0; n < convLayers[l].NeuronsCount; n++)
+                    var layer = (IConvolutionalLayer)convLayers[l];
+
+                    for (var e = 0; e < convNeuronErrors[l].Length; e++)
                     {
-                        for (int y = 0; y < convNeuronErrors[l][e].GetLength(0); y++)
+                        //проход по ошибкам
+                        Parallel.For(0, layer.NeuronsCount, (int n) =>
                         {
-                            for (int x = 0; x < convNeuronErrors[l][e].GetLength(1); x++)
+                            for (int y = 0; y < convNeuronErrors[l][e].GetLength(0); y++)
                             {
-                                //проход по весам
-                                for (var h = 0; h < convLayers[l].Neurons[n].Weights.GetLength(0); h++)
+                                for (int x = 0; x < convNeuronErrors[l][e].GetLength(1); x++)
                                 {
-                                    for (var w = 0; w < convLayers[l].Neurons[n].Weights.GetLength(0); w++)
+                                    //проход по весам
+                                    for (var h = 0; h < layer.Neurons[n].Weights.GetLength(0); h++)
                                     {
-                                        convLayers[l].Neurons[n].Weights[h, w] += LearningRate * convNeuronErrors[l][e][y, x] * convLayers[l].Neurons[n].Output[y, x];
+                                        for (var w = 0; w < layer.Neurons[n].Weights.GetLength(0); w++)
+                                        {
+                                            layer.Neurons[n].Weights[h, w] += LearningRate * convNeuronErrors[l][e][y, x] * layer.Neurons[n].Output[y, x];
+                                        }
                                     }
                                 }
                             }
-                        }
+                        });
                     }
                 }
-            }
+            });
             
-            var input = convLayers.Last().GetLinereOutput();
+            var input = convLayers.Last().Outputs.ToLinearArray();
             var layers = fullyConnectedLayers.Select((layer, i) => new { layer, Index = i }).AsParallel();
             
             layers.ForAll(layerEl =>
@@ -236,23 +330,6 @@ namespace Neuro.Learning
                             weights[wIndex] += LearningRate * fullyConnectedNeuronErrors[layerEl.Index][neuronEl.Index] * outputs[wIndex];
                         }
                     });
-            });
-        }
-
-        private double[,] GetErrorFromPoolingLayer(IMaxPoolingLayer layer, double[,] error)
-        {
-            var result = new double[layer.Neurons.Length][,];
-            
-            
-            
-            Parallel.For(0, layer.Neurons.Length, (int n) =>
-            {
-                var coordinates = layer.Neurons[n].OutputCords;
-
-                Parallel.For(0, coordinates.Length, (int c) =>
-                {
-                    
-                });
             });
         }
     }

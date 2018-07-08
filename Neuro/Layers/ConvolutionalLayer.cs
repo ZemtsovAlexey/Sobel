@@ -13,26 +13,31 @@ namespace Neuro.Layers
         public LayerType Type { get; set; } = LayerType.Convolution;
         public ConvolutionalNeuron[] Neurons { get; set; }
         public double[][,] Outputs { get; private set; }
-        public int OutputWidht { get; }
-        public int OutputHeight { get; }
+        public int OutputWidht { get; private set; }
+        public int OutputHeight { get; private set; }
         public int KernelSize { get; private set; }
-
         public int NeuronsCount => Neurons.Length;
         public ConvolutionalNeuron this[int index] => Neurons[index];
-        
-        public ConvolutionalLayer(IActivationFunction activationFunction, int neuronsCount, int inputWidth, int inputHeitght, int kernelSize = 3)
-        {
-            KernelSize = kernelSize;
-            OutputWidht = inputWidth - kernelSize + 1;
-            OutputHeight = inputHeitght - kernelSize + 1;
-            Neurons = new ConvolutionalNeuron[neuronsCount];
 
-            for (var i = 0; i < neuronsCount; i++)
-            {
-                Neurons[i] = new ConvolutionalNeuron(activationFunction, inputWidth, inputHeitght, kernelSize);
-            }
-            
+        private IActivationFunction _function;
+        
+        public ConvolutionalLayer(IActivationFunction activationFunction, int neuronsCount, int kernelSize = 3)
+        {
+            _function = activationFunction;
+            KernelSize = kernelSize;
+            Neurons = new ConvolutionalNeuron[neuronsCount];
             Outputs = new double[neuronsCount][,];
+        }
+
+        public void Init(int inputWidth, int inputHeitght)
+        {
+            OutputWidht = inputWidth - KernelSize + 1;
+            OutputHeight = inputHeitght - KernelSize + 1;
+            
+            for (var i = 0; i < NeuronsCount; i++)
+            {
+                Neurons[i] = new ConvolutionalNeuron(_function, inputWidth, inputHeitght, KernelSize);
+            }
         }
 
         public void Randomize()

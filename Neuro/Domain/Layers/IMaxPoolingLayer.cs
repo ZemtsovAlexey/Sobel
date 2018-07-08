@@ -1,10 +1,14 @@
-﻿using Neuro.Neurons;
+﻿using Neuro.Layers;
+using Neuro.Neurons;
 
 namespace Neuro.Domain.Layers
 {
-    public interface IMaxPoolingLayer : ILayer
+    public interface IMaxPoolingLayer : IMatrixLayer
     {
-        double[][,] Outputs { get; }
-        MaxPoolingNeuron[] Neurons { get; set; }
+        MaxPoolingNeuron[] Neurons { get; }
+
+        int KernelSize { get; set; }
+        
+        void Init(int inputWidth, int inputHeitght);
     }
 }

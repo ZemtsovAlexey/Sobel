@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -89,8 +90,8 @@ namespace Sobel.UI
             _neadToStopLearning = false;
             InitLerningChart();
 
-//            LearnNew();
-            await Task.Run(() => LearnNew());
+            LearnNew();
+            //await Task.Run(() => LearnNew());
 
             totalTimeText.Text = st.ElapsedMilliseconds.ToString();
         }
@@ -102,9 +103,12 @@ namespace Sobel.UI
 
         private void regnizeButton_Click(object sender, EventArgs e)
         {
-            textViewPicture.Image = new Bitmap(textViewPicture.Width, textViewPicture.Height).DrawString(recognizedText.Text, 70, random: _random).CutSymbol().Canny();
+            textViewPicture.SizeMode = PictureBoxSizeMode.StretchImage;
+            var b = new Bitmap(1, 1);
+            b.SetPixel(0, 0, Color.White);
+            textViewPicture.Image = new Bitmap(b, textViewPicture.Width, textViewPicture.Height).DrawString(recognizedText.Text, 70, random: _random).CutSymbol();
             var bitmap = new Bitmap(textViewPicture.Image).ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
-            var vector = bitmap.ToDoubles().Select(x => x / 255).ToArray();
+            //var vector = bitmap.ToDoubles().Select(x => x / 255).ToArray();
 
             var st = new Stopwatch();
             st.Start();
@@ -231,7 +235,7 @@ namespace Sobel.UI
 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
-                    bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().Canny().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
+                    bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
                     input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 0 };
 
@@ -249,7 +253,7 @@ namespace Sobel.UI
                 }
                 else
                 {
-                    bitmap = bmp.DrawString(trueAnswerText.Text, 70, random: _random).CutSymbol().Canny().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
+                    bitmap = bmp.DrawString(trueAnswerText.Text, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
                     input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 1 };
 
@@ -282,10 +286,10 @@ namespace Sobel.UI
 
             if (open.ShowDialog() == DialogResult.OK)
             {
-//                var data = _networkNew.Network.Save();
-//                var file = open.OpenFile();
-//
-//                file.Write(data, 0, data.Length);
+                var data = _networkNew.Network.Save();
+                var file = open.OpenFile();
+
+                file.Write(data, 0, data.Length);
             }
         }
 
@@ -295,8 +299,8 @@ namespace Sobel.UI
 
             if (open.ShowDialog() == DialogResult.OK)
             {
-//                var a = File.ReadAllBytes(open.FileName);
-//                _networkNew.Network = (ActivationNetwork)_networkNew.Network.Load(a);
+                var a = File.ReadAllBytes(open.FileName);
+                _networkNew.Network.Load(a);
             }
         }
     }

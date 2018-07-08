@@ -7,7 +7,7 @@ namespace Neuro.Neurons
 {
     public class FullyConnectedNeuron
     {
-        public double[] Weights { get; }
+        public double[] Weights { get; set; }
         public double Output { get; private set; }
         public IActivationFunction Function { get; }
         
