@@ -16,7 +16,7 @@ namespace Neuro.ActivationFunctions
         public double Derivative(double y)
         {
             var random = new Random((int)DateTime.Now.Ticks);
-            return  y > 0 ? 1 : random.NextDouble() * (0.05 - 0.01) + 0.01;
+            return  y > 0 ? y : random.NextDouble() * (0.05 - 0.01) + 0.01;
         }
     }
 }

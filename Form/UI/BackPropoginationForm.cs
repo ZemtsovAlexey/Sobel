@@ -26,6 +26,11 @@ namespace Sobel.UI
         {
             InitializeComponent();
             InitLerningChart();
+            
+            var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
+            {
+                LearningRate = Convert.ToDouble(learningRateNumeric.Value)
+            };
         }
 
         private void InitLerningChart()
@@ -79,6 +84,7 @@ namespace Sobel.UI
         private void ShowLogs(object sender, LogEventArgs e)
         {
             ShowGraffic(e.I, e.Success);
+            totalTimeText.Text = e.Time.ToString();
         }
 
         private async void startLearnButton_Click(object sender, EventArgs e)
@@ -90,10 +96,10 @@ namespace Sobel.UI
             _neadToStopLearning = false;
             InitLerningChart();
 
-            LearnNew();
-            //await Task.Run(() => LearnNew());
+//            LearnNew();
+            await Task.Run(() => LearnNew());
 
-            totalTimeText.Text = st.ElapsedMilliseconds.ToString();
+//            totalTimeText.Text = st.ElapsedMilliseconds.ToString();
         }
 
         private void stopLearnButton_Click(object sender, EventArgs e)
@@ -136,76 +142,6 @@ namespace Sobel.UI
             realAnswerText.Text = /*result[0].ToString();*/ $"{maxIter} - {string.Join(" | ", result)}";
         }
         
-        private void Learn()
-        {
-            startLearnButton.Enabled = false;
-
-            var bmp = new Bitmap(textViewPicture.Width, textViewPicture.Height);
-            var iterations = (long)learnIterationsNumeric.Value;
-            (string symble, int position) text;
-            Bitmap bitmap;
-            int falseAnswerCount = 0;
-            double[] input;
-            double[] output;
-            double error = 0;
-            int succeses = 0;
-
-            var maxError = iterations / 1.6;
-            long i = 0;
-
-            while (succeses < (int)learningStopNumeric.Value && i < iterations)
-            {
-                if (_neadToStopLearning) break;
-
-                text = _random.RandomSymble();
-
-                if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < maxError)
-                {
-                    bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
-                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
-                    output = new double[] { 0 };
-
-                    if (_networkNew.Compute(bitmap)[0] >= 0.7)
-                    {
-                        _networkNew.SearchSolution(bitmap, output);
-                        succeses = 0;
-                    }
-                    else
-                    {
-                        succeses++;
-                    }
-
-                    falseAnswerCount++;
-                }
-                else
-                {
-                    bitmap = bmp.DrawString(trueAnswerText.Text, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
-                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
-                    output = new double[] { 1 };
-
-                    if (_networkNew.Compute(bitmap)[0] < 0.7)
-                    {
-                        _networkNew.SearchSolution(bitmap, output);
-                        succeses = 0;
-                    }
-                    else
-                    {
-                        succeses++;
-                    }
-
-                    falseAnswerCount = 0;
-                }
-
-                BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses));
-
-                i++;
-            }
-
-//            resultErrorText.Text = _network.ResultError.ToString();
-
-            startLearnButton.Enabled = true;
-        }
-
         private void LearnNew()
         {
             startLearnButton.Enabled = false;
@@ -219,6 +155,7 @@ namespace Sobel.UI
             double[] output;
             double error = 0;
             int succeses = 0;
+            double totalTime = 0;
 
             long i = 0;
 
@@ -227,16 +164,20 @@ namespace Sobel.UI
                 LearningRate = Convert.ToDouble(learningRateNumeric.Value)
             };
 
+            var st = new Stopwatch();
+            
             while (succeses < (int)learningStopNumeric.Value && i < iterations)
             {
                 if (_neadToStopLearning) break;
+                
+                st.Start();
 
                 text = _random.RandomSymble();
 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
                     bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
-                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
+//                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 0 };
 
                     if (_networkNew.Compute(bitmap)[0] >= 0.7)
@@ -254,7 +195,7 @@ namespace Sobel.UI
                 else
                 {
                     bitmap = bmp.DrawString(trueAnswerText.Text, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
-                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
+//                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 1 };
 
                     if (_networkNew.Compute(bitmap)[0] < 0.7)
@@ -269,9 +210,13 @@ namespace Sobel.UI
 
                     falseAnswerCount = 0;
                 }
+                
+                st.Stop();
+                totalTime += st.ElapsedMilliseconds;
 
-                BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses));
+                BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses, totalTime / (i + 1)));
 
+                st.Reset();
                 i++;
             }
 

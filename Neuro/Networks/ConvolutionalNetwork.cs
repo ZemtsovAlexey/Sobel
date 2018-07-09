@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -56,6 +57,11 @@ namespace Neuro.Networks
                 if (layers[i].Type == LayerType.MaxPoolingLayer)
                 {
                     var layer = (IMaxPoolingLayer) layers[i];
+
+                    if (inputWidth % layer.KernelSize != 0 || inputHeitght % layer.KernelSize != 0)
+                    {
+                        throw new ArgumentException($"Слой №{i}. Размер входного изображения ({inputWidth}x{inputHeitght}) должен быть кратным размеру ядра ({layer.KernelSize})");
+                    }
                     
                     layer.Init(inputWidth, inputHeitght);
                     

@@ -35,7 +35,7 @@ namespace Neuro.Layers
 
         public double[][,] Compute(double[][,] input)
         {
-            var outputs = Neurons.Select((n, i) => n.Compute(input[i])).ToArray();
+            var outputs = Neurons.AsParallel().Select((n, i) => n.Compute(input[i])).ToArray();
 
             Outputs = outputs;
 
