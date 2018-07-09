@@ -9,6 +9,6 @@ namespace Neuro.Domain.Layers
 
         int KernelSize { get; set; }
         
-        void Init(int inputWidth, int inputHeitght);
+        void Init(int neuronsCount, int inputWidth, int inputHeitght);
     }
 }

@@ -8,22 +8,22 @@ namespace Neuro.Layers
     public class MaxPoolingLayer : IMaxPoolingLayer
     {
         public LayerType Type { get; } = LayerType.MaxPoolingLayer;
-        public MaxPoolingNeuron[] Neurons { get; }
+        public MaxPoolingNeuron[] Neurons { get; private set; }
         public double[][,] Outputs { get; private set; }
         public int OutputWidht { get; private set; }
         public int OutputHeight { get; private set; }
         public int NeuronsCount => Neurons.Length;
         public int KernelSize { get; set; }
 
-        public MaxPoolingLayer(int neuronsCount, int kernelSize = 2)
+        public MaxPoolingLayer(int kernelSize = 2)
         {
             KernelSize = kernelSize;
-            Neurons = new MaxPoolingNeuron[neuronsCount];
-            Outputs = new double[neuronsCount][,];
         }
 
-        public void Init(int inputWidth, int inputHeitght)
+        public void Init(int neuronsCount, int inputWidth, int inputHeitght)
         {
+            Neurons = new MaxPoolingNeuron[neuronsCount];
+            Outputs = new double[neuronsCount][,];
             OutputHeight = inputHeitght / KernelSize;
             OutputWidht = inputWidth / KernelSize;
             

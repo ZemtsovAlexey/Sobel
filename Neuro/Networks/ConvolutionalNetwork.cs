@@ -28,6 +28,7 @@ namespace Neuro.Networks
         {
             InputWidth = inputWidth;
             InputHeight = inputHeitght;
+            var neuronsCount = 0;
             Layers = new ILayer[layers.Length];
 
             int inputLegth = inputWidth * inputHeitght;
@@ -41,6 +42,7 @@ namespace Neuro.Networks
                     layer.Init(inputLegth);
 
                     inputLegth = layer.Outputs.Length;
+                    neuronsCount = layer.NeuronsCount;
                 }
                 
                 if (layers[i].Type == LayerType.Convolution)
@@ -52,6 +54,7 @@ namespace Neuro.Networks
                     inputLegth = layer.OutputHeight * layer.OutputWidht * layer.NeuronsCount;
                     inputWidth = layer.OutputWidht;
                     inputHeitght = layer.OutputHeight;
+                    neuronsCount = layer.NeuronsCount;
                 }
                 
                 if (layers[i].Type == LayerType.MaxPoolingLayer)
@@ -63,11 +66,12 @@ namespace Neuro.Networks
                         throw new ArgumentException($"Слой №{i}. Размер входного изображения ({inputWidth}x{inputHeitght}) должен быть кратным размеру ядра ({layer.KernelSize})");
                     }
                     
-                    layer.Init(inputWidth, inputHeitght);
+                    layer.Init(neuronsCount, inputWidth, inputHeitght);
                     
                     inputLegth = layer.OutputHeight * layer.OutputWidht * layer.NeuronsCount;
                     inputWidth = layer.OutputWidht;
                     inputHeitght = layer.OutputHeight;
+                    neuronsCount = layer.NeuronsCount;
                 }
                 
                 Layers[i] = layers[i];
@@ -199,7 +203,7 @@ namespace Neuro.Networks
                 
                 if (layer.Type == LayerType.MaxPoolingLayer)
                 {
-                    layers.Add(new MaxPoolingLayer(layer.OutputLength, layer.KernelSize));
+                    layers.Add(new MaxPoolingLayer(layer.KernelSize));
                 }
                 
                 if (layer.Type == LayerType.FullyConnected)

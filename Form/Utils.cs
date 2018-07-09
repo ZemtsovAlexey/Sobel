@@ -398,7 +398,7 @@ namespace Sobel
             g.Flush();
             //            g.DrawImage(mapBitmap, 0, 0, mapBitmap.Width, mapBitmap.Height);
 
-            var angle = random.Next(-10, 10);
+            var angle = random.Next(-5, 5);
             PointF offset = new PointF((float)mapBitmap.Width / 2, (float)mapBitmap.Height / 2);
             g.TranslateTransform(offset.X, offset.Y);
             g.RotateTransform(angle);
@@ -524,6 +524,7 @@ namespace Sobel
 //            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 //            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             var chars = "ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮ0123456789ёйцукенгшщзхъфывапролджэячсмитьбю";
+//            var chars = "аоеиы";
             var number = random.Next(chars.Length);
             var finalString = new String(new[] { chars[number] });
 

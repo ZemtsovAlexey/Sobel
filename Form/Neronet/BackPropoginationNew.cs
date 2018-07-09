@@ -28,9 +28,9 @@ namespace Sobel.Neronet
 
             Network.InitLayers(20, 20,
                 new ConvolutionalLayer(activation, 5, 5),
-                new MaxPoolingLayer(5, 2),
-                new ConvolutionalLayer(activation, 20, 3),
-                new MaxPoolingLayer(20, 2),
+                new MaxPoolingLayer(2),
+                new ConvolutionalLayer(activation, 50, 3),
+                new MaxPoolingLayer(2),
                 new FullyConnectedLayer(20, activation),
                 new FullyConnectedLayer(20, activation),
                 new FullyConnectedLayer(1, activation)

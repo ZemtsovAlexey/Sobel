@@ -20,7 +20,6 @@ namespace Neuro.Learning
         public ConvolutionalBackPropagationLearning(ConvolutionalNetwork network)
         {
             this.network = network;
-            CUDA cuda = new CUDA( true );
 
             var matrixLayers = network.Layers.Where(x => x.Type == LayerType.Convolution || x.Type == LayerType.MaxPoolingLayer).Select(x => x as IMatrixLayer).ToArray();
             fullyConnectedLayers = network.Layers.Where(x => x.Type == LayerType.FullyConnected).Select(x => x as IFullyConnectedLayer).ToArray();

@@ -26,11 +26,6 @@ namespace Sobel.UI
         {
             InitializeComponent();
             InitLerningChart();
-            
-            var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
-            {
-                LearningRate = Convert.ToDouble(learningRateNumeric.Value)
-            };
         }
 
         private void InitLerningChart()
@@ -98,6 +93,8 @@ namespace Sobel.UI
 
 //            LearnNew();
             await Task.Run(() => LearnNew());
+//            await Task.Run(() => LearnAnyNeurons());
+//            LearnAnyNeurons();
 
 //            totalTimeText.Text = st.ElapsedMilliseconds.ToString();
         }
@@ -221,6 +218,94 @@ namespace Sobel.UI
             }
 
             //            resultErrorText.Text = _network.ResultError.ToString();
+
+            startLearnButton.Enabled = true;
+        }
+        
+        private void LearnAnyNeurons()
+        {
+            startLearnButton.Enabled = false;
+
+            var bmp = new Bitmap(textViewPicture.Width, textViewPicture.Height);
+            var iterations = (long)learnIterationsNumeric.Value;
+            (string symble, int position) text;
+            Bitmap bitmap;
+            double[] output;
+            int succeses = 0;
+            double totalTime = 0;
+
+            long i = 0;
+
+            var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
+            {
+                LearningRate = Convert.ToDouble(learningRateNumeric.Value)
+            };
+
+            var st = new Stopwatch();
+            
+            while (succeses < (int)learningStopNumeric.Value && i < iterations)
+            {
+                if (_neadToStopLearning) break;
+                
+                st.Start();
+
+                text = _random.RandomSymble();
+                
+                int maxIter = 0;
+                double maxRes = 0;
+                var k = 0;
+
+                bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
+                var result = _networkNew.Compute(bitmap);
+                
+                foreach (var neuron in result)
+                {
+                    if (maxRes < neuron)
+                    {
+                        maxRes = neuron;
+                        maxIter = k;
+                    }
+
+                    k++;
+                }
+
+                if (text.position != maxIter)
+                {
+                    output = new double[5];
+
+                    for (var j = 0; j < 5; j++)
+                    {
+                        output[j] = j == text.position ? 0.75 : 0.1;
+                    }
+                    
+                    teacher.Run(bitmap.GetDoubleMatrix(), output);
+                    succeses = 0;
+                }
+//                else if (text.position == maxIter && maxRes < 0.7)
+//                {
+//                    output = new double[5];
+//
+//                    for (var j = 0; j < 5; j++)
+//                    {
+//                        output[j] = j == text.position ? 0.75 : 0.1;
+//                    }
+//                    
+//                    teacher.Run(bitmap.GetDoubleMatrix(), output);
+//                    succeses = 0;
+//                }
+                else
+                {
+                    succeses++;
+                }
+                
+                st.Stop();
+                totalTime += st.ElapsedMilliseconds;
+
+                BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses, totalTime / (i + 1)));
+
+                st.Reset();
+                i++;
+            }
 
             startLearnButton.Enabled = true;
         }

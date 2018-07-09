@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Neuro.ActivationFunctions;
 
 namespace Neuro.Neurons
@@ -55,7 +56,7 @@ namespace Neuro.Neurons
             Input = new double[inputHeight, inputWidth];
 
             //суммируем все входные изображения
-            for (i = 0; i < input.Length; i++)
+            /*for (i = 0; i < input.Length; i++)
             {
                 for (y = 0; y < inputHeight; y++)
                 {
@@ -64,8 +65,18 @@ namespace Neuro.Neurons
                         Input[y, x] += input[i][y, x];
                     }
                 }
-            }
-            
+            }*/
+            Parallel.For(0, input.Length, i1 =>
+            {
+                for (var y1 = 0; y1 < inputHeight; y1++)
+                {
+                    for (var x1 = 0; x1 < inputWidth; x1++)
+                    {
+                        Input[y1, x1] += input[i1][y1, x1];
+                    }
+                }
+            });
+
             //сканируем изображение ядром
             for (y = 0; y < outputHeight; y++)
             {
@@ -82,7 +93,7 @@ namespace Neuro.Neurons
                     Output[y, x] = Function.Activation(Output[y, x]);
                 }
             }
-
+            
             return Output;
         }
     }
