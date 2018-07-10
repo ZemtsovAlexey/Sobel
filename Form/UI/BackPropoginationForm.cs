@@ -113,8 +113,8 @@ namespace Sobel.UI
             textViewPicture.SizeMode = PictureBoxSizeMode.StretchImage;
             var b = new Bitmap(1, 1);
             b.SetPixel(0, 0, Color.White);
-            textViewPicture.Image = new Bitmap(b, textViewPicture.Width, textViewPicture.Height).DrawString(recognizedText.Text, 70, random: _random).CutSymbol();
-            var bitmap = new Bitmap(textViewPicture.Image).ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
+            textViewPicture.Image = new Bitmap(b, textViewPicture.Width, textViewPicture.Height).DrawString(recognizedText.Text, 70, random: _random).CutSymbol().Canny();
+            var bitmap = new Bitmap(textViewPicture.Image).ResizeImage(new RectangleF(0, 0, (float)20, (float)20)).Canny();
             //var vector = bitmap.ToDoubles().Select(x => x / 255).ToArray();
 
             var st = new Stopwatch();
@@ -167,7 +167,7 @@ namespace Sobel.UI
 
             var st = new Stopwatch();
             
-            while (succeses < (int)learningStopNumeric.Value && i < iterations)
+            while (succeses < (int)learningStopNumeric.Value && (iterations == 0 ||i < iterations))
             {
                 if (_neadToStopLearning) break;
                 
@@ -177,7 +177,7 @@ namespace Sobel.UI
 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
-                    bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
+                    bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20)).Canny();
 //                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 0 };
 
@@ -195,7 +195,7 @@ namespace Sobel.UI
                 }
                 else
                 {
-                    bitmap = bmp.DrawString(trueAnswerText.Text, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
+                    bitmap = bmp.DrawString(trueAnswerText.Text, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20)).Canny();
 //                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 1 };
 

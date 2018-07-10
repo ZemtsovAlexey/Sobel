@@ -72,7 +72,7 @@ namespace Sobel
         {
             byte difMin = (byte)findMinNumeric.Value;
             var result = Segmentation.ShowTextCord2(new Bitmap(pictureBox1.Image), difMin);
-            pictureBox1.Image = new Bitmap(pictureBox1.Image);// result.img; //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
+            pictureBox1.Image = result.img; //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
             cords = result.cords;
         }
 
@@ -205,6 +205,7 @@ namespace Sobel
         {
             panel2.Controls.Clear();
             var picture = new Bitmap(pictureBox1.Image);
+            var picture2 = new Bitmap(lastImgPath);
             //var cannyPicture = Segmentation.Test(picture);
 
             //var result = Segmentation.ShowTextCord2(cannyPicture);
@@ -223,9 +224,10 @@ namespace Sobel
 
                 var cloneRect = new Rectangle(cord.Left, cord.Top, width, height);
                 var cloneBitmap = picture.Clone(cloneRect, picture.PixelFormat);
+                var cloneBitmap2 = picture2.Clone(cloneRect, picture2.PixelFormat);
 
                 var bitmap = cloneBitmap.ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
-                var vector = bitmap.ToDoubles().Select(x => x / 255).ToArray();
+                var bitmap2 = cloneBitmap2.ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
 
                 var netResult = Network.Compute(bitmap.GetDoubleMatrix());
 
@@ -235,7 +237,7 @@ namespace Sobel
                     Name = $"pictureBoxResult{i}",
                     Size = new System.Drawing.Size(20, 20),
                     BackColor = Color.Black,
-                    Image = bitmap,
+                    Image = bitmap2,
                     BorderStyle = BorderStyle.FixedSingle
                 };
 

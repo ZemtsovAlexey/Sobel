@@ -173,12 +173,13 @@ namespace Neuro.Networks
             if(!data.Layers.Any())
                 return null;
 
-            var bf = new BinaryFormatter();
-            var ms = new MemoryStream();
-            
-            bf.Serialize(ms, data);
+            using (var ms = new MemoryStream())
+            {
+                var bf = new BinaryFormatter();
 
-            return ms.ToArray();
+                bf.Serialize(ms, data);
+                return ms.ToArray();
+            }
         }
         
         public void Load(byte[] data)
