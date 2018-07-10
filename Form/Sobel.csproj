@@ -119,8 +119,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\Neuro.GPU\Neuro.GPU.csproj">
+      <Project>{55a60f88-d07b-4ad9-8c31-86c132c01489}</Project>
+      <Name>Neuro.GPU</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Neuro\Neuro.csproj">
       <Project>{1966cd98-d57c-41db-9f63-01b7981bd1fc}</Project>
       <Name>Neuro</Name>

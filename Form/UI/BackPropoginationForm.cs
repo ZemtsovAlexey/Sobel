@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using Neuro.GPU;
 using Neuro.Networks;
 using ScannerNet;
 using ScannerNet.Extensions;
@@ -26,6 +27,9 @@ namespace Sobel.UI
         {
             InitializeComponent();
             InitLerningChart();
+
+//            var a = new Class2();
+//            a.Test();
         }
 
         private void InitLerningChart()
