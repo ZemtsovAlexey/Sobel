@@ -6,7 +6,10 @@ namespace Neuro.GPU
     {
         public void Test()
         {
-            
+            int n = 100000;
+            int[] x = new int[n];
+            Campy.Parallel.For(n, i => x[i] = i);
+            var a = 1;
         }
     }
 }

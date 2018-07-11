@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using Neuro.GPU;
-using Neuro.Networks;
+using Neuro.ThirdPath;
 using ScannerNet;
 using ScannerNet.Extensions;
 using Sobel.Neronet;
@@ -17,19 +18,23 @@ namespace Sobel.UI
     public partial class BackPropoginationForm : Form
     {
         private BackPropoginationNew _networkNew = new BackPropoginationNew();
+        private INeuralNetworkThirdPath networkThirdPath = new INeuralNetworkThirdPath();
         private Random _random = new Random();
         private Series _seriesStop;
         private Series _seriesSuccess;
         private int _succeses = 0;
         private bool _neadToStopLearning;
+        private (int x, int y) pictureSize = (28, 28);
 
         public BackPropoginationForm()
         {
             InitializeComponent();
             InitLerningChart();
 
-//            var a = new Class2();
+//            var a = new Class1();
 //            a.Test();
+
+            //networkThirdPath.Init();
         }
 
         private void InitLerningChart()
@@ -97,6 +102,7 @@ namespace Sobel.UI
 
 //            LearnNew();
             await Task.Run(() => LearnNew());
+//            LearnThirdPath();
 //            await Task.Run(() => LearnAnyNeurons());
 //            LearnAnyNeurons();
 
@@ -113,14 +119,15 @@ namespace Sobel.UI
             textViewPicture.SizeMode = PictureBoxSizeMode.StretchImage;
             var b = new Bitmap(1, 1);
             b.SetPixel(0, 0, Color.White);
-            textViewPicture.Image = new Bitmap(b, textViewPicture.Width, textViewPicture.Height).DrawString(recognizedText.Text, 70, random: _random).CutSymbol().Canny();
-            var bitmap = new Bitmap(textViewPicture.Image).ResizeImage(new RectangleF(0, 0, (float)20, (float)20)).Canny();
+            textViewPicture.Image = new Bitmap(b, textViewPicture.Width, textViewPicture.Height).DrawString(recognizedText.Text, 70, random: _random).CutSymbol();
+            var bitmap = new Bitmap(textViewPicture.Image).ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
             //var vector = bitmap.ToDoubles().Select(x => x / 255).ToArray();
 
             var st = new Stopwatch();
             st.Start();
 
             var result = _networkNew.Compute(bitmap);
+//            var result = networkThirdPath.Compute(bitmap.ToFloat());
 
             var time = st.ElapsedMilliseconds;
             //MessageBox.Show(time.ToString());
@@ -142,7 +149,7 @@ namespace Sobel.UI
 
             realAnswerText.Text = /*result[0].ToString();*/ $"{maxIter} - {string.Join(" | ", result)}";
         }
-        
+
         private void LearnNew()
         {
             startLearnButton.Enabled = false;
@@ -152,7 +159,6 @@ namespace Sobel.UI
             (string symble, int position) text;
             Bitmap bitmap;
             int falseAnswerCount = 0;
-            double[] input;
             double[] output;
             double error = 0;
             int succeses = 0;
@@ -177,7 +183,7 @@ namespace Sobel.UI
 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
-                    bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20)).Canny();
+                    bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
 //                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 0 };
 
@@ -195,7 +201,7 @@ namespace Sobel.UI
                 }
                 else
                 {
-                    bitmap = bmp.DrawString(trueAnswerText.Text, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, (float)20, (float)20)).Canny();
+                    bitmap = bmp.DrawString(trueAnswerText.Text, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
 //                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 1 };
 
@@ -310,6 +316,64 @@ namespace Sobel.UI
                 st.Reset();
                 i++;
             }
+
+            startLearnButton.Enabled = true;
+        }
+
+        private void LearnThirdPath()
+        {
+            startLearnButton.Enabled = false;
+
+            var bmp = new Bitmap(textViewPicture.Width, textViewPicture.Height);
+            var iterations = (long)learnIterationsNumeric.Value;
+            (string symble, int position) text;
+            Bitmap bitmap;
+            int falseAnswerCount = 0;
+            double[] input;
+            float[] output;
+            double error = 0;
+            int succeses = 0;
+            double totalTime = 0;
+            List<(float[] x, float[] u)> trainBatch = new List<(float[] x, float[] u)>();
+
+            long i = 0;
+
+            var st = new Stopwatch();
+
+            while (succeses < (int)learningStopNumeric.Value && (iterations == 0 || i < iterations))
+            {
+                if (_neadToStopLearning) break;
+
+                st.Start();
+
+                text = _random.RandomSymble();
+
+
+                if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
+                {
+                    bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
+                    output = new float[] { 0 };
+                    trainBatch.Add((bitmap.ToFloat(), output));
+                    falseAnswerCount++;
+                }
+                else
+                {
+                    bitmap = bmp.DrawString(trueAnswerText.Text, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
+                    output = new float[] { 0 };
+                    trainBatch.Add((bitmap.ToFloat(), output));
+                    falseAnswerCount = 0;
+                }
+
+                st.Stop();
+                totalTime += st.ElapsedMilliseconds;
+
+                //BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses, totalTime / (i + 1)));
+
+                st.Reset();
+                i++;
+            }
+
+            networkThirdPath.Train(trainBatch);
 
             startLearnButton.Enabled = true;
         }

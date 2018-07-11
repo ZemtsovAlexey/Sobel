@@ -21,6 +21,7 @@ namespace Sobel
         private int ImageWidth = 20;
         private int ImageHeight = 20;
         private string lastImgPath = null;
+        private (int x, int y) pictureSize = (28, 28);
         
         public Form1()
         {
@@ -226,16 +227,16 @@ namespace Sobel
                 var cloneBitmap = picture.Clone(cloneRect, picture.PixelFormat);
                 var cloneBitmap2 = picture2.Clone(cloneRect, picture2.PixelFormat);
 
-                var bitmap = cloneBitmap.ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
-                var bitmap2 = cloneBitmap2.ResizeImage(new RectangleF(0, 0, (float)20, (float)20));
+                var bitmap = cloneBitmap.ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y));
+                var bitmap2 = cloneBitmap2.ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y));
 
                 var netResult = Network.Compute(bitmap.GetDoubleMatrix());
 
                 var box = new PictureBox
                 {
-                    Location = new System.Drawing.Point(10, 4 + (i * 23)),
+                    Location = new System.Drawing.Point(10, 4 + (i * (pictureSize.y + 3))),
                     Name = $"pictureBoxResult{i}",
-                    Size = new System.Drawing.Size(20, 20),
+                    Size = new System.Drawing.Size(pictureSize.x, pictureSize.y),
                     BackColor = Color.Black,
                     Image = bitmap2,
                     BorderStyle = BorderStyle.FixedSingle
@@ -243,9 +244,9 @@ namespace Sobel
 
                 var label = new Label
                 {
-                    Location = new System.Drawing.Point(30, 8 + (i * 23)),
+                    Location = new System.Drawing.Point(10 + pictureSize.x, 8 + (i * (pictureSize.y + 3))),
                     Name = $"labelResult{i}",
-                    Size = new System.Drawing.Size(100, 20),
+                    Size = new System.Drawing.Size(120, pictureSize.y),
                     Text = netResult[0].ToString(),
                     ForeColor = netResult[0] > 0.7 ? Color.DarkGreen : Color.Black
                 };
