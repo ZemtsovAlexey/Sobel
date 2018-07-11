@@ -40,6 +40,39 @@ namespace ScannerNet.Extensions
             return bitmap;
         }
         
+        public static Bitmap ToBitmap(this double[,] data)
+        {
+            var height = data.GetLength(0);
+            var width = data.GetLength(1);
+            var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            var bData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+            const int step = 4;
+
+            unsafe
+            {
+                for (var y = 0; y < data.GetLength(0); y++)
+                {
+                    var row = (byte*)bData.Scan0 + y * bData.Stride;
+                    var offset = 0;
+                    
+                    for (var x = 0; x < data.GetLength(1); x++)
+                    {
+                        var bright = (byte) Math.Max(0, Math.Min(255, data[y, x]));
+                        row[offset + 3] = 255;
+                        row[offset + 2] = bright;
+                        row[offset + 1] = bright;
+                        row[offset] = bright;
+
+                        offset += step;
+                    }
+                }   
+            }
+            
+            bitmap.UnlockBits(bData);
+
+            return bitmap;
+        }
+        
         public static int[,] GetGrayMap(this Bitmap bitmap)
         {
             var result = new int[bitmap.Height, bitmap.Width];

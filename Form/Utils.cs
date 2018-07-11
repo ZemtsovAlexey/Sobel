@@ -377,35 +377,38 @@ namespace Sobel
             return result;
         }
 
-        public static Bitmap DrawString(this Bitmap mapBitmap, string text, float fontSize = 100, string fontFamily = "Arial", Random random = null)
+        public static Bitmap DrawString(this Bitmap mapBitmap, string text, float fontSize = 100, double rotate = 0, Random random = null)
         {
-            RectangleF rectf = new RectangleF(0, 0, mapBitmap.Width, mapBitmap.Height);
             Graphics g = Graphics.FromImage(mapBitmap);
             g.FillRectangle(Brushes.White, 0, 0, mapBitmap.Width, mapBitmap.Height);
-
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             
-            var family = new List<string>{ "Calibri", "Arial", "Times New Roman" };
-            fontFamily = random == null ? fontFamily : family[random.Next(family.Count)];
-
+//            var family = new List<string>{ "Calibri", "Arial", "Times New Roman" };
+            var family = new List<string>{ "Calibri" };
+            var fontFamily = family[random.Next(family.Count)];
+            
             var font = new Font(fontFamily, fontSize);
 
-            TextRenderer.DrawText(g, text, font, new Point(4, 4), Color.Black);
-            //g.DrawString(text, font, Brushes.Black, rectf);
+            if (random.Next(2) == 1)
+            {
+                font = new Font(fontFamily, fontSize, FontStyle.Bold);   
+            }
+
+            TextRenderer.DrawText(g, text, font, new Point(-10, -10), Color.Black);
 
             g.Flush();
-            //            g.DrawImage(mapBitmap, 0, 0, mapBitmap.Width, mapBitmap.Height);
 
-            var angle = random.Next(-5, 5);
-            PointF offset = new PointF((float)mapBitmap.Width / 2, (float)mapBitmap.Height / 2);
-            g.TranslateTransform(offset.X, offset.Y);
-            g.RotateTransform(angle);
-            g.TranslateTransform(-offset.X, -offset.Y);
-            g.DrawImage(mapBitmap, new Point(0, 0));
-
-            //mapBitmap = Segmentation.RotateImage(mapBitmap, angle);
+            if (rotate != 0)
+            {
+                var angle = random.NextDouble() * (-rotate - rotate) + rotate;
+                PointF offset = new PointF((float)mapBitmap.Width / 2, (float)mapBitmap.Height / 2);
+                g.TranslateTransform(offset.X, offset.Y);
+                g.RotateTransform((float)angle);
+                g.TranslateTransform(-offset.X, -offset.Y);
+                g.DrawImage(mapBitmap, new Point(0, 0));
+            }
 
             return mapBitmap;
         }

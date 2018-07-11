@@ -196,10 +196,11 @@ namespace Neuro.Networks
             foreach (var layer in obj.Layers)
             {
                 var function = new BipolarSigmoidFunction();
+                var relu = new BipolarSigmoidFunction();
                 
                 if (layer.Type == LayerType.Convolution)
                 {
-                    layers.Add(new ConvolutionalLayer(function, layer.OutputLength, layer.KernelSize));
+                    layers.Add(new ConvolutionalLayer(relu, layer.OutputLength, layer.KernelSize));
                 }
                 
                 if (layer.Type == LayerType.MaxPoolingLayer)

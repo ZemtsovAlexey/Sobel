@@ -119,10 +119,20 @@ namespace Sobel.UI
             textViewPicture.SizeMode = PictureBoxSizeMode.StretchImage;
             var b = new Bitmap(1, 1);
             b.SetPixel(0, 0, Color.White);
-            textViewPicture.Image = new Bitmap(b, textViewPicture.Width, textViewPicture.Height).DrawString(recognizedText.Text, 70, random: _random).CutSymbol();
-            var bitmap = new Bitmap(textViewPicture.Image).ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
-            //var vector = bitmap.ToDoubles().Select(x => x / 255).ToArray();
 
+            var rotateImage = (double)textRotateNumeric.Value;
+
+//            textViewPicture.Image = new Bitmap(b, textViewPicture.Width, textViewPicture.Height).DrawString(recognizedText.Text, 130, rotateImage, random: _random);//.CutSymbol();
+            var bitmap =  new Bitmap(b, textViewPicture.Width, textViewPicture.Height)
+                .DrawString(recognizedText.Text, 130, rotateImage, random: _random)
+                .CutSymbol()
+                .ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y))
+                .Canny();
+            textViewPicture.Image = bitmap;
+
+//            var a = bitmap.GetDoubleMatrix();
+//            textViewPicture.Image = a.ToBitmap();
+            
             var st = new Stopwatch();
             st.Start();
 
@@ -130,7 +140,6 @@ namespace Sobel.UI
 //            var result = networkThirdPath.Compute(bitmap.ToFloat());
 
             var time = st.ElapsedMilliseconds;
-            //MessageBox.Show(time.ToString());
             
             int maxIter = 0;
             double maxRes = 0;
@@ -147,7 +156,7 @@ namespace Sobel.UI
                 k++;
             }
 
-            realAnswerText.Text = /*result[0].ToString();*/ $"{maxIter} - {string.Join(" | ", result)}";
+            realAnswerText.Text = $"{maxIter} - {string.Join(" | ", result)}";
         }
 
         private void LearnNew()
@@ -163,6 +172,7 @@ namespace Sobel.UI
             double error = 0;
             int succeses = 0;
             double totalTime = 0;
+            var rotateImage = (double)textRotateNumeric.Value;
 
             long i = 0;
 
@@ -183,7 +193,7 @@ namespace Sobel.UI
 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
-                    bitmap = bmp.DrawString(text.symble, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
+                    bitmap = bmp.DrawString(text.symble, 130, rotateImage, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
 //                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 0 };
 
@@ -201,7 +211,7 @@ namespace Sobel.UI
                 }
                 else
                 {
-                    bitmap = bmp.DrawString(trueAnswerText.Text, 70, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
+                    bitmap = bmp.DrawString(trueAnswerText.Text, 130, rotateImage, random: _random).CutSymbol().ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
 //                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 1 };
 

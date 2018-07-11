@@ -87,21 +87,18 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.recognizedText);
             this.groupBox1.Controls.Add(this.textViewPicture);
-            this.groupBox1.Location = new System.Drawing.Point(24, 23);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(6);
+            this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox1.Size = new System.Drawing.Size(880, 362);
+            this.groupBox1.Size = new System.Drawing.Size(440, 188);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Testing";
             // 
             // loadButton
             // 
-            this.loadButton.Location = new System.Drawing.Point(564, 300);
-            this.loadButton.Margin = new System.Windows.Forms.Padding(6);
+            this.loadButton.Location = new System.Drawing.Point(282, 156);
             this.loadButton.Name = "loadButton";
-            this.loadButton.Size = new System.Drawing.Size(150, 44);
+            this.loadButton.Size = new System.Drawing.Size(75, 23);
             this.loadButton.TabIndex = 42;
             this.loadButton.Text = "Load";
             this.loadButton.UseVisualStyleBackColor = true;
@@ -109,10 +106,9 @@
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(404, 300);
-            this.saveButton.Margin = new System.Windows.Forms.Padding(6);
+            this.saveButton.Location = new System.Drawing.Point(202, 156);
             this.saveButton.Name = "saveButton";
-            this.saveButton.Size = new System.Drawing.Size(150, 44);
+            this.saveButton.Size = new System.Drawing.Size(75, 23);
             this.saveButton.TabIndex = 41;
             this.saveButton.Text = "Save";
             this.saveButton.UseVisualStyleBackColor = true;
@@ -121,38 +117,34 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(398, 237);
-            this.label9.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label9.Location = new System.Drawing.Point(199, 123);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(150, 25);
+            this.label9.Size = new System.Drawing.Size(77, 13);
             this.label9.TabIndex = 40;
             this.label9.Text = "Верный ответ";
             // 
             // realAnswerText
             // 
-            this.realAnswerText.Location = new System.Drawing.Point(564, 231);
-            this.realAnswerText.Margin = new System.Windows.Forms.Padding(6);
+            this.realAnswerText.Location = new System.Drawing.Point(282, 120);
             this.realAnswerText.MaxLength = 1;
             this.realAnswerText.Name = "realAnswerText";
-            this.realAnswerText.Size = new System.Drawing.Size(298, 31);
+            this.realAnswerText.Size = new System.Drawing.Size(151, 20);
             this.realAnswerText.TabIndex = 39;
             // 
             // label8
             // 
             this.label8.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label8.Location = new System.Drawing.Point(400, 204);
-            this.label8.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label8.Location = new System.Drawing.Point(200, 106);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(464, 2);
+            this.label8.Size = new System.Drawing.Size(233, 2);
             this.label8.TabIndex = 38;
             this.label8.Text = "                                         ";
             // 
             // regnizeButton
             // 
-            this.regnizeButton.Location = new System.Drawing.Point(718, 300);
-            this.regnizeButton.Margin = new System.Windows.Forms.Padding(6);
+            this.regnizeButton.Location = new System.Drawing.Point(359, 156);
             this.regnizeButton.Name = "regnizeButton";
-            this.regnizeButton.Size = new System.Drawing.Size(150, 44);
+            this.regnizeButton.Size = new System.Drawing.Size(75, 23);
             this.regnizeButton.TabIndex = 38;
             this.regnizeButton.Text = "Recognize";
             this.regnizeButton.UseVisualStyleBackColor = true;
@@ -161,64 +153,58 @@
             // textRotateNumeric
             // 
             this.textRotateNumeric.DecimalPlaces = 2;
-            this.textRotateNumeric.Location = new System.Drawing.Point(718, 138);
-            this.textRotateNumeric.Margin = new System.Windows.Forms.Padding(6);
+            this.textRotateNumeric.Location = new System.Drawing.Point(359, 72);
             this.textRotateNumeric.Maximum = new decimal(new int[] {
             359,
             0,
             0,
             0});
             this.textRotateNumeric.Name = "textRotateNumeric";
-            this.textRotateNumeric.Size = new System.Drawing.Size(148, 31);
+            this.textRotateNumeric.Size = new System.Drawing.Size(74, 20);
             this.textRotateNumeric.TabIndex = 8;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(398, 142);
-            this.label3.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label3.Location = new System.Drawing.Point(199, 74);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(218, 25);
+            this.label3.Size = new System.Drawing.Size(114, 13);
             this.label3.TabIndex = 7;
             this.label3.Text = "Угол наклона текста";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(398, 92);
-            this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label2.Location = new System.Drawing.Point(199, 48);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(150, 25);
+            this.label2.Size = new System.Drawing.Size(77, 13);
             this.label2.TabIndex = 5;
             this.label2.Text = "Верный ответ";
             // 
             // trueAnswerText
             // 
-            this.trueAnswerText.Location = new System.Drawing.Point(718, 87);
-            this.trueAnswerText.Margin = new System.Windows.Forms.Padding(6);
+            this.trueAnswerText.Location = new System.Drawing.Point(359, 45);
             this.trueAnswerText.MaxLength = 1;
             this.trueAnswerText.Name = "trueAnswerText";
-            this.trueAnswerText.Size = new System.Drawing.Size(144, 31);
+            this.trueAnswerText.Size = new System.Drawing.Size(74, 20);
             this.trueAnswerText.TabIndex = 4;
             this.trueAnswerText.Text = "А";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(398, 42);
-            this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label1.Location = new System.Drawing.Point(199, 22);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(264, 25);
+            this.label1.Size = new System.Drawing.Size(137, 13);
             this.label1.TabIndex = 2;
             this.label1.Text = "Распозноваемый символ";
             // 
             // recognizedText
             // 
-            this.recognizedText.Location = new System.Drawing.Point(718, 37);
-            this.recognizedText.Margin = new System.Windows.Forms.Padding(6);
+            this.recognizedText.Location = new System.Drawing.Point(359, 19);
             this.recognizedText.MaxLength = 1;
             this.recognizedText.Name = "recognizedText";
-            this.recognizedText.Size = new System.Drawing.Size(144, 31);
+            this.recognizedText.Size = new System.Drawing.Size(74, 20);
             this.recognizedText.TabIndex = 1;
             this.recognizedText.Text = "А";
             // 
@@ -226,19 +212,17 @@
             // 
             this.textViewPicture.BackColor = System.Drawing.SystemColors.ControlDark;
             this.textViewPicture.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textViewPicture.Location = new System.Drawing.Point(12, 37);
-            this.textViewPicture.Margin = new System.Windows.Forms.Padding(6);
+            this.textViewPicture.Location = new System.Drawing.Point(6, 19);
             this.textViewPicture.Name = "textViewPicture";
-            this.textViewPicture.Size = new System.Drawing.Size(318, 306);
+            this.textViewPicture.Size = new System.Drawing.Size(160, 160);
             this.textViewPicture.TabIndex = 0;
             this.textViewPicture.TabStop = false;
             // 
             // startLearnButton
             // 
-            this.startLearnButton.Location = new System.Drawing.Point(211, 345);
-            this.startLearnButton.Margin = new System.Windows.Forms.Padding(6);
+            this.startLearnButton.Location = new System.Drawing.Point(106, 179);
             this.startLearnButton.Name = "startLearnButton";
-            this.startLearnButton.Size = new System.Drawing.Size(150, 44);
+            this.startLearnButton.Size = new System.Drawing.Size(75, 23);
             this.startLearnButton.TabIndex = 3;
             this.startLearnButton.Text = "Start";
             this.startLearnButton.UseVisualStyleBackColor = true;
@@ -259,11 +243,9 @@
             this.groupBox2.Controls.Add(this.learnIterationsNumeric);
             this.groupBox2.Controls.Add(this.stopLearnButton);
             this.groupBox2.Controls.Add(this.startLearnButton);
-            this.groupBox2.Location = new System.Drawing.Point(12, 36);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(6);
+            this.groupBox2.Location = new System.Drawing.Point(6, 19);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox2.Size = new System.Drawing.Size(400, 465);
+            this.groupBox2.Size = new System.Drawing.Size(200, 242);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Net settings";
@@ -271,24 +253,22 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(12, 147);
-            this.label11.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label11.Location = new System.Drawing.Point(6, 76);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(143, 25);
+            this.label11.Size = new System.Drawing.Size(71, 13);
             this.label11.TabIndex = 44;
             this.label11.Text = "Learning stop";
             // 
             // learningStopNumeric
             // 
-            this.learningStopNumeric.Location = new System.Drawing.Point(240, 143);
-            this.learningStopNumeric.Margin = new System.Windows.Forms.Padding(6);
+            this.learningStopNumeric.Location = new System.Drawing.Point(120, 74);
             this.learningStopNumeric.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
             this.learningStopNumeric.Name = "learningStopNumeric";
-            this.learningStopNumeric.Size = new System.Drawing.Size(148, 31);
+            this.learningStopNumeric.Size = new System.Drawing.Size(74, 20);
             this.learningStopNumeric.TabIndex = 43;
             this.learningStopNumeric.Value = new decimal(new int[] {
             200,
@@ -299,62 +279,56 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(15, 270);
-            this.label10.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label10.Location = new System.Drawing.Point(8, 140);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(106, 25);
+            this.label10.Size = new System.Drawing.Size(53, 13);
             this.label10.TabIndex = 42;
             this.label10.Text = "Total time";
             // 
             // resultErrorText
             // 
             this.resultErrorText.Enabled = false;
-            this.resultErrorText.Location = new System.Drawing.Point(243, 214);
-            this.resultErrorText.Margin = new System.Windows.Forms.Padding(6);
+            this.resultErrorText.Location = new System.Drawing.Point(122, 111);
             this.resultErrorText.MaxLength = 1;
             this.resultErrorText.Name = "resultErrorText";
-            this.resultErrorText.Size = new System.Drawing.Size(144, 31);
+            this.resultErrorText.Size = new System.Drawing.Size(74, 20);
             this.resultErrorText.TabIndex = 37;
             this.resultErrorText.Text = "0";
             // 
             // totalTimeText
             // 
             this.totalTimeText.Enabled = false;
-            this.totalTimeText.Location = new System.Drawing.Point(243, 264);
-            this.totalTimeText.Margin = new System.Windows.Forms.Padding(6);
+            this.totalTimeText.Location = new System.Drawing.Point(122, 137);
             this.totalTimeText.MaxLength = 1;
             this.totalTimeText.Name = "totalTimeText";
-            this.totalTimeText.Size = new System.Drawing.Size(144, 31);
+            this.totalTimeText.Size = new System.Drawing.Size(74, 20);
             this.totalTimeText.TabIndex = 41;
             this.totalTimeText.Text = "0";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(15, 220);
-            this.label7.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label7.Location = new System.Drawing.Point(8, 114);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(111, 25);
+            this.label7.Size = new System.Drawing.Size(55, 13);
             this.label7.TabIndex = 36;
             this.label7.Text = "Total error";
             // 
             // label6
             // 
             this.label6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label6.Location = new System.Drawing.Point(15, 193);
-            this.label6.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label6.Location = new System.Drawing.Point(8, 100);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(374, 2);
+            this.label6.Size = new System.Drawing.Size(188, 2);
             this.label6.TabIndex = 34;
             this.label6.Text = "                                         ";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 96);
-            this.label5.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label5.Location = new System.Drawing.Point(6, 50);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(147, 25);
+            this.label5.Size = new System.Drawing.Size(74, 13);
             this.label5.TabIndex = 12;
             this.label5.Text = "Learning Rate";
             // 
@@ -366,15 +340,14 @@
             0,
             0,
             131072});
-            this.learningRateNumeric.Location = new System.Drawing.Point(240, 92);
-            this.learningRateNumeric.Margin = new System.Windows.Forms.Padding(6);
+            this.learningRateNumeric.Location = new System.Drawing.Point(120, 48);
             this.learningRateNumeric.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
             this.learningRateNumeric.Name = "learningRateNumeric";
-            this.learningRateNumeric.Size = new System.Drawing.Size(148, 31);
+            this.learningRateNumeric.Size = new System.Drawing.Size(74, 20);
             this.learningRateNumeric.TabIndex = 11;
             this.learningRateNumeric.Value = new decimal(new int[] {
             1,
@@ -385,37 +358,29 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 46);
-            this.label4.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label4.Location = new System.Drawing.Point(6, 24);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(100, 25);
+            this.label4.Size = new System.Drawing.Size(50, 13);
             this.label4.TabIndex = 10;
             this.label4.Text = "Iterations";
             // 
             // learnIterationsNumeric
             // 
-            this.learnIterationsNumeric.Location = new System.Drawing.Point(240, 42);
-            this.learnIterationsNumeric.Margin = new System.Windows.Forms.Padding(6);
+            this.learnIterationsNumeric.Location = new System.Drawing.Point(120, 22);
             this.learnIterationsNumeric.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
             this.learnIterationsNumeric.Name = "learnIterationsNumeric";
-            this.learnIterationsNumeric.Size = new System.Drawing.Size(148, 31);
+            this.learnIterationsNumeric.Size = new System.Drawing.Size(74, 20);
             this.learnIterationsNumeric.TabIndex = 9;
-            this.learnIterationsNumeric.Value = new decimal(new int[] {
-            2000,
-            0,
-            0,
-            0});
             // 
             // stopLearnButton
             // 
-            this.stopLearnButton.Location = new System.Drawing.Point(49, 345);
-            this.stopLearnButton.Margin = new System.Windows.Forms.Padding(6);
+            this.stopLearnButton.Location = new System.Drawing.Point(24, 179);
             this.stopLearnButton.Name = "stopLearnButton";
-            this.stopLearnButton.Size = new System.Drawing.Size(150, 44);
+            this.stopLearnButton.Size = new System.Drawing.Size(75, 23);
             this.stopLearnButton.TabIndex = 4;
             this.stopLearnButton.Text = "Stop";
             this.stopLearnButton.UseVisualStyleBackColor = true;
@@ -425,11 +390,9 @@
             // 
             this.groupBox3.Controls.Add(this.chart1);
             this.groupBox3.Controls.Add(this.groupBox2);
-            this.groupBox3.Location = new System.Drawing.Point(24, 396);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(6);
+            this.groupBox3.Location = new System.Drawing.Point(12, 206);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox3.Size = new System.Drawing.Size(1417, 513);
+            this.groupBox3.Size = new System.Drawing.Size(708, 267);
             this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Learning";
@@ -440,24 +403,24 @@
             this.chart1.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             this.chart1.Legends.Add(legend1);
-            this.chart1.Location = new System.Drawing.Point(438, 36);
+            this.chart1.Location = new System.Drawing.Point(219, 19);
+            this.chart1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(955, 362);
+            this.chart1.Size = new System.Drawing.Size(478, 188);
             this.chart1.TabIndex = 5;
             this.chart1.Text = "chart1";
             // 
             // BackPropoginationForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2053, 1276);
+            this.ClientSize = new System.Drawing.Size(1026, 548);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
-            this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "BackPropoginationForm";
             this.Text = "BackPropogination Net";
             this.groupBox1.ResumeLayout(false);
