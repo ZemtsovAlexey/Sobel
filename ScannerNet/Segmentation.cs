@@ -645,7 +645,7 @@ namespace ScannerNet
             return newBitmap;
         }
 
-        public static Bitmap CutSymbol(this Bitmap bitmap, byte min = 5)
+        public static Bitmap CutSymbol(this Bitmap bitmap, (int V, int H) padding, byte min = 0)
         {
             var procBitmap = (Bitmap)bitmap.Clone(new RectangleF(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format32bppArgb);
             Image<Gray, byte> gray = new Image<Gray, byte>(procBitmap);
@@ -653,7 +653,6 @@ namespace ScannerNet
             CvInvoke.Canny(gray, gray, 70, 130);
 
             var map = gray.ToBitmap().GetGrayMap();
-
             var cordList = new List<Cord>();
             
             for (var y = 1; y < bitmap.Height; y++)
@@ -707,6 +706,16 @@ namespace ScannerNet
             {
                 return null;
             }
+
+            Random random = new Random((int) DateTime.Now.Ticks);
+            
+            var H = random.Next(-padding.H, padding.H);
+            var V = random.Next(-padding.V, padding.V);
+
+            cord.Left = Math.Min(bitmap.Width, Math.Max(0, cord.Left + H));
+            cord.Right = Math.Min(bitmap.Width, Math.Max(0, cord.Right + H));
+            cord.Top = Math.Min(bitmap.Height, Math.Max(0, cord.Top + V));
+            cord.Bottom = Math.Min(bitmap.Height, Math.Max(0, cord.Bottom + V));
 
             var newBitmap = new Bitmap(cord.Right - cord.Left, cord.Bottom - cord.Top, PixelFormat.Format32bppArgb);
             var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);

@@ -61,6 +61,9 @@
             this.stopLearnButton = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.label12 = new System.Windows.Forms.Label();
+            this.paddingVNumeric = new System.Windows.Forms.NumericUpDown();
+            this.paddingHNumeric = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.textRotateNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.textViewPicture)).BeginInit();
@@ -70,10 +73,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.learnIterationsNumeric)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingVNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingHNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.paddingHNumeric);
+            this.groupBox1.Controls.Add(this.paddingVNumeric);
+            this.groupBox1.Controls.Add(this.label12);
             this.groupBox1.Controls.Add(this.loadButton);
             this.groupBox1.Controls.Add(this.saveButton);
             this.groupBox1.Controls.Add(this.label9);
@@ -89,14 +97,14 @@
             this.groupBox1.Controls.Add(this.textViewPicture);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(440, 188);
+            this.groupBox1.Size = new System.Drawing.Size(440, 210);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Testing";
             // 
             // loadButton
             // 
-            this.loadButton.Location = new System.Drawing.Point(282, 156);
+            this.loadButton.Location = new System.Drawing.Point(282, 171);
             this.loadButton.Name = "loadButton";
             this.loadButton.Size = new System.Drawing.Size(75, 23);
             this.loadButton.TabIndex = 42;
@@ -106,7 +114,7 @@
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(202, 156);
+            this.saveButton.Location = new System.Drawing.Point(202, 171);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(75, 23);
             this.saveButton.TabIndex = 41;
@@ -117,7 +125,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(199, 123);
+            this.label9.Location = new System.Drawing.Point(198, 148);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(77, 13);
             this.label9.TabIndex = 40;
@@ -125,7 +133,7 @@
             // 
             // realAnswerText
             // 
-            this.realAnswerText.Location = new System.Drawing.Point(282, 120);
+            this.realAnswerText.Location = new System.Drawing.Point(281, 145);
             this.realAnswerText.MaxLength = 1;
             this.realAnswerText.Name = "realAnswerText";
             this.realAnswerText.Size = new System.Drawing.Size(151, 20);
@@ -134,7 +142,7 @@
             // label8
             // 
             this.label8.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label8.Location = new System.Drawing.Point(200, 106);
+            this.label8.Location = new System.Drawing.Point(199, 131);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(233, 2);
             this.label8.TabIndex = 38;
@@ -142,7 +150,7 @@
             // 
             // regnizeButton
             // 
-            this.regnizeButton.Location = new System.Drawing.Point(359, 156);
+            this.regnizeButton.Location = new System.Drawing.Point(359, 171);
             this.regnizeButton.Name = "regnizeButton";
             this.regnizeButton.Size = new System.Drawing.Size(75, 23);
             this.regnizeButton.TabIndex = 38;
@@ -390,7 +398,7 @@
             // 
             this.groupBox3.Controls.Add(this.chart1);
             this.groupBox3.Controls.Add(this.groupBox2);
-            this.groupBox3.Location = new System.Drawing.Point(12, 206);
+            this.groupBox3.Location = new System.Drawing.Point(12, 228);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(708, 267);
             this.groupBox3.TabIndex = 5;
@@ -410,15 +418,48 @@
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(478, 188);
+            this.chart1.Size = new System.Drawing.Size(478, 242);
             this.chart1.TabIndex = 5;
             this.chart1.Text = "chart1";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(198, 100);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(42, 13);
+            this.label12.TabIndex = 43;
+            this.label12.Text = "Отступ";
+            // 
+            // paddingVNumeric
+            // 
+            this.paddingVNumeric.Location = new System.Drawing.Point(358, 98);
+            this.paddingVNumeric.Maximum = new decimal(new int[] {
+            359,
+            0,
+            0,
+            0});
+            this.paddingVNumeric.Name = "paddingVNumeric";
+            this.paddingVNumeric.Size = new System.Drawing.Size(36, 20);
+            this.paddingVNumeric.TabIndex = 45;
+            // 
+            // paddingHNumeric
+            // 
+            this.paddingHNumeric.Location = new System.Drawing.Point(396, 98);
+            this.paddingHNumeric.Maximum = new decimal(new int[] {
+            359,
+            0,
+            0,
+            0});
+            this.paddingHNumeric.Name = "paddingHNumeric";
+            this.paddingHNumeric.Size = new System.Drawing.Size(36, 20);
+            this.paddingHNumeric.TabIndex = 46;
             // 
             // BackPropoginationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1026, 548);
+            this.ClientSize = new System.Drawing.Size(738, 503);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
             this.Name = "BackPropoginationForm";
@@ -434,6 +475,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.learnIterationsNumeric)).EndInit();
             this.groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingVNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingHNumeric)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -470,5 +513,8 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.NumericUpDown learningStopNumeric;
+        private System.Windows.Forms.NumericUpDown paddingHNumeric;
+        private System.Windows.Forms.NumericUpDown paddingVNumeric;
+        private System.Windows.Forms.Label label12;
     }
 }

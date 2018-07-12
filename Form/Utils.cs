@@ -385,8 +385,8 @@ namespace Sobel
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             
-//            var family = new List<string>{ "Calibri", "Arial", "Times New Roman" };
-            var family = new List<string>{ "Calibri" };
+            var family = new List<string>{ "Calibri", "Arial", "Times New Roman" };
+//            var family = new List<string>{ "Calibri" };
             var fontFamily = family[random.Next(family.Count)];
             
             var font = new Font(fontFamily, fontSize);
@@ -396,7 +396,7 @@ namespace Sobel
                 font = new Font(fontFamily, fontSize, FontStyle.Bold);   
             }
 
-            TextRenderer.DrawText(g, text, font, new Point(-10, -10), Color.Black);
+            TextRenderer.DrawText(g, text, font, new Point(20, 20), Color.Black);
 
             g.Flush();
 

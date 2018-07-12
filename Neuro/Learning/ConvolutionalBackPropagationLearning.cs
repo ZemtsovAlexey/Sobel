@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Neuro.Domain.Layers;
 using Neuro.Extensions;
@@ -44,7 +45,9 @@ namespace Neuro.Learning
             CalculateFullyConnectedLayersError(output);
             UpdateWeightsParallel(input);
 
-            return 0;
+            var lastErrors = fullyConnectedNeuronErrors.Last();
+
+            return lastErrors.Sum(x => Math.Abs(x)) / lastErrors.Length;
         }
         
         private void CalculateFullyConnectedLayersError(double[] desiredOutput)
