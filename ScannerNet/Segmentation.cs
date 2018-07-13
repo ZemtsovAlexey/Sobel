@@ -647,12 +647,13 @@ namespace ScannerNet
 
         public static Bitmap CutSymbol(this Bitmap bitmap, (int V, int H) padding, byte min = 0)
         {
-            var procBitmap = (Bitmap)bitmap.Clone(new RectangleF(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format32bppArgb);
-            Image<Gray, byte> gray = new Image<Gray, byte>(procBitmap);
-            CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
-            CvInvoke.Canny(gray, gray, 70, 130);
+//            var procBitmap = (Bitmap)bitmap.Clone(new RectangleF(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format32bppArgb);
+//            Image<Gray, byte> gray = new Image<Gray, byte>(procBitmap);
+//            CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
+//            CvInvoke.Canny(gray, gray, 70, 130);
 
-            var map = gray.ToBitmap().GetGrayMap();
+            var procBitmap = bitmap.Canny();
+            var map = procBitmap.GetGrayMap();
             var cordList = new List<Cord>();
             
             for (var y = 1; y < bitmap.Height; y++)
@@ -717,8 +718,9 @@ namespace ScannerNet
             cord.Top = Math.Min(bitmap.Height, Math.Max(0, cord.Top + V));
             cord.Bottom = Math.Min(bitmap.Height, Math.Max(0, cord.Bottom + V));
 
+            var resultBitmap = procBitmap.Clone(new RectangleF(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format32bppArgb);
             var newBitmap = new Bitmap(cord.Right - cord.Left, cord.Bottom - cord.Top, PixelFormat.Format32bppArgb);
-            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+            var bitmapData = resultBitmap.LockBits(new Rectangle(0, 0, resultBitmap.Width, resultBitmap.Height), ImageLockMode.ReadWrite, resultBitmap.PixelFormat);
             var newBitmapData = newBitmap.LockBits(new Rectangle(0, 0, newBitmap.Width, newBitmap.Height), ImageLockMode.ReadWrite, newBitmap.PixelFormat);
             var sStep = bitmap.GetStep();
             var pStep = newBitmap.GetStep();
@@ -745,7 +747,7 @@ namespace ScannerNet
                 }
             }
             
-            bitmap.UnlockBits(bitmapData);
+            resultBitmap.UnlockBits(bitmapData);
             newBitmap.UnlockBits(newBitmapData);
 
             return newBitmap;

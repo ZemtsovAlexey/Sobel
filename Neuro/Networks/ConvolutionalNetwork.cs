@@ -192,11 +192,13 @@ namespace Neuro.Networks
             
             var obj = (SaveNetworkModel) binForm.Deserialize(memStream);
             var layers = new List<ILayer>();
+
+            Layers = null;
             
             foreach (var layer in obj.Layers)
             {
                 var function = new BipolarSigmoidFunction();
-                var relu = new BipolarSigmoidFunction();
+                var relu = new ReluFunction();
                 
                 if (layer.Type == LayerType.Convolution)
                 {

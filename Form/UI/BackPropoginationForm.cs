@@ -125,11 +125,12 @@ namespace Sobel.UI
             var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
 
 //            textViewPicture.Image = new Bitmap(b, textViewPicture.Width, textViewPicture.Height).DrawString(recognizedText.Text, 130, rotateImage, random: _random);//.CutSymbol();
-            var bitmap =  new Bitmap(b, textViewPicture.Width, textViewPicture.Height)
+            var bitmap = new Bitmap(b, textViewPicture.Width, textViewPicture.Height)
                 .DrawString(recognizedText.Text, 50, rotateImage, random: _random)
+//                .Canny()
                 .CutSymbol(padding)
-                .ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y))
-                .Canny();
+                .ResizeImage(pictureSize.x, pictureSize.y);
+                //.ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y));
             textViewPicture.Image = bitmap;
 
 //            var a = bitmap.GetDoubleMatrix();
@@ -161,6 +162,67 @@ namespace Sobel.UI
             realAnswerText.Text = $@"{maxIter} - {string.Join(" | ", result)}";
         }
 
+        private void Learn()
+        {
+            startLearnButton.Enabled = false;
+
+            var bmp = new Bitmap(textViewPicture.Width, textViewPicture.Height);
+            var iterations = (long)learnIterationsNumeric.Value;
+            (string symble, int position) text;
+            Bitmap bitmap;
+            int falseAnswerCount = 0;
+            double[] output;
+            double error = 0;
+            int succeses = 0;
+            double totalTime = 0;
+            double totalError = 0;
+            var rotateImage = (double)textRotateNumeric.Value;
+            var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
+
+            long i = 0;
+
+            var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
+            {
+                LearningRate = Convert.ToDouble(learningRateNumeric.Value)
+            };
+
+            var st = new Stopwatch();
+            
+            while (succeses < (int)learningStopNumeric.Value && (iterations == 0 || i < iterations))
+            {
+                if (_neadToStopLearning) break;
+
+                teacher.LearningRate = Convert.ToDouble(learningRateNumeric.Value);
+                st.Start();
+                text = _random.RandomSymble();
+
+                if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
+                {
+                    bitmap = bmp.DrawString(text.symble, 50, rotateImage, random: _random).CutSymbol(padding).ResizeImage(pictureSize.x, pictureSize.y);//.ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y));
+                    output = new double[] { 0 };
+                    falseAnswerCount++;
+                }
+                else
+                {
+                    bitmap = bmp.DrawString(trueAnswerText.Text, 50, rotateImage, random: _random).CutSymbol(padding).ResizeImage(pictureSize.x, pictureSize.y);//.ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y));
+                    output = new double[] { 0.71 };
+                    falseAnswerCount = 0;
+                }
+                
+                totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
+                
+                st.Stop();
+                totalTime += st.ElapsedMilliseconds;
+
+                BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses, totalTime / (i + 1), totalError / (i + 1)));
+
+                st.Reset();
+                i++;
+            }
+
+            startLearnButton.Enabled = true;
+        }
+        
         private void LearnNew()
         {
             startLearnButton.Enabled = false;
@@ -199,7 +261,7 @@ namespace Sobel.UI
 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
-                    bitmap = bmp.DrawString(text.symble, 50, rotateImage, random: _random).CutSymbol(padding).ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
+                    bitmap = bmp.DrawString(text.symble, 50, rotateImage, random: _random).CutSymbol(padding).ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y));
 //                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 0 };
 
@@ -217,7 +279,7 @@ namespace Sobel.UI
                 }
                 else
                 {
-                    bitmap = bmp.DrawString(trueAnswerText.Text, 50, rotateImage, random: _random).CutSymbol(padding).ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y)).Canny();
+                    bitmap = bmp.DrawString(trueAnswerText.Text, 50, rotateImage, random: _random).CutSymbol(padding).ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y));
 //                    input = bitmap.ToDoubles().Select(x => x / 255).ToArray();
                     output = new double[] { 1 };
 
@@ -402,9 +464,10 @@ namespace Sobel.UI
             if (open.ShowDialog() == DialogResult.OK)
             {
                 var data = _networkNew.Network.Save();
-                var file = open.OpenFile();
-
-                file.Write(data, 0, data.Length);
+                using (var file = open.OpenFile())
+                {
+                    file.Write(data, 0, data.Length);
+                }
             }
         }
 

@@ -56,7 +56,7 @@ namespace Neuro.Neurons
             Input = new double[inputHeight, inputWidth];
 
             //суммируем все входные изображения
-            /*for (i = 0; i < input.Length; i++)
+            for (i = 0; i < input.Length; i++)
             {
                 for (y = 0; y < inputHeight; y++)
                 {
@@ -65,14 +65,14 @@ namespace Neuro.Neurons
                         Input[y, x] += input[i][y, x];
                     }
                 }
-            }*/
-            Parallel.For(0, input.Length, l =>
+            }
+            /*Parallel.For(0, input.Length, l =>
             {
                 Parallel.For(0, inputHeight * inputWidth, k =>
                 {
                     Input[k / inputWidth, k % inputWidth] += input[l][k / inputWidth, k % inputWidth];
                 });
-            });
+            });*/
             
 //            Parallel.For(0, outputHeight * outputWidth, i =>
 //            {

@@ -227,8 +227,8 @@ namespace Sobel
                 var cloneBitmap = picture.Clone(cloneRect, picture.PixelFormat);
                 var cloneBitmap2 = picture2.Clone(cloneRect, picture2.PixelFormat);
 
-                var bitmap = cloneBitmap.ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y));
-                var bitmap2 = cloneBitmap2.ResizeImage(new RectangleF(0, 0, pictureSize.x, pictureSize.y));
+                var bitmap = cloneBitmap.ResizeImage(pictureSize.x, pictureSize.y);
+                var bitmap2 = cloneBitmap2.ResizeImage(pictureSize.x, pictureSize.y);
 
                 var netResult = Network.Compute(bitmap.GetDoubleMatrix());
 

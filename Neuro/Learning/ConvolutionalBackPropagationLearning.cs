@@ -41,7 +41,7 @@ namespace Neuro.Learning
 
         public double Run(double[,] input, double[] output)
         {
-            network.Compute(input);
+//            network.Compute(input);
             CalculateFullyConnectedLayersError(output);
             UpdateWeightsParallel(input);
 
