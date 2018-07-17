@@ -5,6 +5,7 @@ namespace Neuro.Domain.Layers
 {
     public interface IConvolutionalLayer : IRandomize, IMatrixLayer
     {
+        ActivationType ActivationFunctionType { get; }
         int NeuronsCount { get; }
         int KernelSize { get; }
         ConvolutionalNeuron[] Neurons { get; set; }

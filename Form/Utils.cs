@@ -386,7 +386,7 @@ namespace Sobel
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             
             var family = new List<string>{ "Calibri", "Arial", "Times New Roman" };
-//            var family = new List<string>{ "Calibri" };
+//            var family = new List<string>{ "Times New Roman" };
             var fontFamily = family[random.Next(family.Count)];
             
             var font = new Font(fontFamily, fontSize);

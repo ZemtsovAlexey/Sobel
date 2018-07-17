@@ -128,6 +128,8 @@ namespace Neuro.Networks
                 {
                     var fullyConnectedLayer = (FullyConnectedLayer) layer;
 
+                    layerSaveData.ActivationType = fullyConnectedLayer.ActivationFunctionType;
+
                     foreach (var neuron in fullyConnectedLayer.Neurons)
                     {
                         var weights = new double[neuron.Weights.Length];
@@ -147,7 +149,8 @@ namespace Neuro.Networks
                 if (layer.Type == LayerType.Convolution)
                 {
                     var fullyConnectedLayer = (ConvolutionalLayer) layer;
-
+                    
+                    layerSaveData.ActivationType = fullyConnectedLayer.ActivationFunctionType;
                     layerSaveData.KernelSize = fullyConnectedLayer.KernelSize;
                     
                     foreach (var neuron in fullyConnectedLayer.Neurons)
@@ -197,12 +200,12 @@ namespace Neuro.Networks
             
             foreach (var layer in obj.Layers)
             {
-                var function = new BipolarSigmoidFunction();
-                var relu = new ReluFunction();
+                var function = new BipolarSigmoid();
+                var relu = new ELU();
                 
                 if (layer.Type == LayerType.Convolution)
                 {
-                    layers.Add(new ConvolutionalLayer(relu, layer.OutputLength, layer.KernelSize));
+                    layers.Add(new ConvolutionalLayer(layer.ActivationType, layer.OutputLength, layer.KernelSize));
                 }
                 
                 if (layer.Type == LayerType.MaxPoolingLayer)
@@ -212,7 +215,7 @@ namespace Neuro.Networks
                 
                 if (layer.Type == LayerType.FullyConnected)
                 {
-                    layers.Add(new FullyConnectedLayer(layer.OutputLength, function));
+                    layers.Add(new FullyConnectedLayer(layer.OutputLength, layer.ActivationType));
                 }
             }
             

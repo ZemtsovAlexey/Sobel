@@ -3,6 +3,7 @@ using Neuro.ActivationFunctions;
 using Neuro.Layers;
 using Neuro.Learning;
 using Neuro.Networks;
+using Neuro.Neurons;
 using ScannerNet.Extensions;
 
 namespace Sobel.Neronet
@@ -20,23 +21,23 @@ namespace Sobel.Neronet
 
         public BackPropoginationNew()
         {
-            var activation = new BipolarSigmoidFunction();
-            var relu = new ReluFunction();
-            var sigmoid = new SigmoidFunction();
+            var activation = ActivationType.BipolarSigmoid;
+            var relu = ActivationType.ReLu;
 
             Network = new ConvolutionalNetwork();
 
             Network.InitLayers(28, 28,
-                new ConvolutionalLayer(relu, 5, 7),
+                new ConvolutionalLayer(relu, 30, 5),
                 new MaxPoolingLayer(2),
-                new ConvolutionalLayer(relu, 20, 2),
-//                new ConvolutionalLayer(relu, 40, 3),
-//                new MaxPoolingLayer(2),
-//                new ConvolutionalLayer(relu, 60, 3),
+                new ConvolutionalLayer(relu, 40, 3),
                 new MaxPoolingLayer(2),
-                new FullyConnectedLayer(80, activation),
+//                new FullyConnectedLayer(200, activation),
+                new FullyConnectedLayer(150, activation),
+//                new FullyConnectedLayer(100, activation),
+                new FullyConnectedLayer(100, activation),
+                new FullyConnectedLayer(75, activation),
                 new FullyConnectedLayer(50, activation),
-                new FullyConnectedLayer(30, activation),
+                new FullyConnectedLayer(25, activation),
                 new FullyConnectedLayer(1, activation)
                 );
             

@@ -10,6 +10,6 @@
         
         double Activation(double x);
 
-        double Derivative(double y);
+        double Derivative(double x);
     }
 }

@@ -6,6 +6,8 @@ namespace Neuro.Domain.Layers
 {
     public interface IFullyConnectedLayer : ILayer, IRandomize, ILinearCompute
     {
+        ActivationType ActivationFunctionType { get; }
+        
         int NeuronsCount { get; }
         
         FullyConnectedNeuron[] Neurons { get; }

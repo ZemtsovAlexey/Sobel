@@ -11,6 +11,7 @@ namespace Neuro.Layers
     public class ConvolutionalLayer : IConvolutionalLayer
     {
         public LayerType Type { get; set; } = LayerType.Convolution;
+        public ActivationType ActivationFunctionType { get; }
         public ConvolutionalNeuron[] Neurons { get; set; }
         public double[][,] Outputs { get; private set; }
         public int OutputWidht { get; private set; }
@@ -21,9 +22,10 @@ namespace Neuro.Layers
 
         private IActivationFunction _function;
         
-        public ConvolutionalLayer(IActivationFunction activationFunction, int neuronsCount, int kernelSize = 3)
+        public ConvolutionalLayer(ActivationType activationType, int neuronsCount, int kernelSize = 3)
         {
-            _function = activationFunction;
+            ActivationFunctionType = activationType;
+            _function = activationType.Get();
             KernelSize = kernelSize;
             Neurons = new ConvolutionalNeuron[neuronsCount];
             Outputs = new double[neuronsCount][,];

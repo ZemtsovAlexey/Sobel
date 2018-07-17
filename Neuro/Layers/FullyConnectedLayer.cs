@@ -10,18 +10,20 @@ namespace Neuro.Layers
     public class FullyConnectedLayer : IFullyConnectedLayer
     {
         public LayerType Type { get; set; } = LayerType.FullyConnected;
+        public ActivationType ActivationFunctionType { get; }
         public FullyConnectedNeuron[] Neurons { get; }
         public double[] Outputs { get; }
         public int NeuronsCount => Neurons.Length;
         public FullyConnectedNeuron this[int index] => Neurons[index];
         public IActivationFunction Function { get; }
         
-        public FullyConnectedLayer(int neuronsCount, IActivationFunction activationFunction)
+        public FullyConnectedLayer(int neuronsCount, ActivationType activationType)
         {
+            ActivationFunctionType = activationType;
+            Function = activationType.Get();
             neuronsCount = Math.Max(1, neuronsCount);
             Neurons = new FullyConnectedNeuron[neuronsCount];
             Outputs = new double[neuronsCount];
-            Function = activationFunction;
 
         }
         

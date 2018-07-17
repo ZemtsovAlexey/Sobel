@@ -32,6 +32,9 @@
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.paddingHNumeric = new System.Windows.Forms.NumericUpDown();
+            this.paddingVNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label12 = new System.Windows.Forms.Label();
             this.loadButton = new System.Windows.Forms.Button();
             this.saveButton = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
@@ -61,10 +64,9 @@
             this.stopLearnButton = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.label12 = new System.Windows.Forms.Label();
-            this.paddingVNumeric = new System.Windows.Forms.NumericUpDown();
-            this.paddingHNumeric = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingHNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingVNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.textRotateNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.textViewPicture)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -73,8 +75,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.learnIterationsNumeric)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.paddingVNumeric)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.paddingHNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -101,6 +101,49 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Testing";
+            // 
+            // paddingHNumeric
+            // 
+            this.paddingHNumeric.Location = new System.Drawing.Point(396, 98);
+            this.paddingHNumeric.Maximum = new decimal(new int[] {
+            359,
+            0,
+            0,
+            0});
+            this.paddingHNumeric.Name = "paddingHNumeric";
+            this.paddingHNumeric.Size = new System.Drawing.Size(36, 20);
+            this.paddingHNumeric.TabIndex = 46;
+            this.paddingHNumeric.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            // 
+            // paddingVNumeric
+            // 
+            this.paddingVNumeric.Location = new System.Drawing.Point(358, 98);
+            this.paddingVNumeric.Maximum = new decimal(new int[] {
+            359,
+            0,
+            0,
+            0});
+            this.paddingVNumeric.Name = "paddingVNumeric";
+            this.paddingVNumeric.Size = new System.Drawing.Size(36, 20);
+            this.paddingVNumeric.TabIndex = 45;
+            this.paddingVNumeric.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(198, 100);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(42, 13);
+            this.label12.TabIndex = 43;
+            this.label12.Text = "Отступ";
             // 
             // loadButton
             // 
@@ -170,6 +213,11 @@
             this.textRotateNumeric.Name = "textRotateNumeric";
             this.textRotateNumeric.Size = new System.Drawing.Size(74, 20);
             this.textRotateNumeric.TabIndex = 8;
+            this.textRotateNumeric.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
             // 
             // label3
             // 
@@ -196,7 +244,7 @@
             this.trueAnswerText.Name = "trueAnswerText";
             this.trueAnswerText.Size = new System.Drawing.Size(74, 20);
             this.trueAnswerText.TabIndex = 4;
-            this.trueAnswerText.Text = "А";
+            this.trueAnswerText.Text = "а";
             // 
             // label1
             // 
@@ -214,7 +262,7 @@
             this.recognizedText.Name = "recognizedText";
             this.recognizedText.Size = new System.Drawing.Size(74, 20);
             this.recognizedText.TabIndex = 1;
-            this.recognizedText.Text = "А";
+            this.recognizedText.Text = "а";
             // 
             // textViewPicture
             // 
@@ -342,7 +390,7 @@
             // 
             // learningRateNumeric
             // 
-            this.learningRateNumeric.DecimalPlaces = 3;
+            this.learningRateNumeric.DecimalPlaces = 6;
             this.learningRateNumeric.Increment = new decimal(new int[] {
             1,
             0,
@@ -412,7 +460,7 @@
             legend1.Name = "Legend1";
             this.chart1.Legends.Add(legend1);
             this.chart1.Location = new System.Drawing.Point(219, 19);
-            this.chart1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chart1.Margin = new System.Windows.Forms.Padding(2);
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
@@ -421,39 +469,6 @@
             this.chart1.Size = new System.Drawing.Size(478, 242);
             this.chart1.TabIndex = 5;
             this.chart1.Text = "chart1";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(198, 100);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(42, 13);
-            this.label12.TabIndex = 43;
-            this.label12.Text = "Отступ";
-            // 
-            // paddingVNumeric
-            // 
-            this.paddingVNumeric.Location = new System.Drawing.Point(358, 98);
-            this.paddingVNumeric.Maximum = new decimal(new int[] {
-            359,
-            0,
-            0,
-            0});
-            this.paddingVNumeric.Name = "paddingVNumeric";
-            this.paddingVNumeric.Size = new System.Drawing.Size(36, 20);
-            this.paddingVNumeric.TabIndex = 45;
-            // 
-            // paddingHNumeric
-            // 
-            this.paddingHNumeric.Location = new System.Drawing.Point(396, 98);
-            this.paddingHNumeric.Maximum = new decimal(new int[] {
-            359,
-            0,
-            0,
-            0});
-            this.paddingHNumeric.Name = "paddingHNumeric";
-            this.paddingHNumeric.Size = new System.Drawing.Size(36, 20);
-            this.paddingHNumeric.TabIndex = 46;
             // 
             // BackPropoginationForm
             // 
@@ -466,6 +481,8 @@
             this.Text = "BackPropogination Net";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingHNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingVNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.textRotateNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.textViewPicture)).EndInit();
             this.groupBox2.ResumeLayout(false);
@@ -475,8 +492,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.learnIterationsNumeric)).EndInit();
             this.groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.paddingVNumeric)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.paddingHNumeric)).EndInit();
             this.ResumeLayout(false);
 
         }

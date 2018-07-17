@@ -2,20 +2,20 @@
 
 namespace Neuro.ActivationFunctions
 {
-    public class BipolarSigmoidFunction : IActivationFunction
+    public class Sigmoid : IActivationFunction
     {
         public double Alpha { get; set; } = 2;
-        public double MinRange { get; set; } = -1;
+        public double MinRange { get; set; } = 0;
         public double MaxRange { get; set; } = 1;
         
         public double Activation(double x)
         {
-            return (2 / (1 + Math.Exp(-Alpha * x))) - 1;
+            return 1 / (1 + Math.Exp(-Alpha * x));
         }
 
-        public double Derivative(double y)
+        public double Derivative(double x)
         {
-            return Alpha * (1 - y * y) / 2;
+            return  Alpha * x * (1 - x);
         }
     }
 }

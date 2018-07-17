@@ -30,7 +30,7 @@ namespace Neuro.Neurons
 
         public double Compute(IEnumerable<double> input)
         {
-            var e = input.AsParallel().Select((xn, n) => Weights[n] * xn).Sum();
+            var e = input.Select((xn, n) => Weights[n] * xn).Sum();
 
             Output = Function.Activation(e);
 

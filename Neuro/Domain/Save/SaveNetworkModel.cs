@@ -19,6 +19,8 @@ namespace Neuro.Neurons
     {
         public LayerType Type { get; set; }
         
+        public ActivationType ActivationType { get; set; }
+        
         public int OutputLength { get; set; }
         
         public int KernelSize { get; set; }

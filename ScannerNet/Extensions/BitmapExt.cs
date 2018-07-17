@@ -104,13 +104,14 @@ namespace ScannerNet.Extensions
         public static double[,] GetDoubleMatrix(this Bitmap bitmap)
         {
             var result = new double[bitmap.Height, bitmap.Width];
-            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
-            var step = bitmap.GetStep();
+            var procesBitmap = (Bitmap)bitmap.Clone();
+            var bitmapData = procesBitmap.LockBits(new Rectangle(0, 0, procesBitmap.Width, procesBitmap.Height), ImageLockMode.ReadWrite, procesBitmap.PixelFormat);
+            var step = procesBitmap.GetStep();
 
             unsafe
             {
-                int imageHeight = bitmap.Height;
-                int imageWidth = bitmap.Width;
+                int imageHeight = procesBitmap.Height;
+                int imageWidth = procesBitmap.Width;
                 
                 Parallel.For(0, imageHeight, (int y) =>
                 {
@@ -124,7 +125,7 @@ namespace ScannerNet.Extensions
                 });
             }
             
-            bitmap.UnlockBits(bitmapData);
+            procesBitmap.UnlockBits(bitmapData);
 
             return result;
         }
