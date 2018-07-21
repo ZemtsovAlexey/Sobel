@@ -1,4 +1,5 @@
-﻿using ManagedCuda;
+﻿/*
+using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using System;
 using System.Diagnostics;
@@ -16,31 +17,14 @@ namespace ConsoleApp1
         {
             cntxt = new CudaContext();
             CUmodule cumodule = cntxt.LoadModulePTX(@"C:\work\Sobel\CudaTest\x64\Debug\kernel.ptx");
-            matrixSumCude = new CudaKernel("_Z15matrixSumKernelPdPKdiii", cumodule, cntxt);
+            matrixSumCude = new CudaKernel("_Z9addKernelPiPKiS1_", cumodule, cntxt);
         }
 
         [DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
         unsafe public extern static int* addWithCuda(int* c, int* a, int* b, int size);
 
-        //[DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
-        //unsafe public extern static void matrixSum(double* b, double* a, int x, int y, int z);
-
         [DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
         public extern static void matrixSum(double[] b, double[] a, int x, int y, int z);
-
-        static double[] MatrixSum(double[][,] matrix)
-        {
-            int z = matrix.Length;
-            int y = matrix[0].GetLength(0);
-            int x = matrix[0].GetLength(1);
-
-            var result = new double[y * x];
-            var input = ToLinearArray(matrix);
-
-            matrixSum(result, input, x, y, z);
-
-            return result;
-        }
 
         static int[] TestPinvoke(int[] a, int[] b)
         {
@@ -80,100 +64,109 @@ namespace ConsoleApp1
         //    }
         //}
 
-        //static double[] MatrixSum(double[][,] matrix)
-        //{
-        //    int z = matrix.Length;
-        //    int y = matrix[0].GetLength(0);
-        //    int x = matrix[0].GetLength(1);
+        static double[] MatrixSum(double[][,] matrix)
+        {
+            int z = matrix.Length;
+            int y = matrix[0].GetLength(0);
+            int x = matrix[0].GetLength(1);
 
-        //    var result = new double[y * x];
-        //    var input = ToLinearArray(matrix);
+            var result = new double[y * x];
+            var input = ToLinearArray(matrix);
 
-        //    unsafe
-        //    {
-        //        fixed (double* Result = result, Input = input)
-        //        {
-        //            matrixSum(Result, Input, x, y, z);
-        //            Marshal.Copy((IntPtr)Result, result, 0, (y * x));
-        //        }
-        //    }
+            matrixSum(result, input, x, y, z);
 
-        //    return result;
-        //}
+            return result;
+        }
 
         static void Main(string[] args)
         {
-            //InitKernels();
-            const int size = 2;
-            const int deep = 2;
+            const int size = 5;
 
-            var c = GetMatrixes(deep, size);
+            var a = new int[size] { 2, 2, 2, 2, 2 };
+            var b = new int[size] { 2, 2, 2, 2, 2 };
+            TestPinvoke(a, b);
 
-            Console.WriteLine();
-            //var aa = ToLinearArray(new float[1][,] { c[0] });
-            //var bb = ToLinearArray(new float[1][,] { c[1] });
-            //SumMatrixManagedCuda(c);
+            var c = new float[2][,]
+            {
+               new float[size, size]
+               {
+                    { 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2 }
+               },
+               new float[size, size]
+               {
+                    { 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2 }
+               }
+            };
+
+            var aa = ToLinearArray(new float[1][,] { c[0] });
+            var bb = ToLinearArray(new float[1][,] { c[1] });
+
             //Console.WriteLine(string.Join(",", MatrixSum(c)));
-            //TestPinvoke(a, b);
+            TestPinvoke(a, b);
 
             var st = new Stopwatch();
             st.Start();
 
-            //Parallel.For(0, 1000, i => {
-            //    SumMatrixCpu(c);
-            //});
             SumMatrixCpu(c);
-            //Console.WriteLine(string.Join(",", SumMatrixCpu(c)));
 
             Console.WriteLine($"CPU - {st.Elapsed}");
-            //st.Restart();
-
-            //Parallel.For(0, 1000, i => { SumMatrixManagedCuda(c); });
-            ////SumMatrixManagedCuda(c);
-
-            //Console.WriteLine($"CUD - {st.Elapsed}");
             st.Restart();
 
-            Console.WriteLine(string.Join(",", MatrixSum(c)));
-            //Parallel.For(0, 1000, i => { MatrixSum(c); });
+            //Console.WriteLine(string.Join(",", MatrixSum(c)));
             //MatrixSum(c);
 
+            TestPinvoke(a, b);
+
             Console.WriteLine($"GPU - {st.Elapsed}");
-            var key = Console.ReadKey();
 
-            Main(args);
+            //var matrix = new double[1][,];
+            //int N = 1000;
+            //var size = ((((N * (double)N) * sizeof(double)) / 8) / 1024) / 1024;
+            //matrix[0] = new double[N, N];
+
+            //var st = new Stopwatch();
+
+            //InitKernels();
+            //SumMatrixCuda(matrix);
+
+            //st.Start();
+
+            //for (var i = 0; i < 100; i++)
+            //    SumMatrixCpu(matrix);
+
+            //st.Stop();
+            //Console.WriteLine(st.Elapsed);
+            //st.Restart();
+
+            //for (var i = 0; i < 100; i++)
+            //    SumMatrixCuda(matrix);
+
+            //st.Stop();
+            //Console.WriteLine(st.Elapsed);
         }
 
-        static double[][,] GetMatrixes(int deep, int width)
-        {
-            var c = new double[deep][,];
-
-            for (var i = 0; i < deep; i++)
-            {
-                c[i] = new double[width, width];
-
-                for (var y = 0; y < c[i].GetLength(0); y++)
-                    for (var x = 0; x < c[i].GetLength(1); x++)
-                        c[i][y, x] = i + 1;
-            }
-
-            return c;
-        }
-
-        static double[] SumMatrixCpu(double[][,] matrix)
+        static double[,] SumMatrixCpu(double[][,] matrix)
         {
             int Z = matrix.Length;
             int Y = matrix[0].GetLength(0);
             int X = matrix[0].GetLength(1);
 
-            var result = new double[Y * X];
+            var result = new double[Y, X];
             var lm = ToLinearArray(matrix);
 
             for (var i = 0; i < Z; i++)
             {
                 for (var y = 0; y < Y; y++)
                     for (var x = 0; x < X; x++)
-                        result[y * X + x] += lm[(i * Y * X) + (y * X + x)];
+                        result[y, x] += lm[(i * Y * X) + (y * X + x)];
             }
 
             return result;
@@ -198,35 +191,24 @@ namespace ConsoleApp1
             return result;
         }
 
-        static double[] SumMatrixManagedCuda(double[][,] matrix)
+        static int[] SumMatrixManagedCuda(int[] a, int[] b)
         {
-            int Z = matrix.Length;
-            int Y = matrix[0].GetLength(0);
-            int X = matrix[0].GetLength(1);
+            int N = a.Length;
+            var result = new int[N];
 
-            var result = new double[Y * X];
-            var lm = ToLinearArray(matrix);
-            int N = lm.Length;
+            //matrixSumCude.SetComputeSize((uint)(N + 127) / 512, 512, 1);
+            matrixSumCude.BlockDimensions = 128;
+            matrixSumCude.GridDimensions = (N + 127) / 128;
 
-            matrixSumCude.SetComputeSize((uint)X, (uint)Y);
-            //matrixSumCude.BlockDimensions = 128;
-            //matrixSumCude.GridDimensions = (N + 127) / 128;
-
-            var da = cntxt.AllocateMemory(N * sizeof(double));
-            var db = cntxt.AllocateMemory(result.Length * sizeof(double));
-
-            cntxt.CopyToDevice(da, lm);
-            cntxt.CopyToDevice(db, result);
-
-            //CudaDeviceVariable<int> dA = a;
-            //CudaDeviceVariable<int> dB = b;
-            //CudaDeviceVariable<int> dC = new CudaDeviceVariable<int>(N);
+            CudaDeviceVariable<int> dA = a;
+            CudaDeviceVariable<int> dB = b;
+            CudaDeviceVariable<int> dC = new CudaDeviceVariable<int>(N);
 
             // Invoke kernel
             //kernel.Run(dA.DevicePointer, dC.DevicePointer, dimX, dimY, dimZ);
-            matrixSumCude.Run(db, da, X, Y, Z);
+            matrixSumCude.Run(dC.DevicePointer, dA.DevicePointer, dB.DevicePointer);
 
-            cntxt.CopyToHost<double>(result, db);
+            result = dC;
 
             return result;
         }
@@ -403,3 +385,4 @@ public struct Test
 
     public double[][] Cord { get; set; }
 }
+*/

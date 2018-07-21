@@ -1,9 +1,8 @@
 ﻿using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.VectorTypes;
-using Neuro.Extensions;
 
-namespace Neuro.GPU
+namespace ConsoleApp1
 {
     public static class Class1
     {
@@ -18,7 +17,7 @@ namespace Neuro.GPU
         //    //kernel1 = new CudaKernel("_Z9matrixSumPdS_iii", cumodule, ctx);
         //}
 
-        public static double[,] Test(double[][,] a)
+        public static double[,] TestMatrix(double[][,] a)
         {
             using (CudaContext ctx = new CudaContext(0))
             {
@@ -66,9 +65,40 @@ namespace Neuro.GPU
         }
     }
 
-    public struct Test
+    public static class DoubleExtension
     {
-        public double[,] Cord { get; set; }
+        public static double[] ToLinearArray(this double[][,] outputs)
+        {
+            var imageHeight = outputs[0].GetLength(0);
+            var imageWidth = outputs[0].GetLength(1);
+            var result = new double[outputs.Length * imageHeight * imageWidth];
+
+            /*Parallel.For(0, outputs.Length, (int i) =>
+            {
+                Parallel.For(0, imageHeight, (int h) =>
+                {
+                    Parallel.For(0, imageWidth, (int w) =>
+                    {
+                        var position = (i * (imageWidth * imageHeight)) + (h * imageWidth + w);
+                        result[position] = outputs[i][h, w];
+                    });
+                });
+            });*/
+
+            for (var i = 0; i < outputs.Length; i++)
+            {
+                for (var h = 0; h < imageHeight; h++)
+                {
+                    for (var w = 0; w < imageWidth; w++)
+                    {
+                        var position = (i * (imageWidth * imageHeight)) + (h * imageWidth + w);
+                        result[position] = outputs[i][h, w];
+                    }
+                }
+            }
+
+            return result;
+        }
     }
 
 }

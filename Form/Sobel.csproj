@@ -91,6 +91,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class1.cs" />
     <Compile Include="Extensions\StringExt.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -141,10 +142,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Neuro.GPU\Neuro.GPU.csproj">
-      <Project>{3c85025f-0fc7-4fa7-bf6f-e95e6cf2c5a4}</Project>
-      <Name>Neuro.GPU</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Neuro.ThirdPath\Neuro.ThirdPath.csproj">
       <Project>{6e0df37b-173d-4f96-9a3f-c3268097e800}</Project>
       <Name>Neuro.ThirdPath</Name>

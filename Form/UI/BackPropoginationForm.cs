@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using Neuro.GPU;
+using Neuro;
 using Neuro.ThirdPath;
 using ScannerNet;
 using ScannerNet.Extensions;
@@ -31,8 +31,8 @@ namespace Sobel.UI
             InitializeComponent();
             InitLerningChart();
 
-//            var a = new Class1();
-//            a.Test();
+            //var a = new Class1();
+            //a.Test();
 
             //networkThirdPath.Init();
         }
@@ -101,13 +101,13 @@ namespace Sobel.UI
             _neadToStopLearning = false;
             InitLerningChart();
 
-//            LearnNew();
+            //LearnNew();
             await Task.Run(() => LearnNew());
-//            LearnThirdPath();
-//            await Task.Run(() => LearnAnyNeurons());
-//            LearnAnyNeurons();
+            //            LearnThirdPath();
+            //            await Task.Run(() => LearnAnyNeurons());
+            //            LearnAnyNeurons();
 
-//            totalTimeText.Text = st.ElapsedMilliseconds.ToString();
+            //            totalTimeText.Text = st.ElapsedMilliseconds.ToString();
         }
 
         private void stopLearnButton_Click(object sender, EventArgs e)

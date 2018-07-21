@@ -27,7 +27,7 @@ namespace Sobel.Neronet
             Network = new ConvolutionalNetwork();
 
             Network.InitLayers(28, 28,
-                new ConvolutionalLayer(relu, 30, 5),
+                new ConvolutionalLayer(relu, 20, 5),
                 new MaxPoolingLayer(2),
                 new ConvolutionalLayer(relu, 40, 3),
                 new MaxPoolingLayer(2),
