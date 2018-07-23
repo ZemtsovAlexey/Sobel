@@ -12,7 +12,7 @@ namespace Neuro.Domain.Layers
         
         FullyConnectedNeuron[] Neurons { get; }
         
-        double[] Outputs { get; }
+        float[] Outputs { get; }
         
         IActivationFunction Function { get; }
         
@@ -20,6 +20,6 @@ namespace Neuro.Domain.Layers
 
         void Init(int inputsCount);
         
-        double[] Compute(double[] inputs);
+        float[] Compute(float[] inputs);
     }
 }

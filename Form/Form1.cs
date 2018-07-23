@@ -215,15 +215,15 @@ namespace Sobel
 
             foreach (var cord in cords.Take(500))
             {
-                var width = cord.Right - cord.Left;
-                var height = cord.Bottom - cord.Top;
+                var width = cord.Right - cord.Left + 8;
+                var height = cord.Bottom - cord.Top + 8;
 
                 if (width < 6 || height < 6)
                 {
                     continue;
                 }
 
-                var cloneRect = new Rectangle(cord.Left, cord.Top, width, height);
+                var cloneRect = new Rectangle(cord.Left - 4, cord.Top - 4, width, height);
                 var cloneBitmap = picture.Clone(cloneRect, picture.PixelFormat);
                 var cloneBitmap2 = picture2.Clone(cloneRect, picture2.PixelFormat);
 
@@ -248,7 +248,7 @@ namespace Sobel
                     Name = $"labelResult{i}",
                     Size = new System.Drawing.Size(120, pictureSize.y),
                     Text = netResult[0].ToString(),
-                    ForeColor = netResult[0] > 0.7 ? Color.DarkGreen : Color.Black
+                    ForeColor = netResult[0] > 0.5 ? Color.DarkGreen : Color.Black
                 };
 
                 panel2.Controls.Add(box);

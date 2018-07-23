@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using Neuro.ActivationFunctions;
 using Neuro.Layers;
-using Neuro.Neurons;
 
 namespace Neuro.Networks
 {
     public class ActivationNetwork// : Network
     {
-        public double[] Output;
+        public float[] Output;
         public FullyConnectedLayer[] Layers { get; set; }
         public int LayersCount => Layers.Length;
         public FullyConnectedLayer this[int index] => Layers[index];
@@ -44,7 +39,7 @@ namespace Neuro.Networks
             }
         }
         
-        public double[] Compute(double[] input)
+        public float[] Compute(float[] input)
         {
             Output = input;
 
@@ -99,7 +94,7 @@ namespace Neuro.Networks
 
                 foreach (var neuron in layer.Neurons)
                 {
-                    var weights = new double[neuron.Weights.Length];
+                    var weights = new float[neuron.Weights.Length];
 
                     for (var i = 0; i < neuron.Weights.Length; i++)
                     {

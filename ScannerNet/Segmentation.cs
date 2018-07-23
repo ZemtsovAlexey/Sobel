@@ -577,34 +577,34 @@ namespace ScannerNet
             }
 
             Random rnd = new Random();
-            
-//            unsafe
-//            {
-//                foreach (var cord in cordList.Where(x => x.Bottom - x.Top > 5 && x.Right - x.Left > 5))
-//                {
-//                    Color randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
-////                    Color randomColor = Color.Blue;
-                    
-//                    for (var y = cord.Top; y < cord.Bottom; y++)
-//                    {
-//                        var pRow = (byte*)newBitmapData.Scan0 + y * newBitmapData.Stride;
-//                        var offset = cord.Left * step;
 
-//                        for (var x = cord.Left; x < cord.Right; x++)
-//                        {
-//                            if (x == cord.Left || x == cord.Right - 1 || y == cord.Top || y == cord.Bottom - 1)
-//                            {
-//                                pRow[offset + 2] = randomColor.R;
-//                                pRow[offset + 1] = randomColor.G;
-//                                pRow[offset] = randomColor.B;
-//                            }
+            //unsafe
+            //{
+            //    foreach (var cord in cordList.Where(x => x.Bottom - x.Top > 5 && x.Right - x.Left > 5))
+            //    {
+            //        Color randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+            //        //                    Color randomColor = Color.Blue;
 
-//                            offset += step;
-//                        }
-//                    }
-//                }
-//            }
-            
+            //        for (var y = cord.Top; y < cord.Bottom; y++)
+            //        {
+            //            var pRow = (byte*)bitmapData.Scan0 + y * bitmapData.Stride;
+            //            var offset = cord.Left * step;
+
+            //            for (var x = cord.Left; x < cord.Right; x++)
+            //            {
+            //                if (x == cord.Left || x == cord.Right - 1 || y == cord.Top || y == cord.Bottom - 1)
+            //                {
+            //                    pRow[offset + 2] = randomColor.R;
+            //                    pRow[offset + 1] = randomColor.G;
+            //                    pRow[offset] = randomColor.B;
+            //                }
+
+            //                offset += step;
+            //            }
+            //        }
+            //    }
+            //}
+
             bitmap.UnlockBits(bitmapData);
             newBitmap.UnlockBits(newBitmapData);
 
@@ -713,10 +713,10 @@ namespace ScannerNet
             var H = random.Next(-padding.H, padding.H);
             var V = random.Next(-padding.V, padding.V);
 
-            cord.Left = Math.Min(bitmap.Width, Math.Max(0, cord.Left + H));
-            cord.Right = Math.Min(bitmap.Width, Math.Max(0, cord.Right + H));
-            cord.Top = Math.Min(bitmap.Height, Math.Max(0, cord.Top + V));
-            cord.Bottom = Math.Min(bitmap.Height, Math.Max(0, cord.Bottom + V));
+            cord.Left = Math.Min(bitmap.Width, Math.Max(0, cord.Left - 5 + H));
+            cord.Right = Math.Min(bitmap.Width, Math.Max(0, cord.Right + 5 + H));
+            cord.Top = Math.Min(bitmap.Height, Math.Max(0, cord.Top - 5 + V));
+            cord.Bottom = Math.Min(bitmap.Height, Math.Max(0, cord.Bottom + 5 + V));
 
             var resultBitmap = procBitmap.Clone(new RectangleF(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format32bppArgb);
             var newBitmap = new Bitmap(cord.Right - cord.Left, cord.Bottom - cord.Top, PixelFormat.Format32bppArgb);
@@ -816,11 +816,11 @@ namespace ScannerNet
             using (Mat hierachy = new Mat())
             using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
             {
-                CvInvoke.FindContours(cannyEdges, contours, hierachy, RetrType.List, ChainApproxMethod.ChainApproxTc89Kcos);
+                CvInvoke.FindContours(cannyEdges, contours, hierachy, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
 
                 for (int i = 0; i < contours.Size; i++)
                 {
-                    if (CvInvoke.ContourArea(contours[i]) > 8)
+                    if (CvInvoke.ContourArea(contours[i]) > 3)
                         for (int j = 0; j < contours[i].Size; j++)
                     {
                         var cArray = contours[i].ToArray();

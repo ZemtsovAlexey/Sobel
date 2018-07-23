@@ -160,6 +160,22 @@ namespace ConsoleApp1
             return c;
         }
 
+        static float[][,] GetMatrixesFloat(int deep, int width)
+        {
+            var c = new float[deep][,];
+
+            for (var i = 0; i < deep; i++)
+            {
+                c[i] = new float[width, width];
+
+                for (var y = 0; y < c[i].GetLength(0); y++)
+                    for (var x = 0; x < c[i].GetLength(1); x++)
+                        c[i][y, x] = i + 1;
+            }
+
+            return c;
+        }
+
         static double[] SumMatrixCpu(double[][,] matrix)
         {
             int Z = matrix.Length;

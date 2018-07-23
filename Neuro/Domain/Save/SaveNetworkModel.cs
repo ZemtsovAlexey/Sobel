@@ -33,7 +33,7 @@ namespace Neuro.Neurons
     [Serializable]
     internal class FullyConnectedNeuronSaveData
     {
-        public double[] Weights { get; set; } 
+        public float[] Weights { get; set; } 
     }
     
     [Serializable]
@@ -41,6 +41,6 @@ namespace Neuro.Neurons
     {
         public int KernelSize { get; set; }
 
-        public double[,] Weights { get; set; } 
+        public float[,] Weights { get; set; } 
     }
 }

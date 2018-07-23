@@ -40,7 +40,7 @@ namespace ScannerNet.Extensions
             return bitmap;
         }
         
-        public static Bitmap ToBitmap(this double[,] data)
+        public static Bitmap ToBitmap(this float[,] data)
         {
             var height = data.GetLength(0);
             var width = data.GetLength(1);
@@ -101,9 +101,9 @@ namespace ScannerNet.Extensions
             return result;
         }
         
-        public static double[,] GetDoubleMatrix(this Bitmap bitmap)
+        public static float[,] GetDoubleMatrix(this Bitmap bitmap)
         {
-            var result = new double[bitmap.Height, bitmap.Width];
+            var result = new float[bitmap.Height, bitmap.Width];
             var procesBitmap = (Bitmap)bitmap.Clone();
             var bitmapData = procesBitmap.LockBits(new Rectangle(0, 0, procesBitmap.Width, procesBitmap.Height), ImageLockMode.ReadWrite, procesBitmap.PixelFormat);
             var step = procesBitmap.GetStep();
@@ -120,7 +120,7 @@ namespace ScannerNet.Extensions
                     Parallel.For(0, imageWidth, (int x) =>
                     {
                         var offset = x * step;
-                        result[y, x] = step == 1 ? pRow[offset] : (pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3;
+                        result[y, x] = step == 1 ? pRow[offset] : ((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / (float)100000;
                     });
                 });
             }

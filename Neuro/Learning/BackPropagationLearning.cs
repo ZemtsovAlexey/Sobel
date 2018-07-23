@@ -8,23 +8,23 @@ namespace Neuro.Learning
     public class BackPropagationLearning : ILearning
     {
         private ActivationNetwork network;
-        private double[][] neuronErrors;
+        private float[][] neuronErrors;
 
-        public double LearningRate { get; set; } = 0.05f;
+        public float LearningRate { get; set; } = 0.05f;
 
         public BackPropagationLearning(ActivationNetwork network)
         {
             this.network = network;
 
-            neuronErrors = new double[network.LayersCount][];
+            neuronErrors = new float[network.LayersCount][];
 
             for (var i = 0; i < network.LayersCount; i++)
             {
-                neuronErrors[i] = new double[network[i].NeuronsCount];
+                neuronErrors[i] = new float[network[i].NeuronsCount];
             }
         }
 
-        public double Run(double[] input, double[] output)
+        public float Run(float[] input, float[] output)
         {
             network.Compute(input);
             CalculateError(output);
@@ -33,10 +33,10 @@ namespace Neuro.Learning
             return 0;
         }
 
-        private void CalculateError(double[] desiredOutput)
+        private void CalculateError(float[] desiredOutput)
         {        
             FullyConnectedLayer layer, layerNext;
-            double[] output, errors, errorsNext;
+            float[] output, errors, errorsNext;
 
             layer = network[network.LayersCount - 1];
             errors = neuronErrors[network.LayersCount - 1];
@@ -62,12 +62,12 @@ namespace Neuro.Learning
             }
         }
         
-        private void UpdateWeights(double[] input)
+        private void UpdateWeights(float[] input)
         {
             int lIndex, nIndex, wIndex;
             FullyConnectedNeuron[] neurons;
-            double[] weights;
-            double[] outputs = null;
+            float[] weights;
+            float[] outputs = null;
 
             for (lIndex = 0; lIndex < network.Layers.Length; lIndex++)
             {
@@ -86,7 +86,7 @@ namespace Neuro.Learning
             }
         }
         
-        private void UpdateWeightsParallel(double[] input)
+        private void UpdateWeightsParallel(float[] input)
         {
             var layers = network.Layers.Select((layer, i) => new { layer, Index = i }).AsParallel();
             

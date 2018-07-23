@@ -12,7 +12,7 @@ namespace Neuro.Layers
         public LayerType Type { get; set; } = LayerType.FullyConnected;
         public ActivationType ActivationFunctionType { get; }
         public FullyConnectedNeuron[] Neurons { get; }
-        public double[] Outputs { get; }
+        public float[] Outputs { get; }
         public int NeuronsCount => Neurons.Length;
         public FullyConnectedNeuron this[int index] => Neurons[index];
         public IActivationFunction Function { get; }
@@ -23,7 +23,7 @@ namespace Neuro.Layers
             Function = activationType.Get();
             neuronsCount = Math.Max(1, neuronsCount);
             Neurons = new FullyConnectedNeuron[neuronsCount];
-            Outputs = new double[neuronsCount];
+            Outputs = new float[neuronsCount];
 
         }
         
@@ -37,7 +37,7 @@ namespace Neuro.Layers
                 Neurons[i] = new FullyConnectedNeuron(inputsCount, activationFunction);
             }
 
-            Outputs = new double[neuronsCount];
+            Outputs = new float[neuronsCount];
 
         }
 
@@ -57,7 +57,7 @@ namespace Neuro.Layers
             }
         }
 
-        public double[] Compute(double[] inputs)
+        public float[] Compute(float[] inputs)
         {
             Neurons
                 .Select((neuron, i) => new {i, neuron})

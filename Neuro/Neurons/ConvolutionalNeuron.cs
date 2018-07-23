@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Neuro.ActivationFunctions;
+using Neuro.Extensions;
 
 namespace Neuro.Neurons
 {
@@ -12,9 +13,9 @@ namespace Neuro.Neurons
         private readonly int _inHeight;
 
         public IActivationFunction Function { get; set; }
-        private double[,] Input { get; set; }
-        public double[,] Weights { get; set; }
-        public double[,] Output { get; set; }
+        private float[,] Input { get; set; }
+        public float[,] Weights { get; set; }
+        public float[,] Output { get; set; }
 
         public ConvolutionalNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3)
         {
@@ -26,8 +27,8 @@ namespace Neuro.Neurons
             _inWidth = inWidth;
             _inHeight = inHeight;
             _kernelSize = kernelSize;
-            Weights = new double[kernelSize, kernelSize];
-            Output = new double[inHeight - kernelSize + 1, inWidth - kernelSize + 1];
+            Weights = new float[kernelSize, kernelSize];
+            Output = new float[inHeight - kernelSize + 1, inWidth - kernelSize + 1];
             Function = function;
         }
 
@@ -39,12 +40,12 @@ namespace Neuro.Neurons
             {
                 for (x = 0; x < _kernelSize; x++)
                 {
-                    Weights[y, x] = Random.NextDouble() * (Function.MaxRange - Function.MinRange) + Function.MinRange;
+                    Weights[y, x] = Random.NextFloat() * (Function.MaxRange - Function.MinRange) + Function.MinRange;
                 }
             }
         }
         
-        public double[,] Compute(double[][,] input)
+        public float[,] Compute(float[][,] input)
         {
             int i, y, x, h, w;
             var outputHeight = Output.GetLength(0);
@@ -52,8 +53,8 @@ namespace Neuro.Neurons
             var inputHeight = input[0].GetLength(0);
             var inputWidth = input[0].GetLength(1);
 
-            Output = new double[_inHeight - _kernelSize + 1, _inWidth - _kernelSize + 1];
-            Input = new double[inputHeight, inputWidth];
+            Output = new float[_inHeight - _kernelSize + 1, _inWidth - _kernelSize + 1];
+            Input = new float[inputHeight, inputWidth];
 
             //суммируем все входные изображения
             for (i = 0; i < input.Length; i++)

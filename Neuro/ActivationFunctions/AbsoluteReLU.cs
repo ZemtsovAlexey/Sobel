@@ -2,16 +2,16 @@
 {
     public class AbsoluteReLU : IActivationFunction
     {
-        public double Alpha { get; set; }
-        public double MinRange { get; set; } = -1;
-        public double MaxRange { get; set; } = 1;
+        public float Alpha { get; set; }
+        public float MinRange { get; set; } = -1;
+        public float MaxRange { get; set; } = 1;
         
-        public double Activation(double x)
+        public float Activation(float x)
         {
             return x >= 0 ? x : -x;
         }
 
-        public double Derivative(double x)
+        public float Derivative(float x)
         {
             return x >= 0 ? 1 : -1;
         }

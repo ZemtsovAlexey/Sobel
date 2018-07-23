@@ -2,12 +2,12 @@
 {
     public interface IMatrixLayer : ILayer
     {
-        double[][,] Outputs { get; }
+        float[][,] Outputs { get; }
      
         int OutputWidht { get; }
         
         int OutputHeight { get; }
         
-        double[][,] Compute(double[][,] input);
+        float[][,] Compute(float[][,] input);
     }
 }

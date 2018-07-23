@@ -14,11 +14,9 @@ namespace Neuro.Networks
 {
     public class ConvolutionalNetwork
     {
-        //public IConvolutionalLayer[] ConvLayers { get; set; }
-        //public IFullyConnectedLayer[] FullyConnectedLayers { get; set; }
         public ILayer[] Layers;
-        public double[] Output;
-        private double[][,] _output;
+        public float[] Output;
+        private float[][,] _output;
         private int InputWidth;
         private int InputHeight;
         
@@ -86,7 +84,7 @@ namespace Neuro.Networks
             }
         }
         
-        public double[] Compute(double[,] input)
+        public float[] Compute(float[,] input)
         {
             _output = new[] {input};
 
@@ -132,7 +130,7 @@ namespace Neuro.Networks
 
                     foreach (var neuron in fullyConnectedLayer.Neurons)
                     {
-                        var weights = new double[neuron.Weights.Length];
+                        var weights = new float[neuron.Weights.Length];
 
                         for (var i = 0; i < neuron.Weights.Length; i++)
                         {

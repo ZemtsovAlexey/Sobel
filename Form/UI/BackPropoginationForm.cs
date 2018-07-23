@@ -171,7 +171,7 @@ namespace Sobel.UI
 
             var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
             {
-                LearningRate = Convert.ToDouble(learningRateNumeric.Value)
+                LearningRate = (float)learningRateNumeric.Value
             };
 
             var st = new Stopwatch();
@@ -180,23 +180,23 @@ namespace Sobel.UI
             {
                 if (_neadToStopLearning) break;
 
-                teacher.LearningRate = Convert.ToDouble(learningRateNumeric.Value);
+                teacher.LearningRate = (float)learningRateNumeric.Value;
                 st.Start();
                 var text = _random.RandomSymble();
 
                 Bitmap bitmap;
-                double[] output;
+                float[] output;
                 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
                     bitmap = bmp.DrawString(text.symble, 50, rotateImage, random: _random).CutSymbol(padding).ResizeImage(pictureSize.x, pictureSize.y);
-                    output = new double[] { 0 };
+                    output = new float[] { 0 };
                     falseAnswerCount++;
                 }
                 else
                 {
                     bitmap = bmp.DrawString(trueAnswerText.Text, 50, rotateImage, random: _random).CutSymbol(padding).ResizeImage(pictureSize.x, pictureSize.y);
-                    output = new double[] { 0.71 };
+                    output = new float[] { 0.71f };
                     falseAnswerCount = 0;
                 }
                 
@@ -223,28 +223,28 @@ namespace Sobel.UI
             (string symble, int position) text;
             Bitmap bitmap;
             int falseAnswerCount = 0;
-            double[] output;
-            double error = 0;
+            float[] output;
+            float error = 0;
             int succeses = 0;
-            double totalTime = 0;
-            double totalError = 0;
-            var rotateImage = (double)textRotateNumeric.Value;
+            float totalTime = 0;
+            float totalError = 0;
+            var rotateImage = (float)textRotateNumeric.Value;
             var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
 
             long i = 0;
 
             var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
             {
-                LearningRate = Convert.ToDouble(learningRateNumeric.Value)
+                LearningRate = (float)learningRateNumeric.Value
             };
 
             var st = new Stopwatch();
             
-            while (succeses < (int)learningStopNumeric.Value && (iterations == 0 ||i < iterations))
+            while ((totalError > 0.01f || iterations < 20) && (iterations == 0 ||i < iterations))
             {
                 if (_neadToStopLearning) break;
 
-                teacher.LearningRate = Convert.ToDouble(learningRateNumeric.Value);
+                teacher.LearningRate = (float)learningRateNumeric.Value;
                 
 //                st.Start();
 
@@ -253,48 +253,48 @@ namespace Sobel.UI
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
                     bitmap = bmp.DrawString(text.symble, 50, rotateImage, random: _random).CutSymbol(padding).ResizeImage(pictureSize.x, pictureSize.y);
-                    output = new double[] { 0 };
+                    output = new float[] { 0f };
+                    var computed = _networkNew.Compute(bitmap)[0];
 
-                    
-                    if (_networkNew.Compute(bitmap)[0] >= 0.7)
+                    st.Start();
+
+                    if (computed >= 0.5f)
                     {
-                        st.Start();
-
                         totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
-                        
-                        st.Stop();
-                        totalTime += st.ElapsedMilliseconds;
                         
                         succeses = 0;
                     }
                     else
                     {
+                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed - teacher.LearningRate });
                         succeses++;
                     }
 
+                    st.Stop();
+                    totalTime += st.ElapsedMilliseconds;
                     falseAnswerCount++;
                 }
                 else
                 {
                     bitmap = bmp.DrawString(trueAnswerText.Text, 50, rotateImage, random: _random).CutSymbol(padding).ResizeImage(pictureSize.x, pictureSize.y);
-                    output = new double[] { 1 };
-                    
-                    if (_networkNew.Compute(bitmap)[0] < 0.7)
-                    {
-                        st.Start();
+                    output = new float[] { 1 };
+                    var computed = _networkNew.Compute(bitmap)[0];
 
+                    st.Start();
+
+                    if (computed < 0.5f)
+                    {
                         totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
-                        
-                        st.Stop();
-                        totalTime += st.ElapsedMilliseconds;
-                        
                         succeses = 0;
                     }
                     else
                     {
+                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed + teacher.LearningRate });
                         succeses++;
                     }
 
+                    st.Stop();
+                    totalTime += st.ElapsedMilliseconds;
                     falseAnswerCount = 0;
                 }
                 
@@ -319,16 +319,16 @@ namespace Sobel.UI
             var iterations = (long)learnIterationsNumeric.Value;
             (string symble, int position) text;
             Bitmap bitmap;
-            double[] output;
+            float[] output;
             int succeses = 0;
-            double totalTime = 0;
+            float totalTime = 0;
             var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
 
             long i = 0;
 
             var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
             {
-                LearningRate = Convert.ToDouble(learningRateNumeric.Value)
+                LearningRate = (float)learningRateNumeric.Value
             };
 
             var st = new Stopwatch();
@@ -361,11 +361,11 @@ namespace Sobel.UI
 
                 if (text.position != maxIter)
                 {
-                    output = new double[5];
+                    output = new float[5];
 
                     for (var j = 0; j < 5; j++)
                     {
-                        output[j] = j == text.position ? 0.75 : 0.1;
+                        output[j] = j == text.position ? 0.75f : 0.1f;
                     }
                     
                     teacher.Run(bitmap.GetDoubleMatrix(), output);
