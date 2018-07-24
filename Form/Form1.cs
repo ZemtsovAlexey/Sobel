@@ -22,6 +22,7 @@ namespace Sobel
         private int ImageHeight = 20;
         private string lastImgPath = null;
         private (int x, int y) pictureSize = (28, 28);
+        private Bitmap workImage;
         
         public Form1()
         {
@@ -38,6 +39,7 @@ namespace Sobel
                 {
                     lastImgPath = open.FileName;
                     Bitmap bit = new Bitmap(open.FileName);
+                    workImage = bit;
 
                     mainPicturePanel.AutoScrollPosition = new Point(0, 0);
                     pictureBox1.Location = new Point(3, 3);
@@ -72,24 +74,40 @@ namespace Sobel
         private void findTextButton_Click(object sender, EventArgs e)
         {
             byte difMin = (byte)findMinNumeric.Value;
-            var result = Segmentation.ShowTextCord2(new Bitmap(pictureBox1.Image), difMin);
+            var result = Segmentation.ShowTextCord2(new Bitmap(workImage), difMin);
+            workImage = result.img;
             pictureBox1.Image = result.img; //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
             cords = result.cords;
         }
 
         private void prevVertPos_Click(object sender, EventArgs e)
         {
-            vertPos.Value = vertPos.Value - 1;
-            pictureBox1.Image = Utils.ShowDifferent(pictureBox1.Image, (int)vertPos.Value, (int)horPosition.Value);
+            Y--;
+            var result = Segmentation.ShowTextCordDebug(new Bitmap(workImage), Y);
+//            workImage = result.img;
+            pictureBox1.Image = result.img; //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
+            cords = result.cords;
+            
+            
+//            vertPos.Value = vertPos.Value - 1;
+//            pictureBox1.Image = Utils.ShowDifferent(pictureBox1.Image, (int)vertPos.Value, (int)horPosition.Value);
         }
 
         public Bitmap PrevHorPosImage = null;
 
+        private int Y = 0;
+        
         private void nextVertPos_Click(object sender, EventArgs e)
         {
-            vertPos.Value = vertPos.Value + 1;
-            PrevHorPosImage = PrevHorPosImage ?? new Bitmap(pictureBox1.Image);
-            pictureBox1.Image = Utils.ShowDifferent(PrevHorPosImage, (int)vertPos.Value, (int)horPosition.Value);
+            Y++;
+            var result = Segmentation.ShowTextCordDebug(new Bitmap(workImage), Y);
+//            workImage = result.img;
+            pictureBox1.Image = result.img; //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
+            cords = result.cords;
+//            
+//            vertPos.Value = vertPos.Value + 1;
+//            PrevHorPosImage = PrevHorPosImage ?? new Bitmap(pictureBox1.Image);
+//            pictureBox1.Image = Utils.ShowDifferent(PrevHorPosImage, (int)vertPos.Value, (int)horPosition.Value);
         }
 
         private void nextHorPos_Click(object sender, EventArgs e)
@@ -107,7 +125,8 @@ namespace Sobel
 
         private void applyContrast_Click(object sender, EventArgs e)
         {
-            pictureBox1.Image = new Bitmap(pictureBox1.Image).Contrast((int)contrastValue.Value);
+            workImage = new Bitmap(workImage).Contrast((int)contrastValue.Value);
+            pictureBox1.Image = workImage;
         }
 
         private void SearchSolutionWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -158,6 +177,7 @@ namespace Sobel
 
             Bitmap bit = new Bitmap(lastImgPath);
             pictureBox1.Image = bit;
+            workImage = bit;
         }
 
         private void sobelFilter2_Click(object sender, EventArgs e)
@@ -165,13 +185,16 @@ namespace Sobel
 //            var c = new Canny(new Bitmap(lastImgPath), 80F, 35F, 5, 1);
 //            pictureBox1.Image = c.DisplayImage(c.EdgeMap);
 //            pictureBox1.BackgroundImage = new Bitmap(pictureBox1.BackgroundImage).GetGrayMap().ToBitmap();
-            pictureBox1.Image = Segmentation.Test(new Bitmap(pictureBox1.Image));
+            workImage = Segmentation.Test(new Bitmap(workImage));
+            pictureBox1.Image = workImage;
         }
 
         private void cannyApplyButton_Click(object sender, EventArgs e)
         {
-            var c = new Canny(new Bitmap(pictureBox1.Image), (float)cannyThNumeric.Value, (float)cannyTlNumeric.Value, (int)kernelNumeric.Value, (int)sigmaNumeric.Value);
-            pictureBox1.Image = c.DisplayImage(c.EdgeMap);
+            //var c = new Canny(new Bitmap(pictureBox1.Image), (float)cannyThNumeric.Value, (float)cannyTlNumeric.Value, (int)kernelNumeric.Value, (int)sigmaNumeric.Value);
+            //pictureBox1.Image = c.DisplayImage(c.EdgeMap);
+            workImage = new Bitmap(pictureBox1.Image).Canny((double)cannyThNumeric.Value, (double)cannyTlNumeric.Value, (int)kernelNumeric.Value);
+            pictureBox1.Image = workImage;
         }
 
         private void gaussianFilterButton_Click(object sender, EventArgs e)
@@ -213,7 +236,7 @@ namespace Sobel
             //cords = result.cords;
             var i = 0;
 
-            foreach (var cord in cords.Take(500))
+            foreach (var cord in cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).Take(500))
             {
                 var width = cord.Right - cord.Left + 8;
                 var height = cord.Bottom - cord.Top + 8;

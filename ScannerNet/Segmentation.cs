@@ -374,11 +374,11 @@ namespace ScannerNet
             return docAvrBright;
         }
         
-        public static Bitmap Canny(this Bitmap bitmap)
+        public static Bitmap Canny(this Bitmap bitmap, double threshold1 = 70, double threshold2 = 130, int aperture = 3)
         {
             Image<Gray, byte> gray = new Image<Gray, byte>(bitmap);
             CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
-            CvInvoke.Canny(gray, gray, 70, 130);
+            CvInvoke.Canny(gray, gray, threshold1, threshold2, aperture);
 
             var grayMap = gray.ToBitmap();
 
@@ -515,100 +515,26 @@ namespace ScannerNet
         
         public static (Bitmap img, List<Cord> cords) ShowTextCord2(Bitmap bitmap, byte min = 5)
         {
-            //var newBitmap = (Bitmap)bitmap.Clone();
-
             Image<Gray, byte> gray = new Image<Gray, byte>(bitmap);
-            CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
-            CvInvoke.Canny(gray, gray, 70, 130);
+            //CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
+//            CvInvoke.Canny(gray, gray, 70, 130);
 
-            var grayMap = gray.ToBitmap().GetGrayMap();
-            var map = grayMap;//GetMapBySobel(grayMap);
+            var cordList = gray.ToBitmap().GetCords();
+            var resultImage = cordList.DrawCords(bitmap);
 
-            var newBitmap = (Bitmap)gray.ToBitmap().Clone();
-            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
-            var newBitmapData = newBitmap.LockBits(new Rectangle(0, 0, newBitmap.Width, newBitmap.Height), ImageLockMode.ReadWrite, newBitmap.PixelFormat);
-            
-            var step = newBitmap.PixelFormat == PixelFormat.Format24bppRgb ? 3 : 4;
-            var cordList = new List<Cord>();
-            
-            for (var y = 5; y < bitmap.Height; y++)
-            {
-                int? leftCord = null;
+            return (resultImage, cordList);
+        }
+        
+        public static (Bitmap img, List<Cord> cords) ShowTextCordDebug(Bitmap bitmap, int Y, byte min = 5)
+        {
+            Image<Gray, byte> gray = new Image<Gray, byte>(bitmap);
+            //CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
+//            CvInvoke.Canny(gray, gray, 70, 130);
 
-                for (var x = 5; x < bitmap.Width; x++)
-                {
-                    var point = map[y, x];
+            var cordList = gray.ToBitmap().GetCordsDebug(Y);
+            var resultImage = cordList.DrawCords(bitmap);
 
-                    if (leftCord == null && point > min)
-                    {
-                        leftCord = x;
-                    }
-                    else if (leftCord != null && point == 0)
-                    {
-                        var prevCords = cordList.Where(c => c.Bottom < y && c.Bottom > y - 2 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
-
-                        if (!prevCords.Any())
-                        {
-                            cordList.Add(new Cord(y, y, leftCord.Value, x));
-                        }
-                        else
-                        {
-                            var newCord = new Cord
-                            {
-                                Top = prevCords.Min(c => c.Top),
-                                Bottom = y,
-                                Left = Math.Min(leftCord.Value, prevCords.Min(c => c.Left)),
-                                Right = Math.Max(x, prevCords.Max(c => c.Right)),
-                            };
-
-                            cordList.RemoveAll(c => c.Bottom < y && c.Bottom > y - 2 && leftCord <= c.Right + 0 && x >= c.Left - 0);
-                            
-                            cordList.Add(newCord);
-                        }
-                        
-                        leftCord = null;
-                    }
-                }
-                
-                if (leftCord != null)
-                {
-                    cordList.Add(new Cord(y, y, leftCord.Value, bitmap.Width - 1));
-                }
-            }
-
-            Random rnd = new Random();
-
-            //unsafe
-            //{
-            //    foreach (var cord in cordList.Where(x => x.Bottom - x.Top > 5 && x.Right - x.Left > 5))
-            //    {
-            //        Color randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
-            //        //                    Color randomColor = Color.Blue;
-
-            //        for (var y = cord.Top; y < cord.Bottom; y++)
-            //        {
-            //            var pRow = (byte*)bitmapData.Scan0 + y * bitmapData.Stride;
-            //            var offset = cord.Left * step;
-
-            //            for (var x = cord.Left; x < cord.Right; x++)
-            //            {
-            //                if (x == cord.Left || x == cord.Right - 1 || y == cord.Top || y == cord.Bottom - 1)
-            //                {
-            //                    pRow[offset + 2] = randomColor.R;
-            //                    pRow[offset + 1] = randomColor.G;
-            //                    pRow[offset] = randomColor.B;
-            //                }
-
-            //                offset += step;
-            //            }
-            //        }
-            //    }
-            //}
-
-            bitmap.UnlockBits(bitmapData);
-            newBitmap.UnlockBits(newBitmapData);
-
-            return (newBitmap, cordList);
+            return (resultImage, cordList);
         }
 
         public static Bitmap ShowCord(this Bitmap bitmap, int X = 0, int Y = 0, int width = 1, int height = 1)
@@ -758,8 +684,8 @@ namespace ScannerNet
             var newBitmap = (Bitmap)bitmap.Clone();
             Image<Gray, byte> gray = new Image<Gray, byte>(newBitmap);
             var cImage = new Image<Gray, byte>(newBitmap);
-            CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
-            CvInvoke.Canny(gray, gray, 70, 130);
+            //CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
+            //CvInvoke.Canny(gray, gray, 70, 130);
 
             //return gray.ToBitmap();
 
@@ -816,7 +742,7 @@ namespace ScannerNet
             using (Mat hierachy = new Mat())
             using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
             {
-                CvInvoke.FindContours(cannyEdges, contours, hierachy, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
+                CvInvoke.FindContours(cannyEdges, contours, hierachy, RetrType.List, ChainApproxMethod.ChainApproxSimple);
 
                 for (int i = 0; i < contours.Size; i++)
                 {
@@ -929,357 +855,6 @@ namespace ScannerNet
                 theta += rad;
             }
             return table;
-        }
-
-        public static Bitmap FindRows(Bitmap bitmap)
-        {
-            var newBitmap = (Bitmap) bitmap.Clone();
-            var height = newBitmap.Height;
-            var width = newBitmap.Width;
-            var delimiter = width;// / 25;
-
-            for (int part = 0; part < (width / delimiter); part++)
-            {
-                var bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, newBitmap.PixelFormat);
-                //var rowsCordList = GetRowsCord(bitmapData, new LineCord {Top = 0, Bottom = height - 1});
-                var rowsCordList = GetRowsCordSobel(bitmapData, null,null);
-
-                var newBitmapData = newBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, newBitmap.PixelFormat);
-
-                unsafe
-                {
-                    foreach (var rowCord in rowsCordList)
-                    {
-                        var newRowCord = new LineCord
-                        {
-                            Top = rowCord.Top > 0 ? rowCord.Top - 1 : 0,
-                            Bottom = rowCord.Bottom < bitmapData.Height - 1 ? rowCord.Bottom + 1 : rowCord.Bottom
-                        };
-
-                        var columnsCordList = GetColumnsCordSobel(bitmapData, null, newRowCord);
-                        columnsCordList = columnsCordList.Any() ? columnsCordList : new List<LineCord> { new LineCord { Top = 0, Bottom = bitmapData.Width - 1 } };
-
-
-                        foreach (var columnCord in columnsCordList)
-                        {
-                            var columnLeft = (byte*) newBitmapData.Scan0 + (columnCord.Top * 4);
-                            var columnRight = (byte*) newBitmapData.Scan0 + (columnCord.Bottom * 4);
-                            var columnOffset = rowCord.Top * bitmapData.Stride;
-
-                            for (int y = rowCord.Top; y < rowCord.Bottom; ++y)
-                            {
-                                columnLeft[columnOffset] = 0;
-                                columnLeft[columnOffset + 1] = 200;
-                                columnLeft[columnOffset + 2] = 0;
-
-                                columnRight[columnOffset] = 0;
-                                columnRight[columnOffset + 1] = 0;
-                                columnRight[columnOffset + 2] = 200;
-
-                                columnOffset += bitmapData.Stride;
-                            }
-                            
-                            var rowTop = (byte*) newBitmapData.Scan0 + (rowCord.Top * newBitmapData.Stride);
-                            var rowBottom = (byte*) newBitmapData.Scan0 + (rowCord.Bottom * newBitmapData.Stride);
-                            var rowOffset = columnCord.Top * 4;
-
-                            for (int x = columnCord.Top; x < columnCord.Bottom; ++x)
-                            {
-                                rowTop[rowOffset] = 0;
-                                rowTop[rowOffset + 1] = 200;
-                                rowTop[rowOffset + 2] = 0;
-
-                                rowBottom[rowOffset] = 0;
-                                rowBottom[rowOffset + 1] = 0;
-                                rowBottom[rowOffset + 2] = 200;
-
-                                rowOffset += 4;
-                            }
-                        }
-                    }
-                }
-
-                bitmap.UnlockBits(bitmapData);
-                newBitmap.UnlockBits(newBitmapData);
-            }
-
-            return newBitmap;
-        }
-        
-        public static Bitmap FindColumns(Bitmap bitmap, int delimiter = 0)
-        {
-            var newBitmap = (Bitmap) bitmap.Clone();
-            var filterdBitmap = bitmap.Contrast(50);
-            filterdBitmap = Sobel(filterdBitmap);
-            var height = filterdBitmap.Height;
-            var width = filterdBitmap.Width;
-            
-            delimiter = delimiter > 0 ? height / delimiter : height;
-
-            for (int part = 0; part < (height / delimiter); part++)
-            {
-                var bitmapData = filterdBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, filterdBitmap.PixelFormat);
-                var columnsBright = new float[width];
-
-                unsafe
-                {
-                    for (var x = 0; x < width; ++x)
-                    {
-                        var pData = (byte*) bitmapData.Scan0 + x * 4;
-                        var offset = delimiter * part * bitmapData.Stride;
-                        var lineBright = 0;
-
-                        for (var y = 0; y < delimiter; y++)
-                        {
-                            lineBright += GetBright(pData[offset + 2], pData[offset + 1], pData[offset]);
-                            offset += bitmapData.Stride;
-                        }
-
-                        columnsBright[x] = (float) 1 / height * lineBright;
-                    }
-                }
-
-                filterdBitmap.UnlockBits(bitmapData);
-
-                var columnsAvrBright = 0.4f * ((float) 1 / width * columnsBright.Sum());
-                var columnsCordList = GetLinesCord(columnsBright, columnsAvrBright);
-
-                var newBitmapData = newBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, newBitmap.PixelFormat);
-
-                unsafe
-                {
-                    foreach (var columnCord in columnsCordList)
-                    {
-                        var columnLeft = (byte*) newBitmapData.Scan0 + (columnCord.Top * 4);
-                        var columnRight = (byte*) newBitmapData.Scan0 + (columnCord.Bottom * 4);
-                        var columnOffset = delimiter * part * bitmapData.Stride;
-
-                        for (int y = 0; y < delimiter; ++y)
-                        {
-                            columnLeft[columnOffset] = 0;
-                            columnLeft[columnOffset + 1] = 200;
-                            columnLeft[columnOffset + 2] = 0;
-
-                            columnRight[columnOffset] = 0;
-                            columnRight[columnOffset + 1] = 0;
-                            columnRight[columnOffset + 2] = 200;
-
-                            columnOffset += bitmapData.Stride;
-                        }
-                    }
-                }
-
-                newBitmap.UnlockBits(newBitmapData);
-            }
-
-            return newBitmap;
-        }
-        
-        public static Bitmap FindLines(Bitmap bitmap)
-        {
-            var height = bitmap.Height;
-            var width = bitmap.Width;
-            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
-
-            var linesBright = new float[height];
-            
-            unsafe
-            {
-                for (var y = 0; y < height; y++)
-                {
-                    var row = (byte*)bitmapData.Scan0 + (y * bitmapData.Stride);
-                    var columnOffset = 0;
-                    var lineBright = 0;
-
-                    for (var x = 0; x < width; ++x)
-                    {
-                        lineBright += GetBright(row[columnOffset + 2], row[columnOffset + 1], row[columnOffset]);
-                        columnOffset += 4;
-                    }
-
-                    linesBright[y] = (float)1 / width * lineBright;
-                }
-            }
-
-            bitmap.UnlockBits(bitmapData);
-
-            var imgAvrBright = 0.4f * ((float)1 / height * linesBright.Sum());
-            var lineCordList = GetLinesCord(linesBright, imgAvrBright);
-            
-            var newBitmap = (Bitmap) bitmap.Clone();
-            var newBitmapData = newBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, newBitmap.PixelFormat);
-
-            unsafe
-            {
-                foreach (var lineCord in lineCordList)
-                {
-                    var rowTop = (byte*)newBitmapData.Scan0 + (lineCord.Top * newBitmapData.Stride);
-                    var rowBottom = (byte*)newBitmapData.Scan0 + (lineCord.Bottom * newBitmapData.Stride);
-                    int columnOffset = 0;
-
-                    for (int x = 0; x < width; ++x)
-                    {
-                        rowTop[columnOffset] = 0;
-                        rowTop[columnOffset + 1] = 200;
-                        rowTop[columnOffset + 2] = 0;
-                        
-                        rowBottom[columnOffset] = 0;
-                        rowBottom[columnOffset + 1] = 0;
-                        rowBottom[columnOffset + 2] = 200;
-
-                        columnOffset += 4;
-                    }
-                }
-            }
-            
-            newBitmap.UnlockBits(newBitmapData);
-            
-            return newBitmap;
-        }
-
-        private static List<LineCord> GetRowsCord(BitmapData bitmapData, LineCord rowCord = null)
-        {
-            var height = bitmapData.Height;
-            var width = bitmapData.Width;
-            
-            rowCord = rowCord ?? new LineCord {Top = 0, Bottom = height - 1};
-            
-            var rowsBright = new float[rowCord.Bottom - rowCord.Top];
-
-            unsafe
-            {
-                for (var y = rowCord.Top; y < rowCord.Bottom; y++)
-                {
-                    var row = (byte*) bitmapData.Scan0 + (y * bitmapData.Stride);
-                    var columnOffset = 0;
-                    var lineBright = 0;
-
-                    for (var x = 0; x < width; ++x)
-                    {
-                        lineBright += GetBright(row[columnOffset + 2], row[columnOffset + 1], row[columnOffset]);
-                        columnOffset += 4;
-                    }
-
-                    rowsBright[y] = (float) 1 / width * lineBright;
-                }
-            }
-
-            var rowsAvrBright = (float) 1 / height * rowsBright.Sum();
-            
-            return GetLinesCord(rowsBright, rowsAvrBright);
-        }
-        
-        private static List<LineCord> GetColumnsCord(BitmapData bitmapData, LineCord columnCord = null, LineCord rowCord = null)
-        {
-            var height = bitmapData.Height;
-            var width = bitmapData.Width;
-
-            columnCord = columnCord ?? new LineCord {Top = 0, Bottom = width - 1};
-            rowCord = rowCord ?? new LineCord {Top = 0, Bottom = height - 1};
-            
-            var columnsBright = new float[columnCord.Bottom - columnCord.Top];
-
-            unsafe
-            {
-                for (var x = columnCord.Top; x < columnCord.Bottom; ++x)
-                {
-                    var pData = (byte*) bitmapData.Scan0 + x * 4;
-                    var offset = rowCord.Top * bitmapData.Stride;
-                    var lineBright = 0;
-
-                    for (var y = rowCord.Top; y < rowCord.Bottom; y++)
-                    {
-                        lineBright += GetBright(pData[offset + 2], pData[offset + 1], pData[offset]);
-                        offset += bitmapData.Stride;
-                    }
-
-                    columnsBright[x] = (float) 1 / height * lineBright;
-                }
-            }
-
-            var columnsAvrBright = ((float) 1 / width * columnsBright.Sum());
-            
-            return GetLinesCord(columnsBright, columnsAvrBright);
-        }
-
-        private static List<LineCord> GetRowsCordSobel(BitmapData bitmapData, LineCord columnCord = null, LineCord rowCord = null)
-        {
-            columnCord = columnCord ?? new LineCord { Top = 0, Bottom = bitmapData.Width - 1 };
-            rowCord = rowCord ?? new LineCord { Top = 0, Bottom = bitmapData.Height - 1 };
-
-            var height = rowCord.Bottom - rowCord.Top;
-            var width = columnCord.Bottom - columnCord.Top;
-
-            var columnsBright = new float[height];
-
-            unsafe
-            {
-                for (var y = rowCord.Top + 1; y < rowCord.Bottom; y++)
-                {
-                    var rowPrev = (byte*)bitmapData.Scan0 + ((y - 1) * bitmapData.Stride);
-                    var row = (byte*)bitmapData.Scan0 + (y * bitmapData.Stride);
-                    var lineBright = 0;
-                    int columnOffset = 0;
-
-                    for (var x = columnCord.Top; x < columnCord.Bottom; ++x)
-                    {
-                        var rowPrevPix = GetBright(rowPrev[columnOffset + 2], rowPrev[columnOffset + 1], rowPrev[columnOffset], false);
-                        var rowPix = GetBright(row[columnOffset + 2], row[columnOffset + 1], row[columnOffset], false);
-
-                        var rowDif = Math.Max(rowPix, rowPrevPix) - Math.Min(rowPix, rowPrevPix);
-                        var curPos = (byte)Math.Min(255, rowDif);
-
-                        lineBright += curPos;
-
-                        columnOffset += 4;
-                    }
-
-                    columnsBright[y] = (float)1 / height * lineBright;
-                }
-            }
-
-            var columnsAvrBright = ((float)1 / width * columnsBright.Sum());
-
-            return GetLinesCord(columnsBright, columnsAvrBright);
-        }
-
-        private static List<LineCord> GetColumnsCordSobel(BitmapData bitmapData, LineCord columnCord = null, LineCord rowCord = null)
-        {
-            columnCord = columnCord ?? new LineCord {Top = 0, Bottom = bitmapData.Width - 1};
-            rowCord = rowCord ?? new LineCord {Top = 0, Bottom = bitmapData.Height - 1};
-
-            var height = rowCord.Bottom - rowCord.Top;
-            var width = columnCord.Bottom - columnCord.Top;
-
-            var columnsBright = new float[width];
-
-            unsafe
-            {
-                for (var x = columnCord.Top; x < columnCord.Bottom; ++x)
-                {
-                    var pData = (byte*)bitmapData.Scan0 + x * 4;
-                    var offset = (rowCord.Top + 1) * bitmapData.Stride;
-                    var lineBright = 0;
-
-                    for (var y = rowCord.Top + 1; y < rowCord.Bottom; y++)
-                    {
-                        var rowPrevPix = GetBright(pData[offset - bitmapData.Stride + 2], pData[offset - bitmapData.Stride + 1], pData[offset - bitmapData.Stride], false);
-                        var rowPix = GetBright(pData[offset + 2], pData[offset + 1], pData[offset], false);
-
-                        var rowDif = Math.Max(rowPix, rowPrevPix) - Math.Min(rowPix, rowPrevPix);
-                        var curPos = (byte)Math.Min(255, rowDif);
-
-                        lineBright += curPos;
-                        offset += bitmapData.Stride;
-                    }
-
-                    columnsBright[x] = (float)1 / width * lineBright;
-                }
-            }
-
-            var columnsAvrBright = ((float)1 / height * columnsBright.Sum());
-
-            return GetLinesCord(columnsBright, columnsAvrBright);
         }
 
         private static int[] GetMapBySobel(BitmapData bitmapData, LineCord columnCord = null, LineCord rowCord = null)
@@ -1465,70 +1040,247 @@ namespace ScannerNet
             return (byte)Math.Max(0, Math.Min(255, bright));
         }
 
-        public static Bitmap ConvertTo1Bit(Bitmap input)
-        {
-            var masks = new byte[] {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
-            var output = new Bitmap(input.Width, input.Height, PixelFormat.Format1bppIndexed);
-            var data = new sbyte[input.Width, input.Height];
-            var inputData = input.LockBits(new Rectangle(0, 0, input.Width, input.Height), ImageLockMode.ReadOnly,
-                PixelFormat.Format24bppRgb);
-            try
-            {
-                var scanLine = inputData.Scan0;
-                var line = new byte[inputData.Stride];
-                for (var y = 0; y < inputData.Height; y++, scanLine += inputData.Stride)
-                {
-                    Marshal.Copy(scanLine, line, 0, line.Length);
-                    for (var x = 0; x < input.Width; x++)
-                    {
-                        data[x, y] =
-                            (sbyte) (64 * (GetGreyLevel(line[x * 3 + 2], line[x * 3 + 1], line[x * 3 + 0]) - 0.5));
-                    }
-                }
-            }
-            finally
-            {
-                input.UnlockBits(inputData);
-            }
-
-            var outputData = output.LockBits(new Rectangle(0, 0, output.Width, output.Height), ImageLockMode.WriteOnly,
-                PixelFormat.Format1bppIndexed);
-            try
-            {
-                var scanLine = outputData.Scan0;
-                for (var y = 0; y < outputData.Height; y++, scanLine += outputData.Stride)
-                {
-                    var line = new byte[outputData.Stride];
-                    for (var x = 0; x < input.Width; x++)
-                    {
-                        var j = data[x, y] > 0;
-                        if (j) line[x / 8] |= masks[x % 8];
-                        var error = (sbyte) (data[x, y] - (j ? 32 : -32));
-                        if (x < input.Width - 1) data[x + 1, y] += (sbyte) (7 * error / 16);
-                        if (y < input.Height - 1)
-                        {
-                            if (x > 0) data[x - 1, y + 1] += (sbyte) (3 * error / 16);
-                            data[x, y + 1] += (sbyte) (5 * error / 16);
-                            if (x < input.Width - 1) data[x + 1, y + 1] += (sbyte) (1 * error / 16);
-                        }
-                    }
-
-                    Marshal.Copy(line, 0, scanLine, outputData.Stride);
-                }
-            }
-            finally
-            {
-                output.UnlockBits(outputData);
-            }
-
-            return output;
-        }
-
         public static byte GetGreyLevel(byte r, byte g, byte b)
         {
             var res = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
             
             return (byte)Math.Max(0, Math.Min(255, res));
+        }
+
+        private static List<Cord> GetCords(this Bitmap bitmap, int min = 100)
+        {
+            var map = bitmap.GetGrayMap();
+            var cords = new List<Cord>();
+
+            for (var y = 0; y < bitmap.Height; y++)
+            {
+                int? leftCord = null;
+
+                for (var x = 0; x < bitmap.Width; x++)
+                {
+                    var point = map[y, x];
+
+                    if (leftCord == null && point > min)
+                    {
+                        leftCord = x;
+                    }
+                    else if (leftCord != null && point < min)
+                    {
+                        List<Cord> prevCords = cords.Where(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
+
+                        if (!prevCords.Any())
+                        {
+                            cords.Add(new Cord(y, y, leftCord.Value, x));
+                        }
+                        else
+                        {
+                            var newCord = new Cord
+                            {
+                                Top = prevCords.Min(c => c.Top),
+                                Bottom = y,
+                                Left = Math.Min(leftCord.Value, prevCords.Min(c => c.Left)),
+                                Right = Math.Max(x, prevCords.Max(c => c.Right)),
+                            };
+
+                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0);
+
+                            cords.Add(newCord);
+                        }
+
+                        leftCord = null;
+                    }
+                }
+
+                if (leftCord != null)
+                {
+                    cords.Add(new Cord(y, y, leftCord.Value, bitmap.Width - 1));
+                }
+            }
+            
+            /*for (var y = bitmap.Height - 1; y >= 0; y--)
+            {
+                int? leftCord = null;
+
+                for (var x = 0; x < bitmap.Width; x++)
+                {
+                    var point = map[y, x];
+
+                    if (leftCord == null && point > min)
+                    {
+                        leftCord = x;
+                    }
+                    else if (leftCord != null && point < min)
+                    {
+                        List<Cord> prevCords = cords.Where(c => c.Top > y && c.Top < y + 5 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
+
+                        if (!prevCords.Any())
+                        {
+                            cords.Add(new Cord(y, y, leftCord.Value, x));
+                        }
+                        else
+                        {
+                            var newCord = new Cord
+                            {
+                                Top = y,// prevCords.Min(c => c.Top),
+                                Bottom = prevCords.Min(c => c.Bottom),
+                                Left = Math.Min(leftCord.Value, prevCords.Min(c => c.Left)),
+                                Right = Math.Max(x, prevCords.Max(c => c.Right)),
+                            };
+
+//                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0);
+
+                            cords.Add(newCord);
+                        }
+
+                        leftCord = null;
+                    }
+                }
+
+                if (leftCord != null)
+                {
+                    cords.Add(new Cord(y, y, leftCord.Value, bitmap.Width - 1));
+                }
+            }*/
+
+            return cords;
+        }
+        
+        private static List<Cord> GetCordsDebug(this Bitmap bitmap, int Y, int min = 100)
+        {
+            var map = bitmap.GetGrayMap();
+            var cords = new List<Cord>();
+
+            for (var y = 0; y < Y; y++)
+            {
+                int? leftCord = null;
+
+                for (var x = 0; x < bitmap.Width; x++)
+                {
+                    var point = map[y, x];
+
+                    if (leftCord == null && point > min)
+                    {
+                        leftCord = x;
+                    }
+                    else if (leftCord != null && point < min)
+                    {
+                        List<Cord> prevCords = cords.Where(c => c.Bottom <= y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
+
+                        if (!prevCords.Any())
+                        {
+                            cords.Add(new Cord(y, y, leftCord.Value, x));
+                        }
+                        else
+                        {
+                            var newCord = new Cord
+                            {
+                                Top = prevCords.Min(c => c.Top),
+                                Bottom = y,
+                                Left = Math.Min(leftCord.Value, prevCords.Min(c => c.Left)),
+                                Right = Math.Max(x, prevCords.Max(c => c.Right)),
+                            };
+
+                            cords.RemoveAll(c => c.Bottom <= y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0);
+
+                            cords.Add(newCord);
+                        }
+
+                        leftCord = null;
+                    }
+                }
+
+                if (leftCord != null)
+                {
+                    cords.Add(new Cord(y, y, leftCord.Value, bitmap.Width - 1));
+                }
+            }
+            
+            /*for (var y = bitmap.Height - 1; y >= 0; y--)
+            {
+                int? leftCord = null;
+
+                for (var x = 0; x < bitmap.Width; x++)
+                {
+                    var point = map[y, x];
+
+                    if (leftCord == null && point > min)
+                    {
+                        leftCord = x;
+                    }
+                    else if (leftCord != null && point < min)
+                    {
+                        List<Cord> prevCords = cords.Where(c => c.Top > y && c.Top < y + 5 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
+
+                        if (!prevCords.Any())
+                        {
+                            cords.Add(new Cord(y, y, leftCord.Value, x));
+                        }
+                        else
+                        {
+                            var newCord = new Cord
+                            {
+                                Top = y,// prevCords.Min(c => c.Top),
+                                Bottom = prevCords.Min(c => c.Bottom),
+                                Left = Math.Min(leftCord.Value, prevCords.Min(c => c.Left)),
+                                Right = Math.Max(x, prevCords.Max(c => c.Right)),
+                            };
+
+//                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0);
+
+                            cords.Add(newCord);
+                        }
+
+                        leftCord = null;
+                    }
+                }
+
+                if (leftCord != null)
+                {
+                    cords.Add(new Cord(y, y, leftCord.Value, bitmap.Width - 1));
+                }
+            }*/
+
+            return cords;
+        }
+
+        private static Bitmap DrawCords(this List<Cord> cords, Bitmap bitmap)
+        {
+            var newBitmap = (Bitmap)bitmap.Clone();
+            var bitmapData = newBitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+            var rnd = new Random();
+            var step = bitmap.GetStep();
+
+            unsafe
+            {
+                foreach (var cord in cords)
+                {
+                    Color randomColor = Color.FromArgb(rnd.Next(200), rnd.Next(200), rnd.Next(200));
+
+                    for (var y = cord.Top; y <= cord.Bottom; y++)
+                    {
+                        var pRow = (byte*)bitmapData.Scan0 + y * bitmapData.Stride;
+                        var offset = cord.Left * step;
+
+                        for (var x = cord.Left; x <= cord.Right; x++)
+                        {
+                            if (x == cord.Left || x == cord.Right || y == cord.Top || y == cord.Bottom
+//                                || x == cord.Left + 1 || x == cord.Right - 2 || y == cord.Top + 1 || y == cord.Bottom - 2
+                                )
+                            {
+                                pRow[offset + 2] = randomColor.R;
+                                pRow[offset + 1] = randomColor.G;
+                                pRow[offset] = randomColor.B;
+                            }
+
+                            offset += step;
+                        }
+                    }
+                }
+            }
+
+            newBitmap.UnlockBits(bitmapData);
+
+            return newBitmap;
         }
     }
 }

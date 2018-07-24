@@ -10,6 +10,8 @@
 
         public int Right { get; set; }
 
+        public int RightPer { get; set; }
+        
         public Cord()
         {
         }
