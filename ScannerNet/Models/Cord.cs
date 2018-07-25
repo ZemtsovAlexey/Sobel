@@ -42,7 +42,10 @@
         
         public override int GetHashCode()
         {
-            return this.Top.GetHashCode() ^ this.Bottom.GetHashCode() ^ this.Left.GetHashCode() ^ this.Right.GetHashCode();
+            return this.Top.GetHashCode() ^ 
+                   this.Bottom.GetHashCode() ^ 
+                   this.Left.GetHashCode() ^ 
+                   this.Right.GetHashCode();
         }
     }
 }

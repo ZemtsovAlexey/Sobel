@@ -213,7 +213,8 @@ namespace Sobel
 
         private void autoRotateButton_Click(object sender, EventArgs e)
         {
-            pictureBox1.Image = Segmentation.AutoRotate(new Bitmap(pictureBox1.Image));
+            workImage = Segmentation.AutoRotate(new Bitmap(pictureBox1.Image));
+            pictureBox1.Image = workImage;
         }
 
         private void grayFilterButton_Click(object sender, EventArgs e)
@@ -244,7 +245,7 @@ namespace Sobel
             //cords = result.cords;
             var i = 0;
 
-            foreach (var cord in cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).Take(500))
+            foreach (var cord in cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).Take(500))
             {
                 var width = cord.Right - cord.Left + 4;
                 var height = cord.Bottom - cord.Top + 4;
@@ -300,6 +301,7 @@ namespace Sobel
         private void loadNetButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog open = new OpenFileDialog();
+            open.Filter = "Network Files(*.nw)|*.nw";
 
             if (open.ShowDialog() == DialogResult.OK)
             {

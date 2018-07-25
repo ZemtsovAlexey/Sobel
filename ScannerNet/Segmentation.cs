@@ -522,7 +522,7 @@ namespace ScannerNet
             var cordList = gray.ToBitmap().GetCords();
             var resultImage = cordList.DrawCords(bitmap);
 
-            return (gray.ToBitmap(), cordList);
+            return (resultImage/*gray.ToBitmap()*/, cordList);
         }
         
         public static (Bitmap img, List<Cord> cords) ShowTextCordDebug(Bitmap bitmap, int Y, byte min = 5)
@@ -571,7 +571,7 @@ namespace ScannerNet
             return newBitmap;
         }
 
-        public static Bitmap CutSymbol(this Bitmap bitmap, (int V, int H) padding, int scale = 8, byte min = 0)
+        public static Bitmap CutSymbol(this Bitmap bitmap, (int V, int H) padding, (int From, int To) scale)
         {
 //            var procBitmap = (Bitmap)bitmap.Clone(new RectangleF(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format32bppArgb);
 //            Image<Gray, byte> gray = new Image<Gray, byte>(procBitmap);
@@ -590,7 +590,7 @@ namespace ScannerNet
                 {
                     var point = map[y, x];
 
-                    if (leftCord == null && point > min)
+                    if (leftCord == null && point > 0)
                     {
                         leftCord = x;
                     }
@@ -639,7 +639,7 @@ namespace ScannerNet
             var H = random.Next(-padding.H, padding.H);
             var V = random.Next(-padding.V, padding.V);
 
-            var rScale = random.Next(scale);
+            var rScale = random.Next(scale.From, scale.To);
             
             cord.Left = Math.Min(bitmap.Width, Math.Max(0, cord.Left - rScale + H));
             cord.Right = Math.Min(bitmap.Width, Math.Max(0, cord.Right + rScale + H));
@@ -734,7 +734,7 @@ namespace ScannerNet
 
             newBitmap.UnlockBits(newBitmapData);
 
-            return (bitmap, cordList);
+            return (newBitmap, cordList);
         }
 
         public static List<Cord> FindContourList(IInputOutputArray cannyEdges)
@@ -744,7 +744,7 @@ namespace ScannerNet
             using (Mat hierachy = new Mat())
             using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
             {
-                CvInvoke.FindContours(cannyEdges, contours, hierachy, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+                CvInvoke.FindContours(cannyEdges, contours, hierachy, RetrType.List, ChainApproxMethod.ChainApproxSimple);
 
                 for (int i = 0; i < contours.Size; i++)
                 {
