@@ -266,6 +266,7 @@ namespace Sobel.UI
                     }
                     else
                     {
+                        if (succeses == 0)
                         totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed - teacher.LearningRate });
                         succeses++;
                     }
@@ -289,6 +290,7 @@ namespace Sobel.UI
                     }
                     else
                     {
+                        if (succeses == 0)
                         totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed + teacher.LearningRate });
                         succeses++;
                     }

@@ -23,5 +23,26 @@
             Left = left;
             Right = right;
         }
+
+        public override bool Equals(object obj)
+        {
+            var item = obj as Cord;
+
+            if (item == null)
+            {
+                return false;
+            }
+
+            return 
+                this.Top.Equals(item.Top) && 
+                this.Right.Equals(item.Right) && 
+                this.Left.Equals(item.Left) && 
+                this.Bottom.Equals(item.Bottom);
+        }
+        
+        public override int GetHashCode()
+        {
+            return this.Top.GetHashCode() ^ this.Bottom.GetHashCode() ^ this.Left.GetHashCode() ^ this.Right.GetHashCode();
+        }
     }
 }

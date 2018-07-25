@@ -380,6 +380,9 @@ namespace Sobel
         public static Bitmap DrawString(this Bitmap mapBitmap, string text, float fontSize = 100, double rotate = 0, Random random = null)
         {
             Graphics g = Graphics.FromImage(mapBitmap);
+//            var rndColorValue = random.Next(100, 255);
+//            Color randomColor = Color.FromArgb(rndColorValue, rndColorValue, rndColorValue);
+//            g.FillRectangle((Brush) new SolidBrush(randomColor), 0, 0, mapBitmap.Width, mapBitmap.Height);
             g.FillRectangle(Brushes.White, 0, 0, mapBitmap.Width, mapBitmap.Height);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;

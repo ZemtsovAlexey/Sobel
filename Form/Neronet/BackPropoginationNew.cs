@@ -34,6 +34,7 @@ namespace Sobel.Neronet
                 //new MaxPoolingLayer(2),
                 new FullyConnectedLayer(50, activation),
                 new FullyConnectedLayer(100, activation),
+                new FullyConnectedLayer(100, activation),
                 //new FullyConnectedLayer(50, activation),
                 //new FullyConnectedLayer(50, activation),
                 //new FullyConnectedLayer(100, activation),

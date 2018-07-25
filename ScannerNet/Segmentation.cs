@@ -516,13 +516,13 @@ namespace ScannerNet
         public static (Bitmap img, List<Cord> cords) ShowTextCord2(Bitmap bitmap, byte min = 5)
         {
             Image<Gray, byte> gray = new Image<Gray, byte>(bitmap);
-            //CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
-//            CvInvoke.Canny(gray, gray, 70, 130);
+//            CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
+            CvInvoke.Canny(gray, gray, 70, 130);
 
             var cordList = gray.ToBitmap().GetCords();
             var resultImage = cordList.DrawCords(bitmap);
 
-            return (resultImage, cordList);
+            return (gray.ToBitmap(), cordList);
         }
         
         public static (Bitmap img, List<Cord> cords) ShowTextCordDebug(Bitmap bitmap, int Y, byte min = 5)
@@ -571,7 +571,7 @@ namespace ScannerNet
             return newBitmap;
         }
 
-        public static Bitmap CutSymbol(this Bitmap bitmap, (int V, int H) padding, byte min = 0)
+        public static Bitmap CutSymbol(this Bitmap bitmap, (int V, int H) padding, int scale = 8, byte min = 0)
         {
 //            var procBitmap = (Bitmap)bitmap.Clone(new RectangleF(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format32bppArgb);
 //            Image<Gray, byte> gray = new Image<Gray, byte>(procBitmap);
@@ -639,10 +639,12 @@ namespace ScannerNet
             var H = random.Next(-padding.H, padding.H);
             var V = random.Next(-padding.V, padding.V);
 
-            cord.Left = Math.Min(bitmap.Width, Math.Max(0, cord.Left - 5 + H));
-            cord.Right = Math.Min(bitmap.Width, Math.Max(0, cord.Right + 5 + H));
-            cord.Top = Math.Min(bitmap.Height, Math.Max(0, cord.Top - 5 + V));
-            cord.Bottom = Math.Min(bitmap.Height, Math.Max(0, cord.Bottom + 5 + V));
+            var rScale = random.Next(scale);
+            
+            cord.Left = Math.Min(bitmap.Width, Math.Max(0, cord.Left - rScale + H));
+            cord.Right = Math.Min(bitmap.Width, Math.Max(0, cord.Right + rScale + H));
+            cord.Top = Math.Min(bitmap.Height, Math.Max(0, cord.Top - rScale + V));
+            cord.Bottom = Math.Min(bitmap.Height, Math.Max(0, cord.Bottom + rScale + V));
 
             var resultBitmap = procBitmap.Clone(new RectangleF(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format32bppArgb);
             var newBitmap = new Bitmap(cord.Right - cord.Left, cord.Bottom - cord.Top, PixelFormat.Format32bppArgb);
@@ -679,7 +681,7 @@ namespace ScannerNet
             return newBitmap;
         }
 
-        public static Bitmap Test(Bitmap bitmap)
+        public static (Bitmap img, List<Cord> cords) Test(Bitmap bitmap)
         {
             var newBitmap = (Bitmap)bitmap.Clone();
             Image<Gray, byte> gray = new Image<Gray, byte>(newBitmap);
@@ -732,7 +734,7 @@ namespace ScannerNet
 
             newBitmap.UnlockBits(newBitmapData);
 
-            return newBitmap;
+            return (bitmap, cordList);
         }
 
         public static List<Cord> FindContourList(IInputOutputArray cannyEdges)
@@ -742,7 +744,7 @@ namespace ScannerNet
             using (Mat hierachy = new Mat())
             using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
             {
-                CvInvoke.FindContours(cannyEdges, contours, hierachy, RetrType.List, ChainApproxMethod.ChainApproxSimple);
+                CvInvoke.FindContours(cannyEdges, contours, hierachy, RetrType.External, ChainApproxMethod.ChainApproxSimple);
 
                 for (int i = 0; i < contours.Size; i++)
                 {
@@ -764,7 +766,7 @@ namespace ScannerNet
                 }
             }
 
-            return resultCords;
+            return resultCords.Distinct().ToList();
         }
 
         public static VectorOfPoint FindLargestContour(IInputOutputArray cannyEdges, IInputOutputArray result)
@@ -1279,6 +1281,65 @@ namespace ScannerNet
             }
 
             newBitmap.UnlockBits(bitmapData);
+
+            return newBitmap;
+        }
+        
+        public static Bitmap ToBlackWite(this Bitmap bitmap)
+        {
+            return bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height), PixelFormat.Format1bppIndexed);
+            
+            var newBitmap = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+            var height = newBitmap.Height;
+            var width = newBitmap.Width;
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+            var newBitmapData = newBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, newBitmap.PixelFormat);
+            var step = bitmapData.PixelFormat == PixelFormat.Format24bppRgb ? 3 : 4;
+
+            unsafe
+            {
+                
+                for (var y = 1; y < height - 1; y++)
+                {
+                    byte c = 255;
+
+                    var rowPrev = (byte*)bitmapData.Scan0 + ((y - 1) * bitmapData.Stride);
+                    var row = (byte*)bitmapData.Scan0 + (y * bitmapData.Stride);
+                    
+                    var newRow = (byte*)newBitmapData.Scan0 + (y * newBitmapData.Stride);
+                    int columnOffset = 0;
+                    
+                    for (int x = 0; x < width; ++x)
+                    {
+                        if (columnOffset > 3)
+                        {
+                            var rowPrevPix = GetBright(rowPrev[columnOffset + 2], rowPrev[columnOffset + 1], rowPrev[columnOffset]);
+                            var rowPix = GetBright(row[columnOffset + 2], row[columnOffset + 1], row[columnOffset]);
+                            var rowPixPrev = GetBright(row[columnOffset - 2], row[columnOffset - 3], row[columnOffset - 4]);
+                       
+                            var rowPrevDif = Math.Max(rowPix, rowPixPrev) - Math.Min(rowPix, rowPixPrev);
+                            var rowDif = Math.Max(rowPix, rowPrevPix) - Math.Min(rowPix, rowPrevPix);
+                            var curPos = (byte)Math.Min(255, (rowDif + rowPrevDif) / 2);
+
+                            var diff = rowPixPrev - rowPix;
+                            var diffY = rowPrevPix - rowPix;
+                            c = diff > 10 || diffY > 10 ? (byte)255 : c;
+                            c = diff < -10 || diffY < -10 ? (byte)0 : c;
+
+                            newRow[columnOffset] = c;
+                            newRow[columnOffset + 1] = c;
+                            newRow[columnOffset + 2] = c;
+                            
+                            if (step > 3)
+                                newRow[columnOffset + 3] = 255;
+                        }
+                        
+                        columnOffset += step;
+                    }
+                }
+            }
+            
+            newBitmap.UnlockBits(newBitmapData);
 
             return newBitmap;
         }

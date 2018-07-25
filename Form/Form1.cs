@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -57,7 +58,10 @@ namespace Sobel
 
         private void sobelFilterButton_Click(object sender, EventArgs e)
         {
-            pictureBox1.Image = Segmentation.Sobel(new Bitmap(pictureBox1.Image));
+            var bmp = new Bitmap(workImage);
+            workImage = bmp.Clone(new Rectangle(0, 0, bmp.Width, bmp.Height), PixelFormat.Format1bppIndexed);
+//            workImage = Segmentation.ToBlackWite(new Bitmap(pictureBox1.Image));
+            pictureBox1.Image = workImage;
 //            pictureBox1.BackgroundImage = Segmentation.Sobel(new Bitmap(lastImgPath));
 
             //Bitmap a = AForge.Imaging.Image.Clone(new Bitmap(pictureBox1.ImageLocation), PixelFormat.Format8bppIndexed);
@@ -185,7 +189,9 @@ namespace Sobel
 //            var c = new Canny(new Bitmap(lastImgPath), 80F, 35F, 5, 1);
 //            pictureBox1.Image = c.DisplayImage(c.EdgeMap);
 //            pictureBox1.BackgroundImage = new Bitmap(pictureBox1.BackgroundImage).GetGrayMap().ToBitmap();
-            workImage = Segmentation.Test(new Bitmap(workImage));
+            var result = Segmentation.Test(new Bitmap(workImage));
+            workImage = result.img;
+            cords = result.cords;
             pictureBox1.Image = workImage;
         }
 
@@ -199,8 +205,10 @@ namespace Sobel
 
         private void gaussianFilterButton_Click(object sender, EventArgs e)
         {
-            pictureBox1.Image = new Bitmap(pictureBox1.Image).GetGrayMap()
+            workImage = new Bitmap(pictureBox1.Image).GetGrayMap()
                 .GaussianFilter((int) kernelNumeric.Value, (int) sigmaNumeric.Value).ToBitmap();
+
+            pictureBox1.Image = workImage;
         }
 
         private void autoRotateButton_Click(object sender, EventArgs e)
@@ -238,44 +246,53 @@ namespace Sobel
 
             foreach (var cord in cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).Take(500))
             {
-                var width = cord.Right - cord.Left + 8;
-                var height = cord.Bottom - cord.Top + 8;
+                var width = cord.Right - cord.Left + 4;
+                var height = cord.Bottom - cord.Top + 4;
 
                 if (width < 6 || height < 6)
                 {
                     continue;
                 }
 
-                var cloneRect = new Rectangle(cord.Left - 4, cord.Top - 4, width, height);
-                var cloneBitmap = picture.Clone(cloneRect, picture.PixelFormat);
-                var cloneBitmap2 = picture2.Clone(cloneRect, picture2.PixelFormat);
-
-                var bitmap = cloneBitmap.ResizeImage(pictureSize.x, pictureSize.y);
-                var bitmap2 = cloneBitmap2.ResizeImage(pictureSize.x, pictureSize.y);
-
-                var netResult = Network.Compute(bitmap.GetDoubleMatrix());
-
-                var box = new PictureBox
+                try
                 {
-                    Location = new System.Drawing.Point(10, 4 + (i * (pictureSize.y + 3))),
-                    Name = $"pictureBoxResult{i}",
-                    Size = new System.Drawing.Size(pictureSize.x, pictureSize.y),
-                    BackColor = Color.Black,
-                    Image = bitmap2,
-                    BorderStyle = BorderStyle.FixedSingle
-                };
+                    var cloneRect = new Rectangle(cord.Left - 2, cord.Top - 2, width, height);
+//                    var cloneRect = new Rectangle(cord.Left, cord.Top, width, height);
+                    var cloneBitmap = picture.Clone(cloneRect, picture.PixelFormat);
+                    var cloneBitmap2 = picture2.Clone(cloneRect, picture2.PixelFormat).ToBlackWite();
 
-                var label = new Label
+                    var bitmap = cloneBitmap.ResizeImage(pictureSize.x, pictureSize.y);
+                    var bitmap2 = cloneBitmap2.ResizeImage(pictureSize.x, pictureSize.y);
+
+                    var netResult = Network.Compute(bitmap.GetDoubleMatrix());
+
+                    var box = new PictureBox
+                    {
+                        Location = new System.Drawing.Point(10, 4 + (i * (pictureSize.y + 3))),
+                        Name = $"pictureBoxResult{i}",
+                        Size = new System.Drawing.Size(pictureSize.x, pictureSize.y),
+                        BackColor = Color.Black,
+                        Image = bitmap2,
+                        BorderStyle = BorderStyle.FixedSingle
+                    };
+
+                    var label = new Label
+                    {
+                        Location = new System.Drawing.Point(10 + pictureSize.x, 8 + (i * (pictureSize.y + 3))),
+                        Name = $"labelResult{i}",
+                        Size = new System.Drawing.Size(120, pictureSize.y),
+                        Text = netResult[0].ToString(),
+                        ForeColor = netResult[0] > 0.5 ? Color.DarkGreen : Color.Black
+                    };
+
+                    panel2.Controls.Add(box);
+                    panel2.Controls.Add(label);
+                }
+                catch
                 {
-                    Location = new System.Drawing.Point(10 + pictureSize.x, 8 + (i * (pictureSize.y + 3))),
-                    Name = $"labelResult{i}",
-                    Size = new System.Drawing.Size(120, pictureSize.y),
-                    Text = netResult[0].ToString(),
-                    ForeColor = netResult[0] > 0.5 ? Color.DarkGreen : Color.Black
-                };
-
-                panel2.Controls.Add(box);
-                panel2.Controls.Add(label);
+                    continue;
+                }
+                
                 i++;
             }
         }
