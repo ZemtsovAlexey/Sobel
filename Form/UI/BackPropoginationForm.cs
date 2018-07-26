@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using Neuro;
+using Neuro.Domain.Layers;
+using Neuro.Models;
+using Neuro.Neurons;
 using Neuro.ThirdPath;
 using ScannerNet;
 using ScannerNet.Extensions;
@@ -30,11 +33,79 @@ namespace Sobel.UI
         {
             InitializeComponent();
             InitLerningChart();
+            InitNetworkSettingsPanel();
 
             //var a = new Class1();
             //a.Test();
 
             //networkThirdPath.Init();
+        }
+
+        private void InitNetworkSettingsPanel()
+        {
+            var layerTypes = new object[]
+            {
+                LayerType.Convolution,
+                LayerType.MaxPoolingLayer,
+                LayerType.FullyConnected
+            };
+
+            var activationTypes = Enum.GetValues(typeof(ActivationType)).Cast<object>().ToArray();
+
+            var i = 0;
+            var rowHeigth = 23;
+
+            foreach (var layer in _networkNew.Network.Layers)
+            {
+                var layerType = new ComboBox()
+                {
+                    Size = new Size(100, rowHeigth),
+                    Location = new Point(10, 4 + (i * rowHeigth)),
+                };
+
+                layerType.Items.AddRange(layerTypes);
+                layerType.SelectedItem = layer.Type;
+                networkSettingsPanel.Controls.Add(layerType);
+
+                if (layer.Type == LayerType.Convolution)
+                {
+                    var convLayer = (IConvolutionalLayer)layer;
+                    var activationType = new ComboBox()
+                    {
+                        Size = new Size(100, rowHeigth),
+                        Location = new Point(113, 4 + (i * rowHeigth)),
+                    };
+
+                    activationType.Items.AddRange(activationTypes);
+                    activationType.SelectedItem = convLayer.ActivationFunctionType;
+                    networkSettingsPanel.Controls.Add(activationType);
+                }
+
+                if (layer.Type == LayerType.MaxPoolingLayer)
+                {
+                    var convLayer = (IMaxPoolingLayer)layer;
+                    var kernelLabel = new Label()
+                    {
+                        Size = new Size(80, rowHeigth),
+                        Location = new Point(113, 4 + (i * rowHeigth)),
+                        Text = "Размер ядра:"
+                    };
+                    var kernelSize = new NumericUpDown()
+                    {
+                        Size = new Size(40, rowHeigth),
+                        Location = new Point(193, 4 + (i * rowHeigth)),
+                        Value = convLayer.KernelSize,
+                        DecimalPlaces = 0,
+                        Minimum = 0,
+                        Maximum = 20
+                    };
+
+                    networkSettingsPanel.Controls.Add(kernelLabel);
+                    networkSettingsPanel.Controls.Add(kernelSize);
+                }
+
+                i++;
+            }
         }
 
         private void InitLerningChart()
