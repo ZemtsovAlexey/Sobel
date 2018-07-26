@@ -260,7 +260,7 @@ namespace Sobel
                     var cloneRect = new Rectangle(cord.Left - 2, cord.Top - 2, width, height);
 //                    var cloneRect = new Rectangle(cord.Left, cord.Top, width, height);
                     var cloneBitmap = picture.Clone(cloneRect, picture.PixelFormat);
-                    var cloneBitmap2 = picture2.Clone(cloneRect, picture2.PixelFormat).ToBlackWite();
+                    var cloneBitmap2 = picture2.Clone(cloneRect, picture2.PixelFormat);//.ToBlackWite();
 
                     var bitmap = cloneBitmap.ResizeImage(pictureSize.x, pictureSize.y);
                     var bitmap2 = cloneBitmap2.ResizeImage(pictureSize.x, pictureSize.y);
