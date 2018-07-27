@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -29,7 +30,10 @@ namespace Sobel.UI
         private bool _neadToStopLearning;
         private (int x, int y) pictureSize = (28, 28);
         private BindingSource bindingSource1 = new BindingSource();
-
+        private Rectangle dragBoxFromMouseDown;
+        private int rowIndexFromMouseDown;
+        private int rowIndexOfItemUnderMouseToDrop;
+        
         public BackPropoginationForm()
         {
             InitializeComponent();
@@ -85,6 +89,8 @@ namespace Sobel.UI
             dataGridView1.Columns.Add(column2);
             
             dataGridView1.EditingControlShowing += _DataGridView_EditingControlShowing;
+            dataGridView1.BindingContextChanged += new EventHandler(BindingContext_Changed);
+
             dataGridView1.DataSource = bindingSource1;
         }
         
@@ -94,51 +100,124 @@ namespace Sobel.UI
                 {
                     DataSource = Enum.GetValues(typeof(LayerType)),
                     DataPropertyName = "Type",
-                    Name = "Type"
+                    Name = "Type",
                 };
         }
         
         DataGridViewComboBoxColumn CreateComboBoxActivationType()
         {
+            var types = Enum.GetValues(typeof(ActivationType)).Cast<ActivationType>().ToList();
+            
             return new DataGridViewComboBoxColumn
             {
-                DataSource = Enum.GetValues(typeof(ActivationType)),
+                ValueType = typeof(ActivationType?),
+                DataSource = types,
                 DataPropertyName = "Activation",
                 Name = "Activation",
             };
         }
         
+        private void BindingContext_Changed(object sender, EventArgs e)
+        {
+            DataGridViewRowCollection rows = netSettingsDataGridView.Rows;
+
+            foreach (DataGridViewRow row in rows)
+            {
+                var type = row.Cells[0];
+
+                row.Cells[1].ReadOnly = type.Value != null && (LayerType) type.Value == LayerType.MaxPoolingLayer;
+            }
+        }
+        
         private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Wrapped in a Try/Catch because this code can be called before the row is initialized
+            
             try
             {
-                if ((sender as ComboBox)?.SelectedValue.ToString() == "MaxPoolingLayer")
+                var selectedValue = (sender as ComboBox)?.SelectedValue;
+                
+                if (selectedValue?.ToString() == "MaxPoolingLayer")
                 {
-//                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[1].SelectedValue = null;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[1].ReadOnly = true;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].ReadOnly = true;
+                    
+                    netSettingsDataGridView.EndEdit();
+                    
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[1].Value = ActivationType.None;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value = null;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[0].Value = LayerType.MaxPoolingLayer;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value ?? 2;
+                }
+                else if (selectedValue?.ToString() == "FullyConnected")
+                {
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].ReadOnly = true;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].ReadOnly = false;
+                    
+                    netSettingsDataGridView.EndEdit();
+                    
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value = null;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value ?? 1;;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[0].Value = LayerType.FullyConnected;
                 }
                 else
                 {
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[1].ReadOnly = false;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].ReadOnly = false;
+                    
+                    netSettingsDataGridView.EndEdit();
+                    
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value ?? 1;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value ?? 3;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[0].Value = selectedValue;
                 }
+
             }
             catch { }
         }
         
         private void _DataGridView_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
-//            e.Control.Name == "Type"
             if ((sender as DataGridView).SelectedCells[0].ColumnIndex == 0)
             {
                 if ((e.Control as ComboBox) != null)
                 {
-                    (e.Control as ComboBox).SelectedIndexChanged -= ComboBox_SelectedIndexChanged;
-                    (e.Control as ComboBox).SelectedIndexChanged += ComboBox_SelectedIndexChanged;
+                    (e.Control as ComboBox).SelectionChangeCommitted -= ComboBox_SelectedIndexChanged;
+                    (e.Control as ComboBox).SelectionChangeCommitted += ComboBox_SelectedIndexChanged;
                 }
             }
         }
+
+        private void dataGridView1_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
+        {
+//            if (e.Button == MouseButtons.Left)
+//            {
+//                netSettingsDataGridView.DoDragDrop(netSettingsDataGridView[Math.Max(0, e.ColumnIndex), e.RowIndex].FormattedValue, DragDropEffects.Copy);
+//            }
+        }
         
+        private void dataGridView1_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                netSettingsDataGridView.DoDragDrop(netSettingsDataGridView[Math.Max(0, e.ColumnIndex), e.RowIndex].FormattedValue, DragDropEffects.Copy);
+            }
+        }
+        
+        private void dataGridView1_DragOver(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+        }
+        
+        private void dataGridView1_DragDrope(object sender, DragEventArgs e)
+        {
+            string cellvalue=e.Data.GetData(typeof(string)) as string;
+            Point cursorLocation=this.PointToClient(new Point(e.X,e.Y));
+
+            DataGridView.HitTestInfo hittest= netSettingsDataGridView.HitTest(cursorLocation.X,cursorLocation.Y);
+            if (hittest.ColumnIndex != -1
+                && hittest.RowIndex != -1)
+                netSettingsDataGridView[hittest.ColumnIndex, hittest.RowIndex].Value = cellvalue;
+        }
         private void InitNetworkSettingsPanel()
         {
             var layerTypes = new object[]

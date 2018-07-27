@@ -5,6 +5,7 @@ namespace Neuro.Neurons
     [Serializable]
     public enum ActivationType
     {
+        None,
         BipolarSigmoid,
         Sigmoid,
         ELU,

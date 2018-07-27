@@ -545,12 +545,19 @@
             // 
             // netSettingsDataGridView
             // 
+            this.netSettingsDataGridView.AllowDrop = true;
+            this.netSettingsDataGridView.AllowUserToOrderColumns = true;
             this.netSettingsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.netSettingsDataGridView.Location = new System.Drawing.Point(6, 54);
+            this.netSettingsDataGridView.MultiSelect = false;
             this.netSettingsDataGridView.Name = "netSettingsDataGridView";
             this.netSettingsDataGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.netSettingsDataGridView.Size = new System.Drawing.Size(490, 219);
             this.netSettingsDataGridView.TabIndex = 1;
+            this.netSettingsDataGridView.CellMouseMove += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseMove);
+            this.netSettingsDataGridView.CellMouseUp += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseUp);
+            this.netSettingsDataGridView.DragDrop += new System.Windows.Forms.DragEventHandler(this.dataGridView1_DragDrope);
+            this.netSettingsDataGridView.DragOver += new System.Windows.Forms.DragEventHandler(this.dataGridView1_DragOver);
             // 
             // networkSettingsPanel
             // 

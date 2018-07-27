@@ -35,9 +35,9 @@ namespace Sobel.Neronet
                 new FullyConnectedLayer(150, activation),
                 new FullyConnectedLayer(100, activation),
                 new FullyConnectedLayer(100, activation),
-                //new FullyConnectedLayer(50, activation),
-                //new FullyConnectedLayer(50, activation),
-                //new FullyConnectedLayer(100, activation),
+                new FullyConnectedLayer(50, activation),
+                new FullyConnectedLayer(50, activation),
+                new FullyConnectedLayer(100, activation),
                 new FullyConnectedLayer(1, activation)
                 );
             
