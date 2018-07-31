@@ -48,6 +48,8 @@ namespace Sobel
                     pictureBox1.Dock = bit.Width < pictureBox1.Width && bit.Height < pictureBox1.Height ? DockStyle.Fill : DockStyle.None;
                     //mainPicturePanel.AutoScroll = bit.Width >= pictureBox1.Width && bit.Height >= pictureBox1.Height;
                     pictureBox1.Image = bit;
+                    Y = 0;
+                    X = 0;
                 }
             }
             catch (Exception)
@@ -100,6 +102,7 @@ namespace Sobel
         public Bitmap PrevHorPosImage = null;
 
         private int Y = 0;
+        private int X = 0;
         
         private void nextVertPos_Click(object sender, EventArgs e)
         {
@@ -116,15 +119,25 @@ namespace Sobel
 
         private void nextHorPos_Click(object sender, EventArgs e)
         {
+            X++;
+            var result = Segmentation.ShowTextCordHDebug(new Bitmap(workImage), X);
+            pictureBox1.Image = result.img;
+            cords = result.cords;
+            
             //pictureBox1.Image = Utils.TestSearch(new Bitmap(pictureBox1.Image));
-            horPosition.Value = horPosition.Value + 1;
-            pictureBox1.Image = Utils.ShowDifferent(pictureBox1.BackgroundImage, (int)vertPos.Value, (int)horPosition.Value);
+//            horPosition.Value = horPosition.Value + 1;
+//            pictureBox1.Image = Utils.ShowDifferent(pictureBox1.BackgroundImage, (int)vertPos.Value, (int)horPosition.Value);
         }
 
         private void prevHorPos_Click(object sender, EventArgs e)
         {
-            horPosition.Value = horPosition.Value - 1;
-            pictureBox1.Image = Utils.ShowDifferent(pictureBox1.Image, (int)vertPos.Value, (int)horPosition.Value);
+            X--;
+            var result = Segmentation.ShowTextCordHDebug(new Bitmap(workImage), X);
+            pictureBox1.Image = result.img;
+            cords = result.cords;
+            
+//            horPosition.Value = horPosition.Value - 1;
+//            pictureBox1.Image = Utils.ShowDifferent(pictureBox1.Image, (int)vertPos.Value, (int)horPosition.Value);
         }
 
         private void applyContrast_Click(object sender, EventArgs e)
@@ -236,6 +249,9 @@ namespace Sobel
 
         private void recognizeButton_Click(object sender, EventArgs e)
         {
+            searchText();
+            return;
+            
             panel2.Controls.Clear();
             var i = 0;
             List<(Bitmap img, Cord cord, float answer)> results = new List<(Bitmap img, Cord cord, float answer)>();
@@ -332,6 +348,29 @@ namespace Sobel
                 var setting = File.ReadAllBytes(open.FileName);
                 Network.Load(setting);
             }
+        }
+        
+        private void searchText()
+        {
+            const int rectHeight = 28;
+            const int rectWidth = 28;
+            var results = new List<(Bitmap img, Cord cord, float answer)>();
+            var bitmap = (Bitmap)workImage.Clone();
+            
+            for (var y = 0; y < bitmap.Height - rectHeight; y = y + 3)
+            {
+                for (var x = 0; x < bitmap.Width - rectWidth; x = x + 3)
+                {
+                    var cloneRect = new Rectangle(x, y, rectWidth, rectHeight);
+                    var cloneBitmap = bitmap.Clone(cloneRect, workImage.PixelFormat);
+                    var netResult = Network.Compute(cloneBitmap.GetDoubleMatrix());
+                    
+                    results.Add((cloneBitmap, new Cord(y, y + rectHeight, x, x + rectWidth), netResult[0]));
+                }
+            }
+            
+            var viewedCords = results.Where(x => x.answer > 0.5f).ToList();
+            pictureBox1.Image = viewedCords.Select(x => x.cord).Take(500).ToList().DrawCords(bitmap);
         }
     }
 }
