@@ -520,9 +520,9 @@ namespace ScannerNet
             CvInvoke.Canny(gray, gray, 70, 130);
 
             var cordList = gray.ToBitmap().GetCords();
-            var resultImage = cordList.DrawCords(bitmap);
+//            var resultImage = cordList.DrawCords(bitmap);
 
-            return (resultImage/*gray.ToBitmap()*/, cordList);
+            return (bitmap/*gray.ToBitmap()*/, cordList);
         }
         
         public static (Bitmap img, List<Cord> cords) ShowTextCordDebug(Bitmap bitmap, int Y, byte min = 5)
@@ -704,7 +704,7 @@ namespace ScannerNet
 
             var cordList = FindContourList(gray);
 
-            unsafe
+            /*unsafe
             {
                 //foreach (var cord in cordList.Where(x => x.Bottom - x.Top > 5 && x.Right - x.Left > 5))
                 foreach (var cord in cordList)
@@ -730,9 +730,10 @@ namespace ScannerNet
                         }
                     }
                 }
-            }
+            }*/
 
             newBitmap.UnlockBits(newBitmapData);
+            //var img = cordList.DrawCords(newBitmap);
 
             return (newBitmap, cordList);
         }
@@ -1068,7 +1069,7 @@ namespace ScannerNet
                     }
                     else if (leftCord != null && point < min)
                     {
-                        List<Cord> prevCords = cords.Where(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
+                        List<Cord> prevCords = cords.Where(c => c.Bottom <= y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
 
                         if (!prevCords.Any())
                         {
@@ -1084,7 +1085,7 @@ namespace ScannerNet
                                 Right = Math.Max(x, prevCords.Max(c => c.Right)),
                             };
 
-                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0);
+                            cords.RemoveAll(c => c.Bottom <= y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0);
 
                             cords.Add(newCord);
                         }
@@ -1245,7 +1246,7 @@ namespace ScannerNet
             return cords;
         }
 
-        private static Bitmap DrawCords(this List<Cord> cords, Bitmap bitmap)
+        public static Bitmap DrawCords(this List<Cord> cords, Bitmap bitmap)
         {
             var newBitmap = (Bitmap)bitmap.Clone();
             var bitmapData = newBitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
@@ -1266,7 +1267,7 @@ namespace ScannerNet
                         for (var x = cord.Left; x <= cord.Right; x++)
                         {
                             if (x == cord.Left || x == cord.Right || y == cord.Top || y == cord.Bottom
-//                                || x == cord.Left + 1 || x == cord.Right - 2 || y == cord.Top + 1 || y == cord.Bottom - 2
+                                || x == cord.Left + 1 || x == cord.Right - 2 || y == cord.Top + 1 || y == cord.Bottom - 2
                                 )
                             {
                                 pRow[offset + 2] = randomColor.R;

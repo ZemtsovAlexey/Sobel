@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using Neuro.Domain.Layers;
+using Neuro.Layers;
 using Neuro.Models;
 using Neuro.Neurons;
 using Neuro.ThirdPath;
@@ -49,7 +50,11 @@ namespace Sobel.UI
 
         private void InitNetworkSettings()
         {
+            bindingSource1 = new BindingSource();
             var dataGridView1 = netSettingsDataGridView;
+
+            dataGridView1.Columns.Clear();
+            dataGridView1.DataSource = null;
 
             foreach (var layer in _networkNew.Network.Layers)
             {
@@ -81,11 +86,13 @@ namespace Sobel.UI
             DataGridViewColumn column = new DataGridViewTextBoxColumn();
             column.DataPropertyName = "NeuronsCount";
             column.Name = "NeuronsCount";
+            column.Frozen = false;
             dataGridView1.Columns.Add(column);
-//            
+            
             DataGridViewColumn column2 = new DataGridViewTextBoxColumn();
             column2.DataPropertyName = "KernelSize";
             column2.Name = "KernelSize";
+            column2.Frozen = false;
             dataGridView1.Columns.Add(column2);
             
             dataGridView1.EditingControlShowing += _DataGridView_EditingControlShowing;
@@ -93,27 +100,29 @@ namespace Sobel.UI
 
             dataGridView1.DataSource = bindingSource1;
         }
-        
-        DataGridViewComboBoxColumn CreateComboBoxLayerType()
+
+        private DataGridViewComboBoxColumn CreateComboBoxLayerType()
         {
             return new DataGridViewComboBoxColumn
                 {
                     DataSource = Enum.GetValues(typeof(LayerType)),
                     DataPropertyName = "Type",
                     Name = "Type",
+                    Frozen = false
                 };
         }
         
-        DataGridViewComboBoxColumn CreateComboBoxActivationType()
+        private DataGridViewComboBoxColumn CreateComboBoxActivationType()
         {
             var types = Enum.GetValues(typeof(ActivationType)).Cast<ActivationType>().ToList();
-            
+
             return new DataGridViewComboBoxColumn
             {
                 ValueType = typeof(ActivationType?),
                 DataSource = types,
                 DataPropertyName = "Activation",
                 Name = "Activation",
+                Frozen = false
             };
         }
         
@@ -187,171 +196,50 @@ namespace Sobel.UI
             }
         }
 
-        private void dataGridView1_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
+        private void dataGridView1_MouseMove(object sender, MouseEventArgs e)
         {
-//            if (e.Button == MouseButtons.Left)
-//            {
-//                netSettingsDataGridView.DoDragDrop(netSettingsDataGridView[Math.Max(0, e.ColumnIndex), e.RowIndex].FormattedValue, DragDropEffects.Copy);
-//            }
-        }
-        
-        private void dataGridView1_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
+            if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
             {
-                netSettingsDataGridView.DoDragDrop(netSettingsDataGridView[Math.Max(0, e.ColumnIndex), e.RowIndex].FormattedValue, DragDropEffects.Copy);
+                if (dragBoxFromMouseDown != Rectangle.Empty && !dragBoxFromMouseDown.Contains(e.X, e.Y))
+                {
+                    DragDropEffects dropEffect = netSettingsDataGridView.DoDragDrop(netSettingsDataGridView.Rows[rowIndexFromMouseDown], DragDropEffects.Move);
+                }
             }
         }
-        
+
+        private void dataGridView1_MouseDown(object sender, MouseEventArgs e)
+        {
+            rowIndexFromMouseDown = netSettingsDataGridView.HitTest(e.X, e.Y).RowIndex;
+
+            if (rowIndexFromMouseDown != -1)
+            {
+                Size dragSize = SystemInformation.DragSize;
+                dragBoxFromMouseDown = new Rectangle(new Point(e.X - (dragSize.Width / 2), e.Y - (dragSize.Height / 2)), dragSize);
+            }
+            else
+            {
+                dragBoxFromMouseDown = Rectangle.Empty;
+            }
+        }
+
         private void dataGridView1_DragOver(object sender, DragEventArgs e)
         {
-            e.Effect = DragDropEffects.Copy;
+            e.Effect = DragDropEffects.Move;
         }
-        
-        private void dataGridView1_DragDrope(object sender, DragEventArgs e)
+
+        private void dataGridView1_DragDrop(object sender, DragEventArgs e)
         {
-            string cellvalue=e.Data.GetData(typeof(string)) as string;
-            Point cursorLocation=this.PointToClient(new Point(e.X,e.Y));
+            Point clientPoint = netSettingsDataGridView.PointToClient(new Point(e.X, e.Y));
+            rowIndexOfItemUnderMouseToDrop = netSettingsDataGridView.HitTest(clientPoint.X, clientPoint.Y).RowIndex;
 
-            DataGridView.HitTestInfo hittest= netSettingsDataGridView.HitTest(cursorLocation.X,cursorLocation.Y);
-            if (hittest.ColumnIndex != -1
-                && hittest.RowIndex != -1)
-                netSettingsDataGridView[hittest.ColumnIndex, hittest.RowIndex].Value = cellvalue;
-        }
-        private void InitNetworkSettingsPanel()
-        {
-            var layerTypes = new object[]
+            if (e.Effect == DragDropEffects.Move)
             {
-                LayerType.Convolution,
-                LayerType.MaxPoolingLayer,
-                LayerType.FullyConnected
-            };
+                DataGridViewRow rowToMove = e.Data.GetData(typeof(DataGridViewRow)) as DataGridViewRow;
+                var r = bindingSource1[rowIndexFromMouseDown];
+                bindingSource1.Insert(rowIndexOfItemUnderMouseToDrop, r);
+                bindingSource1.RemoveAt(rowIndexFromMouseDown);
 
-            var activationTypes = Enum.GetValues(typeof(ActivationType)).Cast<object>().ToArray();
-
-            var i = 0;
-            var rowHeigth = 23;
-
-            foreach (var layer in _networkNew.Network.Layers)
-            {
-                var layerType = new ComboBox()
-                {
-                    Size = new Size(100, rowHeigth),
-                    Location = new Point(10, 4 + (i * rowHeigth)),
-                };
-
-                layerType.Items.AddRange(layerTypes);
-                layerType.SelectedItem = layer.Type;
-                networkSettingsPanel.Controls.Add(layerType);
-
-                if (layer.Type == LayerType.Convolution)
-                {
-                    var convLayer = (IConvolutionalLayer)layer;
-                    var activationType = new ComboBox()
-                    {
-                        Size = new Size(100, rowHeigth),
-                        Location = new Point(113, 4 + (i * rowHeigth)),
-                    };
-
-                    activationType.Items.AddRange(activationTypes);
-                    activationType.SelectedItem = convLayer.ActivationFunctionType;
-                    
-                    var kernelLabel = new Label()
-                    {
-                        Size = new Size(35, rowHeigth),
-                        Location = new Point(213, 4 + (i * rowHeigth)),
-                        Text = "ядро:"
-                    };
-                    var kernelSize = new NumericUpDown()
-                    {
-                        Size = new Size(40, rowHeigth),
-                        Location = new Point(248, 4 + (i * rowHeigth)),
-                        Value = convLayer.KernelSize,
-                        DecimalPlaces = 0,
-                        Minimum = 0,
-                        Maximum = 20
-                    };
-                    
-                    var neuronsLabel = new Label()
-                    {
-                        Size = new Size(55, rowHeigth),
-                        Location = new Point(288, 4 + (i * rowHeigth)),
-                        Text = "нейроны:"
-                    };
-                    var neuronsSize = new NumericUpDown()
-                    {
-                        Size = new Size(40, rowHeigth),
-                        Location = new Point(343, 4 + (i * rowHeigth)),
-                        Value = convLayer.NeuronsCount,
-                        DecimalPlaces = 0,
-                        Minimum = 0,
-                        Maximum = 20
-                    };
-                    
-                    networkSettingsPanel.Controls.Add(activationType);
-                    networkSettingsPanel.Controls.Add(kernelLabel);
-                    networkSettingsPanel.Controls.Add(kernelSize);
-                    networkSettingsPanel.Controls.Add(neuronsLabel);
-                    networkSettingsPanel.Controls.Add(neuronsSize);
-                }
-
-                if (layer.Type == LayerType.MaxPoolingLayer)
-                {
-                    var convLayer = (IMaxPoolingLayer)layer;
-                    var kernelLabel = new Label()
-                    {
-                        Size = new Size(35, rowHeigth),
-                        Location = new Point(113, 4 + (i * rowHeigth)),
-                        Text = "ядро:"
-                    };
-                    var kernelSize = new NumericUpDown()
-                    {
-                        Size = new Size(40, rowHeigth),
-                        Location = new Point(148, 4 + (i * rowHeigth)),
-                        Value = convLayer.KernelSize,
-                        DecimalPlaces = 0,
-                        Minimum = 0,
-                        Maximum = 20
-                    };
-
-                    networkSettingsPanel.Controls.Add(kernelLabel);
-                    networkSettingsPanel.Controls.Add(kernelSize);
-                }
-
-                if (layer.Type == LayerType.FullyConnected)
-                {
-                    var convLayer = (IFullyConnectedLayer)layer;
-                    var activationType = new ComboBox()
-                    {
-                        Size = new Size(100, rowHeigth),
-                        Location = new Point(113, 4 + (i * rowHeigth)),
-                    };
-
-                    activationType.Items.AddRange(activationTypes);
-                    activationType.SelectedItem = convLayer.ActivationFunctionType;
-                    
-                    var neuronsLabel = new Label()
-                    {
-                        Size = new Size(55, rowHeigth),
-                        Location = new Point(213, 4 + (i * rowHeigth)),
-                        Text = "нейроны:"
-                    };
-                    var neuronsSize = new NumericUpDown()
-                    {
-                        Size = new Size(40, rowHeigth),
-                        Location = new Point(268, 4 + (i * rowHeigth)),
-                        DecimalPlaces = 0,
-                        Minimum = 0,
-                        Maximum = 1100,
-                        Value = convLayer.NeuronsCount,
-                    };
-                    
-                    networkSettingsPanel.Controls.Add(activationType);
-                    networkSettingsPanel.Controls.Add(neuronsLabel);
-                    networkSettingsPanel.Controls.Add(neuronsSize);
-                }
-
-                i++;
+                netSettingsDataGridView.DataSource = bindingSource1;
             }
         }
 
@@ -443,7 +331,7 @@ namespace Sobel.UI
             var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
             var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
 
-            var fontSize = _random.Next(15, 70);
+            var fontSize = 50;// _random.Next(15, 70);
             
             var bitmap = new Bitmap(b, textViewPicture.Width, textViewPicture.Height)
                 .DrawString(recognizedText.Text, fontSize, rotateImage, random: _random)
@@ -508,7 +396,7 @@ namespace Sobel.UI
                 if (_neadToStopLearning) break;
 
                 teacher.LearningRate = (float)learningRateNumeric.Value;
-                var fontSize = _random.Next(15, 50);
+                var fontSize = 50;//_random.Next(15, 50);
                 
 //                st.Start();
 
@@ -517,12 +405,12 @@ namespace Sobel.UI
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
                     bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ResizeImage(pictureSize.x, pictureSize.y);
-                    output = new float[] { 0f };
+                    output = new float[] { -1f };
                     var computed = _networkNew.Compute(bitmap)[0];
 
                     st.Start();
 
-                    if (computed >= 0.5f)
+                    if (computed >= 0f)
                     {
                         totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
                         
@@ -547,7 +435,7 @@ namespace Sobel.UI
 
                     st.Start();
 
-                    if (computed < 0.5f)
+                    if (computed < 0f)
                     {
                         totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
                         succeses = 0;
@@ -601,7 +489,35 @@ namespace Sobel.UI
             {
                 var a = File.ReadAllBytes(open.FileName);
                 _networkNew.Network.Load(a);
+                InitNetworkSettings();
             }
+        }
+
+        private void netSettingsApplyButton_Click(object sender, EventArgs e)
+        {
+            var data = bindingSource1.List.Cast<NetworkSettings>();
+            var initData = new List<ILayer>();
+            _networkNew.Network = new Neuro.Networks.ConvolutionalNetwork();
+
+            foreach(var item in data)
+            {
+                switch (item.Type) {
+                    case LayerType.Convolution:
+                        initData.Add(new ConvolutionalLayer(item.Activation.Value, item.NeuronsCount.Value, item.KernelSize.Value));
+                        break;
+
+                    case LayerType.MaxPoolingLayer:
+                        initData.Add(new MaxPoolingLayer(item.KernelSize.Value));
+                        break;
+
+                    case LayerType.FullyConnected:
+                        initData.Add(new FullyConnectedLayer(item.NeuronsCount.Value, item.Activation.Value));
+                        break;
+                }
+            }
+
+            _networkNew.Network.InitLayers(pictureSize.x, pictureSize.y, initData.ToArray());
+            _networkNew.Network.Randomize();
         }
     }
 }

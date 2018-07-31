@@ -30,14 +30,9 @@ namespace Sobel.Neronet
                 new MaxPoolingLayer(2),//12
                 new ConvolutionalLayer(relu, 15, 3),//10
                 new MaxPoolingLayer(2),//5
-                //new ConvolutionalLayer(relu, 30, 3),//3
-                //new MaxPoolingLayer(2),
                 new FullyConnectedLayer(150, activation),
                 new FullyConnectedLayer(100, activation),
-                new FullyConnectedLayer(100, activation),
                 new FullyConnectedLayer(50, activation),
-                new FullyConnectedLayer(50, activation),
-                new FullyConnectedLayer(100, activation),
                 new FullyConnectedLayer(1, activation)
                 );
             
