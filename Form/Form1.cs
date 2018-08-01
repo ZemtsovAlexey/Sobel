@@ -82,7 +82,7 @@ namespace Sobel
             byte difMin = (byte)findMinNumeric.Value;
             var result = Segmentation.ShowTextCord2(new Bitmap(workImage), difMin);
             workImage = result.img;
-            pictureBox1.Image = result.cords.DrawCords(workImage); //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
+            pictureBox1.Image = workImage;// result.cords.DrawCords(workImage); //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
             cords = result.cords;
         }
 
@@ -249,8 +249,8 @@ namespace Sobel
 
         private void recognizeButton_Click(object sender, EventArgs e)
         {
-            searchText();
-            return;
+            //searchText();
+            //return;
             
             panel2.Controls.Clear();
             var i = 0;

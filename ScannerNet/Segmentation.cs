@@ -517,7 +517,7 @@ namespace ScannerNet
         {
             Image<Gray, byte> gray = new Image<Gray, byte>(bitmap);
 //            CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
-            CvInvoke.Canny(gray, gray, 70, 130);
+            //CvInvoke.Canny(gray, gray, 70, 130);
 
             var cordList = gray.ToBitmap().GetCords();
 //            var resultImage = cordList.DrawCords(bitmap);
@@ -532,7 +532,7 @@ namespace ScannerNet
 //            CvInvoke.Canny(gray, gray, 70, 130);
 
             var cordList = gray.ToBitmap().GetCordsDebug(Y);
-            var resultImage = cordList.DrawCords(bitmap, Color.Blue);
+            var resultImage = cordList.DrawCords(bitmap);
 
             return (resultImage, cordList);
         }
@@ -1081,7 +1081,11 @@ namespace ScannerNet
                     }
                     else if (leftCord != null && point < min)
                     {
-                        List<Cord> prevCords = cords.Where(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
+                        var hasSplit = cords.Any(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1 && c.Top > y - 2);
+
+                        List<Cord> prevCords = hasSplit
+                            ? cords.Where(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1).ToList()
+                            : new List<Cord>();
 
                         if (!prevCords.Any())
                         {
@@ -1097,7 +1101,7 @@ namespace ScannerNet
                                 Right = Math.Max(x, prevCords.Max(c => c.Right)),
                             };
 
-                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0);
+                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1);
 
                             cords.Add(newCord);
                         }
@@ -1111,51 +1115,6 @@ namespace ScannerNet
                     cords.Add(new Cord(y, y, leftCord.Value, bitmap.Width - 1));
                 }
             }
-            
-            /*for (var y = bitmap.Height - 1; y >= 0; y--)
-            {
-                int? leftCord = null;
-
-                for (var x = 0; x < bitmap.Width; x++)
-                {
-                    var point = map[y, x];
-
-                    if (leftCord == null && point > min)
-                    {
-                        leftCord = x;
-                    }
-                    else if (leftCord != null && point < min)
-                    {
-                        List<Cord> prevCords = cords.Where(c => c.Top > y && c.Top < y + 5 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
-
-                        if (!prevCords.Any())
-                        {
-                            cords.Add(new Cord(y, y, leftCord.Value, x));
-                        }
-                        else
-                        {
-                            var newCord = new Cord
-                            {
-                                Top = y,// prevCords.Min(c => c.Top),
-                                Bottom = prevCords.Min(c => c.Bottom),
-                                Left = Math.Min(leftCord.Value, prevCords.Min(c => c.Left)),
-                                Right = Math.Max(x, prevCords.Max(c => c.Right)),
-                            };
-
-//                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0);
-
-                            cords.Add(newCord);
-                        }
-
-                        leftCord = null;
-                    }
-                }
-
-                if (leftCord != null)
-                {
-                    cords.Add(new Cord(y, y, leftCord.Value, bitmap.Width - 1));
-                }
-            }*/
 
             return cords;
         }
@@ -1179,7 +1138,11 @@ namespace ScannerNet
                     }
                     else if (leftCord != null && point < min)
                     {
-                        List<Cord> prevCords = cords.Where(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
+                        var hasSplit = cords.Any(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1 && c.Top > y - 2);
+
+                        List<Cord> prevCords = hasSplit 
+                            ? cords.Where(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1).ToList() 
+                            : new List<Cord>();
 
                         if (!prevCords.Any())
                         {
@@ -1195,7 +1158,7 @@ namespace ScannerNet
                                 Right = Math.Max(x, prevCords.Max(c => c.Right)),
                             };
 
-                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 0 && x >= c.Left - 0);
+                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1);
 
                             cords.Add(newCord);
                         }

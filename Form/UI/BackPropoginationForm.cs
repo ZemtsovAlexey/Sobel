@@ -378,6 +378,7 @@ namespace Sobel.UI
             (string symble, int position) text;
             Bitmap bitmap;
             int falseAnswerCount = 0;
+            int trueAnswerCount = 0;
             float[] output;
             float error = 0;
             int succeses = 0;
@@ -409,13 +410,11 @@ namespace Sobel.UI
 
                 padding.H = _random.Next((-((int)paddingHNumeric.Value)), ((int)paddingHNumeric.Value));
                 padding.V = _random.Next((-((int)paddingVNumeric.Value)), ((int)paddingVNumeric.Value));
-//                scale.Item1 = _random.Next(-((int)scaleFromNum.Value), (int)scaleFromNum.Value);
-//                scale.Item2 = _random.Next(-((int)scaleToNum.Value), (int)scaleToNum.Value);
                 
-                if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
+                if (!text.symble.Equals(trueAnswerText.Text) && trueAnswerCount > 4)
                 {
                     bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ResizeImage(pictureSize.x, pictureSize.y);
-                    output = new float[] { -1f };
+                    output = new float[] { 0.1f };
                     var computed = _networkNew.Compute(bitmap)[0];
 
                     st.Start();
@@ -436,32 +435,35 @@ namespace Sobel.UI
                     st.Stop();
                     totalTime += st.ElapsedMilliseconds;
                     falseAnswerCount++;
+                    trueAnswerCount = 0;
                 }
                 else
                 {
                     bitmap = bmp.DrawString(trueAnswerText.Text, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ResizeImage(pictureSize.x, pictureSize.y);
-                    output = (Math.Abs(padding.H) > 0 || Math.Abs(padding.V) > 0) ? new[] { -1f } : new float[] { 1 };
+                    //output = (Math.Abs(padding.H) > 0 || Math.Abs(padding.V) > 0) ? new[] { -1f } : new float[] { 1 };
+                    output = new float[] { 1f };
                     var computed = _networkNew.Compute(bitmap)[0];
 
                     st.Start();
 
-                    if (!(Math.Abs(padding.H) > 0 || Math.Abs(padding.V) > 0) && computed < 0f)
+                    if (/*!(Math.Abs(padding.H) > 0 || Math.Abs(padding.V) > 0) &&*/ computed < 0.5f)
                     {
                         totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
                         succeses = 0;
                     }
                     else
                     {
-                        if (succeses == 0)
-//                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed + teacher.LearningRate });
-                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
+                        //if (succeses == 0)
+                            //totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed + teacher.LearningRate });
+                        //totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
                         succeses++;
                     }
 
                     st.Stop();
                     totalTime += st.ElapsedMilliseconds;
-                    falseAnswerCount = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? falseAnswerCount + 1 : 0;
-//                    falseAnswerCount = 0;
+                    //falseAnswerCount = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? falseAnswerCount + 1 : 0;
+                    falseAnswerCount = 0;
+                    trueAnswerCount++;
                 }
                 
 //                st.Stop();
