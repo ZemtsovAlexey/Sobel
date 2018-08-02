@@ -338,13 +338,13 @@ namespace ScannerNet
         
         public static float GetAverBright(this Bitmap bitmap)
         {
-            var filterdBitmap = bitmap.Contrast(50);
-            filterdBitmap = Sobel(filterdBitmap);
+            var filterdBitmap = (Bitmap)bitmap.Clone();
             var height = filterdBitmap.Height;
             var width = filterdBitmap.Width;
             var bitmapData = filterdBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, filterdBitmap.PixelFormat);
 
             var docBright = new float[height * width];
+            var step = bitmap.GetStep();
             var maxBright = 0f;
             var minBright = 255f;
             var sumBright = 0f;
@@ -356,9 +356,9 @@ namespace ScannerNet
                     var row = (byte*)bitmapData.Scan0 + (y * bitmapData.Stride);
                     var columnOffset = 0;
 
-                    for (var x = 0; x < width; ++x)
+                    for (var x = 0; x < width; x++)
                     {
-                        var bright = GetBright(row[columnOffset + 2], row[columnOffset + 1], row[columnOffset]);
+                        var bright = GetBright(row, step, columnOffset);
 
                         docBright[y * width + x] = bright;
                         
@@ -366,16 +366,16 @@ namespace ScannerNet
                         maxBright = bright > maxBright ? bright : maxBright;
                         minBright = bright < minBright ? bright : minBright;
                         
-                        columnOffset += 4;
+                        columnOffset += step;
                     }
                 }
             }
             
             filterdBitmap.UnlockBits(bitmapData);
 
-            var average = docBright.Sum() / docBright.Length;
+            var average = 0;// docBright.Sum() / docBright.Length;
 
-            return (maxBright + minBright + average) / 3f;
+            return ((maxBright + minBright + average) / 2f) - 0;
         }
         
         public static Bitmap Canny(this Bitmap bitmap, double threshold1 = 70, double threshold2 = 130, int aperture = 3)
@@ -1052,6 +1052,21 @@ namespace ScannerNet
             return linesCord;
         }
 
+        private unsafe static byte GetBright(byte* row, int step, int offset)
+        {
+            var i = 0;
+            var bright = 0;
+
+            for (i = 0; i < step || i < 3; i++)
+            {
+                bright += row[offset + i];
+            }
+
+            bright = bright / i;
+
+            return (byte)Math.Max(0, Math.Min(255, bright));
+        }
+
         private static byte GetBright(byte red, byte green, byte blue, bool revert = true)
         {
             var bright = (red + green + blue) / 3;
@@ -1123,10 +1138,11 @@ namespace ScannerNet
             return cords;
         }
         
-        private static List<Cord> GetCordsDebug(this Bitmap bitmap, int Y, int min = 100)
+        private static List<Cord> GetCordsDebug(this Bitmap bitmap, int Y, int min = 130)
         {
             var map = bitmap.GetGrayMap();
             var cords = new List<Cord>();
+            var lineCords = new List<Cord>();
 
             for (var y = 0; y < Y; y++)
             {
@@ -1136,16 +1152,44 @@ namespace ScannerNet
                 {
                     var point = map[y, x];
 
-                    if (leftCord == null && point > min)
+                    if (leftCord == null && point < min)
                     {
                         leftCord = x;
                     }
-                    else if (leftCord != null && point < min)
+                    else if (leftCord != null && point > min)
                     {
-                        var hasSplit = true;//cords.Any(c => c.Bottom <= y && c.Bottom > y - 2 && leftCord <= c.Right + 1 && x >= c.Left - 1 && c.Top > y - 2);
+                        var newCord = new Cord
+                        {
+                            Top = y,
+                            Bottom = y,
+                            Left = leftCord.Value,
+                            Right = x,
+                        };
 
-                        List<Cord> prevCords = hasSplit 
-                            ? cords.Where(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1).ToList() 
+                        lineCords.Add(newCord);
+                        leftCord = null;
+                    }
+                }
+            }
+
+            for (var y = 0; y < Y; y++)
+            {
+                int? leftCord = null;
+
+                for (var x = 0; x < bitmap.Width; x++)
+                {
+                    var point = map[y, x];
+
+                    if (leftCord == null && point < min)
+                    {
+                        leftCord = x;
+                    }
+                    else if (leftCord != null && point > min)
+                    {
+                        //var hasSplit = lineCords.Any(c => c.Bottom < y && c.Bottom > y - 2 && leftCord <= c.Right + 1 && x >= c.Left - 1);
+
+                        List<Cord> prevCords = true
+                            ? lineCords.Where(c => c.Bottom < y && c.Bottom > y - 2 && leftCord <= c.Right + 1 && x >= c.Left - 1).ToList()
                             : new List<Cord>();
 
                         if (!prevCords.Any())
@@ -1154,17 +1198,29 @@ namespace ScannerNet
                         }
                         else
                         {
-                            var newCord = new Cord
+                            var curentCord = cords.FirstOrDefault(c => c.Left - 1 <= x && c.Right + 1 >= leftCord && c.Bottom <= y && c.Bottom > y - 5);
+
+                            if (curentCord != null)
                             {
-                                Top = prevCords.Min(c => c.Top),
-                                Bottom = y,
-                                Left = Math.Min(leftCord.Value, prevCords.Min(c => c.Left)),
-                                Right = Math.Max(x, prevCords.Max(c => c.Right)),
-                            };
+                                curentCord.Top = Math.Min(curentCord.Top, prevCords.Min(c => c.Top));
+                                curentCord.Bottom = y;
+                                curentCord.Left = Math.Min(curentCord.Left, prevCords.Min(c => c.Left));
+                                curentCord.Right = Math.Max(curentCord.Right, prevCords.Max(c => c.Right));
+                            }
+                            else
+                            {
+                                var newCord = new Cord
+                                {
+                                    Top = prevCords.Min(c => c.Top),
+                                    Bottom = y,
+                                    Left = Math.Min(leftCord.Value, prevCords.Min(c => c.Left)),
+                                    Right = Math.Max(x, prevCords.Max(c => c.Right)),
+                                };
 
-                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1);
+                                //cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1);
 
-                            cords.Add(newCord);
+                                cords.Add(newCord);
+                            }
                         }
 
                         leftCord = null;

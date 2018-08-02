@@ -307,7 +307,7 @@ namespace ScannerNet.Extensions
             unsafe
             {
                 
-                for (var y = 0; y < height - 1; y++)
+                for (var y = 0; y < height; y++)
                 {
                     byte c = 255;
 
@@ -316,21 +316,13 @@ namespace ScannerNet.Extensions
 
                     int columnOffset = 0;
                     
-                    for (int x = 0; x < width - 1; ++x)
+                    for (int x = 0; x < width; ++x)
                     {
-                        if (columnOffset > 3)
-                        {
-                            var rowPix = GetBright(row[columnOffset + 2], row[columnOffset + 1], row[columnOffset], false);
+                            var rowPix = GetPixelBright(row, step, columnOffset);
 
                             c = rowPix < averege ? (byte)0 : (byte)255;
 
-                            newRow[columnOffset] = c;
-                            newRow[columnOffset + 1] = c;
-                            newRow[columnOffset + 2] = c;
-                            
-                            if (step > 3)
-                                newRow[columnOffset + 3] = 255;
-                        }
+                            SetPixelBright(newRow, step, columnOffset, c);
                         
                         columnOffset += step;
                     }
@@ -341,12 +333,33 @@ namespace ScannerNet.Extensions
 
             return newBitmap;
         }
-        
-        private static byte GetBright(byte red, byte green, byte blue, bool revert = true)
+
+        private unsafe static byte GetPixelBright(byte* row, int step, int offset)
         {
-            var bright = (red + green + blue) / 3;
-            bright = revert ? 255 - bright : bright;
+            var i = 0;
+            var bright = 0;
+
+            for (i = 0; i < step || i < 3; i++)
+            {
+                bright += row[offset + i];
+            }
+
+            bright = bright / i;
+
             return (byte)Math.Max(0, Math.Min(255, bright));
+        }
+
+        private unsafe static void SetPixelBright(byte* row, int step, int offset, byte bright)
+        {
+            for (var i = 0; i < step || i < 3; i++)
+            {
+                row[offset + i] = bright;
+            }
+
+            if (step > 3)
+            {
+                row[offset + 3] = byte.MaxValue;
+            }
         }
     }
 }
