@@ -39,7 +39,7 @@ namespace Neuro.Layers
 
             Outputs = outputs;
 
-            return Outputs;
+            return outputs;
         }
     }
 }

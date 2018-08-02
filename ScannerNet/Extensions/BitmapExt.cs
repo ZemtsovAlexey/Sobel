@@ -294,5 +294,59 @@ namespace ScannerNet.Extensions
                         return 4;
             }
         }
+        
+        public static Bitmap ToBlackWite(this Bitmap bitmap, float averege = 120)
+        {
+            var newBitmap = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+            var height = newBitmap.Height;
+            var width = newBitmap.Width;
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+            var newBitmapData = newBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, newBitmap.PixelFormat);
+            var step = newBitmap.GetStep();
+
+            unsafe
+            {
+                
+                for (var y = 0; y < height - 1; y++)
+                {
+                    byte c = 255;
+
+                    var row = (byte*)bitmapData.Scan0 + (y * bitmapData.Stride);
+                    var newRow = (byte*)newBitmapData.Scan0 + (y * newBitmapData.Stride);
+
+                    int columnOffset = 0;
+                    
+                    for (int x = 0; x < width - 1; ++x)
+                    {
+                        if (columnOffset > 3)
+                        {
+                            var rowPix = GetBright(row[columnOffset + 2], row[columnOffset + 1], row[columnOffset], false);
+
+                            c = rowPix < averege ? (byte)0 : (byte)255;
+
+                            newRow[columnOffset] = c;
+                            newRow[columnOffset + 1] = c;
+                            newRow[columnOffset + 2] = c;
+                            
+                            if (step > 3)
+                                newRow[columnOffset + 3] = 255;
+                        }
+                        
+                        columnOffset += step;
+                    }
+                }
+            }
+            
+            newBitmap.UnlockBits(newBitmapData);
+
+            return newBitmap;
+        }
+        
+        private static byte GetBright(byte red, byte green, byte blue, bool revert = true)
+        {
+            var bright = (red + green + blue) / 3;
+            bright = revert ? 255 - bright : bright;
+            return (byte)Math.Max(0, Math.Min(255, bright));
+        }
     }
 }

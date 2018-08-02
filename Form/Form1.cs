@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Neuro.Models;
 using Neuro.Networks;
@@ -60,21 +61,12 @@ namespace Sobel
 
         private void sobelFilterButton_Click(object sender, EventArgs e)
         {
-            var bmp = new Bitmap(workImage);
-            workImage = bmp.Clone(new Rectangle(0, 0, bmp.Width, bmp.Height), PixelFormat.Format1bppIndexed);
+//            var bmp = new Bitmap(workImage);
+//            workImage = bmp.Clone(new Rectangle(0, 0, bmp.Width, bmp.Height), PixelFormat.Format1bppIndexed);
 //            workImage = Segmentation.ToBlackWite(new Bitmap(pictureBox1.Image));
+            var averege = workImage.GetAverBright();
+            workImage = ((Bitmap) workImage.Clone()).ToBlackWite(averege);
             pictureBox1.Image = workImage;
-//            pictureBox1.BackgroundImage = Segmentation.Sobel(new Bitmap(lastImgPath));
-
-            //Bitmap a = AForge.Imaging.Image.Clone(new Bitmap(pictureBox1.ImageLocation), PixelFormat.Format8bppIndexed);
-            //AForge.Imaging.Image.SetGrayscalePalette(a);
-
-            //// create filter
-            //SobelEdgeDetector filter = new SobelEdgeDetector();
-            //// apply the filter
-            //filter.ApplyInPlace(a);
-
-            //pictureBox1.BackgroundImage = a;
         }
 
         private void findTextButton_Click(object sender, EventArgs e)
@@ -82,7 +74,7 @@ namespace Sobel
             byte difMin = (byte)findMinNumeric.Value;
             var result = Segmentation.ShowTextCord2(new Bitmap(workImage), difMin);
             workImage = result.img;
-            pictureBox1.Image = workImage;// result.cords.DrawCords(workImage); //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
+            pictureBox1.Image = result.cords.DrawCords(workImage); //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
             cords = result.cords;
         }
 
@@ -255,6 +247,31 @@ namespace Sobel
             panel2.Controls.Clear();
             var i = 0;
             List<(Bitmap img, Cord cord, float answer)> results = new List<(Bitmap img, Cord cord, float answer)>();
+            
+            /*cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
+            var results = new (Bitmap img, Cord cord, float answer)[cords.Count];
+
+            Parallel.For(0, cords.Count() - 1, (int c) =>
+            {
+                try
+                {
+                    var width = cords[c].Right - cords[c].Left + 4;
+                    var height = cords[c].Bottom - cords[c].Top + 4;
+
+                    if (width < 6 || height < 6)
+                    {
+                        var cloneRect = new Rectangle(cords[c].Left - 2, cords[c].Top - 2, width, height);
+                        var cloneBitmap = workImage.Clone(cloneRect, workImage.PixelFormat).ResizeImage(pictureSize.x, pictureSize.y);
+                        var netResult = Network.Compute(cloneBitmap.GetDoubleMatrix());
+                
+                        results[c] = (cloneBitmap, cords[c], netResult[0]);
+                    }
+                }
+                catch
+                {
+                    // ignored
+                }
+            });*/
             
             foreach (var cord in cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100))
                 .OrderBy(x => x.Top).ThenBy(x => x.Left))

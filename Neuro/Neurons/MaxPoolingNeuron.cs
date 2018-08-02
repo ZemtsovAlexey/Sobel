@@ -27,7 +27,7 @@ namespace Neuro.Neurons
             var outputHeight = Outputs.GetLength(0);
             var outputWidth = Outputs.GetLength(1);
             
-            Outputs = new float[outputHeight, outputWidth];
+            var outputs = new float[outputHeight, outputWidth];
             OutputCords = new bool[outputHeight, outputWidth];
             
             //сканируем изображение ядром
@@ -42,9 +42,9 @@ namespace Neuro.Neurons
                             iy = y * _kernelSize;
                             ix = x * _kernelSize;
 					
-                            if (Outputs[y, x] < input[iy + h, ix + w])
+                            if (outputs[y, x] < input[iy + h, ix + w])
                             {
-                                Outputs[y, x] = input[iy + h, ix + w];
+                                outputs[y, x] = input[iy + h, ix + w];
                                 OutputCords[y, x] = true;
                             }
                         }
@@ -52,7 +52,9 @@ namespace Neuro.Neurons
                 }
             }
 
-            return Outputs;
+            Outputs = outputs;
+
+            return outputs;
         }
     }
 }

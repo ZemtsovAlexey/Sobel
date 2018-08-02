@@ -13,7 +13,6 @@ namespace Neuro.Neurons
         private readonly int _inHeight;
 
         public IActivationFunction Function { get; set; }
-        private float[,] Input { get; set; }
         public float[,] Weights { get; set; }
         public float[,] Output { get; set; }
 
@@ -53,8 +52,8 @@ namespace Neuro.Neurons
             var inputHeight = input[0].GetLength(0);
             var inputWidth = input[0].GetLength(1);
 
-            Output = new float[_inHeight - _kernelSize + 1, _inWidth - _kernelSize + 1];
-            Input = new float[inputHeight, inputWidth];
+            var output = new float[_inHeight - _kernelSize + 1, _inWidth - _kernelSize + 1];
+            var Input = new float[inputHeight, inputWidth];
 
             //суммируем все входные изображения
             for (i = 0; i < input.Length; i++)
@@ -77,15 +76,17 @@ namespace Neuro.Neurons
                     {
                         for (w = 0; w < _kernelSize; w++)
                         {
-                            Output[y, x] += Input[y + h, x + w] * Weights[h, w];
+                            output[y, x] += Input[y + h, x + w] * Weights[h, w];
                         }
                     }
 
-                    Output[y, x] = Function.Activation(Output[y, x]);
+                    output[y, x] = Function.Activation(output[y, x]);
                 }
             }
 
-            return Output;
+            Output = output;
+            
+            return output;
         }
     }
 }
