@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Neuro.ActivationFunctions;
 using Neuro.Domain.Layers;
 using Neuro.Models;
@@ -12,7 +13,7 @@ namespace Neuro.Layers
         public LayerType Type { get; set; } = LayerType.FullyConnected;
         public ActivationType ActivationFunctionType { get; }
         public FullyConnectedNeuron[] Neurons { get; }
-        public float[] Outputs { get; }
+        public float[] Outputs { get; private set; }
         public int NeuronsCount => Neurons.Length;
         public FullyConnectedNeuron this[int index] => Neurons[index];
         public IActivationFunction Function { get; }
@@ -59,12 +60,16 @@ namespace Neuro.Layers
 
         public float[] Compute(float[] inputs)
         {
-            Neurons
-                .Select((neuron, i) => new {i, neuron})
-                .AsParallel()
-                .ForAll((item) => { Outputs[item.i] = item.neuron.Compute(inputs); });
+            var outputs = new float[Outputs.Length];
+            
+            Parallel.For(0, Neurons.Length, i =>
+            {
+                outputs[i] = Neurons[i].Compute(inputs);
+            });
 
-            return Outputs;
+//            Outputs = (float[])outputs.Clone();
+            
+            return outputs;
         }
     }
 }

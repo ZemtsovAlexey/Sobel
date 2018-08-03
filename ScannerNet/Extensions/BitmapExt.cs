@@ -130,6 +130,83 @@ namespace ScannerNet.Extensions
             return result;
         }
         
+        public static byte[,] GetByteMatrix(this Bitmap bitmap)
+        {
+            var result = new byte[bitmap.Height, bitmap.Width];
+            var procesBitmap = (Bitmap)bitmap.Clone();
+            var bitmapData = procesBitmap.LockBits(new Rectangle(0, 0, procesBitmap.Width, procesBitmap.Height), ImageLockMode.ReadWrite, procesBitmap.PixelFormat);
+            var step = procesBitmap.GetStep();
+
+            unsafe
+            {
+                int imageHeight = procesBitmap.Height;
+                int imageWidth = procesBitmap.Width;
+                
+                Parallel.For(0, imageHeight, (int y) =>
+                {
+                    var pRow = (byte*)bitmapData.Scan0 + y * bitmapData.Stride;
+                    
+                    Parallel.For(0, imageWidth, (int x) =>
+                    {
+                        var offset = x * step;
+                        result[y, x] = step == 1 ? (byte)pRow[offset] : (byte)((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3);
+                    });
+                });
+            }
+            
+            procesBitmap.UnlockBits(bitmapData);
+
+            return result;
+        }
+        
+        public static float[,] GetMapPart(this float[,] map, int x, int y, int width, int height)
+        {
+            var result = new float[height, width];
+
+            Parallel.For(0, height, (int Y) =>
+            {
+                Parallel.For(0, width, (int X) =>
+                {
+                    result[Y, X] = map[Y + y, X + x];
+                });
+            });
+            
+            return result;
+        }
+        
+        public static byte[,] GetMapPart(this byte[,] map, int x, int y, int width, int height)
+        {
+            var result = new byte[height, width];
+
+            Parallel.For(0, height, Y =>
+            {
+                Parallel.For(0, width, X =>
+                {
+                    result[Y, X] = map[Y + y, X + x];
+                });
+            });
+            
+            return result;
+        }
+        
+        public static float[,] ToFloatMap(this byte[,] map, float delimetr = 1)
+        {
+            var height = map.GetLength(0);
+            var width = map.GetLength(1);
+            
+            var result = new float[height, width];
+
+            Parallel.For(0, height, Y =>
+            {
+                Parallel.For(0, width, X =>
+                {
+                    result[Y, X] = map[Y, X] / delimetr;
+                });
+            });
+            
+            return result;
+        }
+        
         public static Bitmap Contrast(this Bitmap image, float value)
         {
             value = (100.0f + value) / 100.0f;

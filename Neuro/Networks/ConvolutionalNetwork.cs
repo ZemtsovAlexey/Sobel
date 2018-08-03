@@ -15,8 +15,6 @@ namespace Neuro.Networks
     public class ConvolutionalNetwork
     {
         public ILayer[] Layers;
-        public float[] Output;
-        private float[][,] _output;
         private int InputWidth;
         private int InputHeight;
         
@@ -86,21 +84,21 @@ namespace Neuro.Networks
         
         public float[] Compute(float[,] input)
         {
-            _output = new[] {input};
+            var output = new[] {input};
 
             foreach (IMatrixLayer layer in Layers.Where(l => l.Type == LayerType.Convolution || l.Type == LayerType.MaxPoolingLayer))
             {
-                _output = layer.Compute(_output);
+                output = layer.Compute(output);
             }
-
-            Output = _output.ToLinearArray();
+            
+            var outputLinear = output.ToLinearArray();
 
             foreach (ILinearCompute layer in Layers.Where(l => l.Type == LayerType.FullyConnected))
             {
-                Output = layer.Compute(Output);
+                outputLinear = layer.Compute(outputLinear);
             }
-            
-            return Output;
+
+            return outputLinear;
         }
         
         public byte[] Save()

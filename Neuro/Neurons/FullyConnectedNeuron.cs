@@ -32,10 +32,11 @@ namespace Neuro.Neurons
         public float Compute(IEnumerable<float> input)
         {
             var e = input.Select((xn, n) => Weights[n] * xn).Sum();
+            var output = Function.Activation(e);
 
-            Output = Function.Activation(e);
+//            Output = output;
 
-            return Output;
+            return output;
         }
     }
 }

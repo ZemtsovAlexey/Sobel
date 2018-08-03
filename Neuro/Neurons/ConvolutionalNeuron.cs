@@ -84,7 +84,7 @@ namespace Neuro.Neurons
                 }
             }
 
-            Output = output;
+//            Output = (float[,])output.Clone();
             
             return output;
         }

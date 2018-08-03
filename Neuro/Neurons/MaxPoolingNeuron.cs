@@ -28,7 +28,7 @@ namespace Neuro.Neurons
             var outputWidth = Outputs.GetLength(1);
             
             var outputs = new float[outputHeight, outputWidth];
-            OutputCords = new bool[outputHeight, outputWidth];
+            var outputCords = new bool[outputHeight, outputWidth];
             
             //сканируем изображение ядром
             for (y = 0; y < outputHeight; y++)
@@ -45,14 +45,15 @@ namespace Neuro.Neurons
                             if (outputs[y, x] < input[iy + h, ix + w])
                             {
                                 outputs[y, x] = input[iy + h, ix + w];
-                                OutputCords[y, x] = true;
+                                outputCords[y, x] = true;
                             }
                         }
                     }
                 }
             }
 
-            Outputs = outputs;
+//            Outputs = (float[,])outputs.Clone();
+//            OutputCords = (bool[,])outputCords.Clone();
 
             return outputs;
         }

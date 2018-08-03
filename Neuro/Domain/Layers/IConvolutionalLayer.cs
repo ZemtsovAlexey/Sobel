@@ -12,6 +12,5 @@ namespace Neuro.Domain.Layers
         ConvolutionalNeuron this[int index] { get; }
 
         void Init(int inputWidth, int inputHeitght);
-        float[] GetLinereOutput();
     }
 }

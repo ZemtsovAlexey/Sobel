@@ -53,14 +53,9 @@ namespace Neuro.Layers
         {
             var outputs = Neurons.AsParallel().Select(n => n.Compute(input)).ToArray();
 
-            Outputs = outputs;
+//            Outputs = (float[][,])outputs.Clone();
 
             return outputs;
-        }
-        
-        public float[] GetLinereOutput()
-        {
-            return Outputs.ToLinearArray();
         }
     }
 }

@@ -61,10 +61,12 @@ namespace Sobel
 
         private void sobelFilterButton_Click(object sender, EventArgs e)
         {
-//            var bmp = new Bitmap(workImage);
-//            workImage = bmp.Clone(new Rectangle(0, 0, bmp.Width, bmp.Height), PixelFormat.Format1bppIndexed);
-//            workImage = Segmentation.ToBlackWite(new Bitmap(pictureBox1.Image));
-            var averege = workImage.GetAverBright();
+            if (averageNum.Value == 0)
+            {
+                averageNum.Value = (decimal)workImage.GetAverBright();
+            }
+
+            var averege = (float)averageNum.Value;
             workImage = ((Bitmap) workImage.Clone()).ToBlackWite(averege);
             pictureBox1.Image = workImage;
         }
@@ -168,13 +170,12 @@ namespace Sobel
 
         private void GetAvrBrightButton_Click(object sender, EventArgs e)
         {
-            AvrBrightLabel.Text = Segmentation.GetAverBright(new Bitmap(pictureBox1.Image)).ToString();
+            averageNum.Value = (decimal)workImage.GetAverBright();
         }
 
         private void RotateButton_Click(object sender, EventArgs e)
         {
             pictureBox1.Image = Segmentation.RotateImage(new Bitmap(lastImgPath), (float)PictureAngleNumeric.Value);
-            AvrBrightLabel.Text = Segmentation.GetAverBright(new Bitmap(pictureBox1.Image)).ToString();
         }
 
         private void reloadImgButton_Click(object sender, EventArgs e)
@@ -246,33 +247,41 @@ namespace Sobel
             
             panel2.Controls.Clear();
             var i = 0;
-            List<(Bitmap img, Cord cord, float answer)> results = new List<(Bitmap img, Cord cord, float answer)>();
             
-            /*cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
+//            cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
             var results = new (Bitmap img, Cord cord, float answer)[cords.Count];
+            Exception error = null;
 
-            Parallel.For(0, cords.Count() - 1, (int c) =>
+            var imageMap = workImage.GetByteMatrix();
+            
+            Parallel.For(0, cords.Count, c =>
+//            for(var c = 0; c < cords.Count; c++)
             {
                 try
                 {
                     var width = cords[c].Right - cords[c].Left + 4;
                     var height = cords[c].Bottom - cords[c].Top + 4;
+                    var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
+                    var rMap = CreateImageThumbnail(mapPart, 28, 28);
+                    var netResult = Network.Compute(rMap.ToFloatMap(100000));
 
-                    if (width < 6 || height < 6)
-                    {
-                        var cloneRect = new Rectangle(cords[c].Left - 2, cords[c].Top - 2, width, height);
-                        var cloneBitmap = workImage.Clone(cloneRect, workImage.PixelFormat).ResizeImage(pictureSize.x, pictureSize.y);
-                        var netResult = Network.Compute(cloneBitmap.GetDoubleMatrix());
-                
-                        results[c] = (cloneBitmap, cords[c], netResult[0]);
-                    }
+                    results[c] = (null, cords[c], netResult[0]);
+                    i++;
                 }
-                catch
+                catch (Exception exception)
                 {
+                    error = exception;
                     // ignored
                 }
-            });*/
+            });
+
+            if (error != null)
+                MessageBox.Show($"{error.Message}\n{error.InnerException}\n{error.StackTrace}");
+
+            averageNum.Value = (decimal) i;
             
+            /*List<(Bitmap img, Cord cord, float answer)> results = new List<(Bitmap img, Cord cord, float answer)>();
+
             foreach (var cord in cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100))
                 .OrderBy(x => x.Top).ThenBy(x => x.Left))
             {
@@ -296,7 +305,7 @@ namespace Sobel
                 {
                     // ignored
                 }
-            }
+            }*/
 
             var viewedCords = results.Where(x => x.answer > 0).ToList();
             var picture = new Bitmap(pictureBox1.Image);
@@ -355,6 +364,52 @@ namespace Sobel
             }
         }
 
+        public byte[,] CreateImageThumbnail(byte[,] input, int width = 50, int height = 50)
+        {
+            var image = ToLinearArray(input);
+            
+            using (var stream = new System.IO.MemoryStream(image))
+            {
+                var img = Image.FromStream(stream);
+                var thumbnail = img.GetThumbnailImage(width, height, () => false, IntPtr.Zero);
+
+                using (var thumbStream = new System.IO.MemoryStream())
+                {
+                    thumbnail.Save(thumbStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                    var result = new byte[height,width];
+                    var byteArray = thumbStream.GetBuffer();
+                    
+                    for (var y = 0; y < height; y++)
+                    {
+                        for (var x = 0; x < width; x++)
+                        {
+                            result[y, x] = byteArray[y * width + x];
+                        }
+                    }
+                    
+                    return result;
+                }
+            }
+        }  
+        
+        public static T[] ToLinearArray<T>(T[,] outputs) where T : struct
+        {
+            var imageHeight = outputs.GetLength(0);
+            var imageWidth = outputs.GetLength(1);
+            var result = new T[outputs.Length * imageHeight * imageWidth];
+
+            for (var h = 0; h < imageHeight; h++)
+            {
+                for (var w = 0; w < imageWidth; w++)
+                {
+                    result[h * imageWidth + w] = outputs[h, w];
+                }
+            }
+
+            return result;
+        }
+        
         private void loadNetButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog open = new OpenFileDialog();
@@ -388,6 +443,11 @@ namespace Sobel
             
             var viewedCords = results.Where(x => x.answer > 0.5f).ToList();
             pictureBox1.Image = viewedCords.Select(x => x.cord).Take(500).ToList().DrawCords(bitmap);
+        }
+
+        private void vertPos_ValueChanged(object sender, EventArgs e)
+        {
+            Y = (int) vertPos.Value;
         }
     }
 }

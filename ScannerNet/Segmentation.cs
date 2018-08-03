@@ -373,9 +373,15 @@ namespace ScannerNet
             
             filterdBitmap.UnlockBits(bitmapData);
 
-            var average = 0;// docBright.Sum() / docBright.Length;
+            var average = docBright.Sum() / docBright.Length;
 
-            return ((maxBright + minBright + average) / 2f) - 0;
+            var minAvrList = docBright.Where(x => x < average).ToList();
+            var maxAvrList = docBright.Where(x => x > average).ToList();
+
+            var minAvr = minAvrList.Sum() / minAvrList.Count;
+            var maxAvr = maxAvrList.Sum() / maxAvrList.Count;
+
+            return ((maxBright + minBright + minAvr + maxAvr) / 4f);
         }
         
         public static Bitmap Canny(this Bitmap bitmap, double threshold1 = 70, double threshold2 = 130, int aperture = 3)
@@ -1186,11 +1192,7 @@ namespace ScannerNet
                     }
                     else if (leftCord != null && point > min)
                     {
-                        //var hasSplit = lineCords.Any(c => c.Bottom < y && c.Bottom > y - 2 && leftCord <= c.Right + 1 && x >= c.Left - 1);
-
-                        List<Cord> prevCords = true
-                            ? lineCords.Where(c => c.Bottom < y && c.Bottom > y - 2 && leftCord <= c.Right + 1 && x >= c.Left - 1).ToList()
-                            : new List<Cord>();
+                        var prevCords = lineCords.Where(c => c.Bottom < y && c.Bottom > y - 2 && leftCord <= c.Right + 0 && x >= c.Left - 0).ToList();
 
                         if (!prevCords.Any())
                         {
@@ -1198,7 +1200,7 @@ namespace ScannerNet
                         }
                         else
                         {
-                            var curentCord = cords.FirstOrDefault(c => c.Left - 1 <= x && c.Right + 1 >= leftCord && c.Bottom <= y && c.Bottom > y - 5);
+                            var curentCord = cords.FirstOrDefault(c => c.Left - 0 <= x && c.Right + 0 >= leftCord && c.Bottom <= y && c.Bottom > y - 5);
 
                             if (curentCord != null)
                             {
