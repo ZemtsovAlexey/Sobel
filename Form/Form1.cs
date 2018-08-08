@@ -247,15 +247,15 @@ namespace Sobel
             
             panel2.Controls.Clear();
             var i = 0;
-            
-//            cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
+
+            cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
             var results = new (Bitmap img, Cord cord, float answer)[cords.Count];
             Exception error = null;
 
             var imageMap = workImage.GetByteMatrix();
-            
-            Parallel.For(0, cords.Count, c =>
-//            for(var c = 0; c < cords.Count; c++)
+
+            //Parallel.For(0, cords.Count, c =>
+            for (var c = 0; c < cords.Count; c++)
             {
                 try
                 {
@@ -273,7 +273,7 @@ namespace Sobel
                     error = exception;
                     // ignored
                 }
-            });
+            }//);
 
             if (error != null)
                 MessageBox.Show($"{error.Message}\n{error.InnerException}\n{error.StackTrace}");
@@ -397,7 +397,7 @@ namespace Sobel
         {
             var imageHeight = outputs.GetLength(0);
             var imageWidth = outputs.GetLength(1);
-            var result = new T[outputs.Length * imageHeight * imageWidth];
+            var result = new T[imageHeight * imageWidth];
 
             for (var h = 0; h < imageHeight; h++)
             {

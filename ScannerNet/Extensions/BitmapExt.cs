@@ -149,7 +149,7 @@ namespace ScannerNet.Extensions
                     Parallel.For(0, imageWidth, (int x) =>
                     {
                         var offset = x * step;
-                        result[y, x] = step == 1 ? (byte)pRow[offset] : (byte)((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3);
+                        result[y, x] = GetPixelBright(pRow, step, offset);
                     });
                 });
             }
@@ -176,6 +176,9 @@ namespace ScannerNet.Extensions
         
         public static byte[,] GetMapPart(this byte[,] map, int x, int y, int width, int height)
         {
+            height = Math.Min(y + height, map.GetLength(0) - 1) - y;
+            width = Math.Min(x + width, map.GetLength(1) - 1) - x;
+
             var result = new byte[height, width];
 
             Parallel.For(0, height, Y =>
