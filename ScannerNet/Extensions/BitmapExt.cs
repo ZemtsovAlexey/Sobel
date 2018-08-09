@@ -101,7 +101,7 @@ namespace ScannerNet.Extensions
             return result;
         }
         
-        public static float[,] GetDoubleMatrix(this Bitmap bitmap)
+        public static float[,] GetDoubleMatrix(this Bitmap bitmap, float delimetr = 100000f)
         {
             var result = new float[bitmap.Height, bitmap.Width];
             var procesBitmap = (Bitmap)bitmap.Clone();
@@ -120,7 +120,7 @@ namespace ScannerNet.Extensions
                     Parallel.For(0, imageWidth, (int x) =>
                     {
                         var offset = x * step;
-                        result[y, x] = step == 1 ? pRow[offset] : ((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / (float)100000;
+                        result[y, x] = step == 1 ? pRow[offset] : ((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / delimetr;
                     });
                 });
             }
@@ -161,13 +161,23 @@ namespace ScannerNet.Extensions
         
         public static float[,] GetMapPart(this float[,] map, int x, int y, int width, int height)
         {
+            height = Math.Min(y + height, map.GetLength(0) - 1) - y;
+            width = Math.Min(x + width, map.GetLength(1) - 1) - x;
+
             var result = new float[height, width];
 
             Parallel.For(0, height, (int Y) =>
             {
                 Parallel.For(0, width, (int X) =>
                 {
-                    result[Y, X] = map[Y + y, X + x];
+                    try
+                    {
+                        result[Y, X] = map[Y + y, X + x];
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ArgumentOutOfRangeException($"{map.GetLength(0)}/{map.GetLength(1)} - {Y+y}/{X+x}", ex);
+                    }
                 });
             });
             

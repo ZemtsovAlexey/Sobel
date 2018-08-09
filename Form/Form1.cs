@@ -252,7 +252,7 @@ namespace Sobel
             var results = new (Bitmap img, Cord cord, float answer)[cords.Count];
             Exception error = null;
 
-            var imageMap = workImage.GetByteMatrix();
+            var imageMap = workImage.GetDoubleMatrix(1);
 
             //Parallel.For(0, cords.Count, c =>
             for (var c = 0; c < cords.Count; c++)
@@ -262,8 +262,8 @@ namespace Sobel
                     var width = cords[c].Right - cords[c].Left + 4;
                     var height = cords[c].Bottom - cords[c].Top + 4;
                     var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
-                    var rMap = CreateImageThumbnail(mapPart, 28, 28);
-                    var netResult = Network.Compute(rMap.ToFloatMap(100000));
+                    var bitmap = mapPart.ToBitmap().ResizeImage(pictureSize.x, pictureSize.y);
+                    var netResult = Network.Compute(bitmap.GetDoubleMatrix());
 
                     results[c] = (null, cords[c], netResult[0]);
                     i++;
@@ -278,8 +278,6 @@ namespace Sobel
             if (error != null)
                 MessageBox.Show($"{error.Message}\n{error.InnerException}\n{error.StackTrace}");
 
-            averageNum.Value = (decimal) i;
-            
             /*List<(Bitmap img, Cord cord, float answer)> results = new List<(Bitmap img, Cord cord, float answer)>();
 
             foreach (var cord in cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100))
