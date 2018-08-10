@@ -424,6 +424,29 @@ namespace ScannerNet.Extensions
             return newBitmap;
         }
 
+        public static Bitmap ScaleImage(this Bitmap image, int maxWidth, int maxHeight)
+        {
+            var ratioX = (double)maxWidth / image.Width;
+            var ratioY = (double)maxHeight / image.Height;
+            var ratio = Math.Min(ratioX, ratioY);
+
+            var newWidth = (int)(image.Width * ratio);
+            var newHeight = (int)(image.Height * ratio);
+
+            var newImage = new Bitmap(maxWidth, maxHeight);
+            
+            using (Graphics gfx = Graphics.FromImage(newImage))
+            using (SolidBrush brush = new SolidBrush(Color.White))
+            {
+                gfx.FillRectangle(brush, 0, 0, maxWidth, maxHeight);
+            }
+            
+            Graphics.FromImage(newImage).DrawImage(image, 0, 0, newWidth, newHeight);
+            Bitmap bmp = new Bitmap(newImage);
+
+            return bmp;
+        }
+        
         private unsafe static byte GetPixelBright(byte* row, int step, int offset)
         {
             var i = 0;

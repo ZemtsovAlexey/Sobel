@@ -37,7 +37,7 @@ namespace Neuro.Layers
         {
             var outputs = Neurons.AsParallel().Select((n, i) => n.Compute(input[i])).ToArray();
 
-//            Outputs = (float[][,])outputs.Clone();
+            Outputs = outputs;
 
             return outputs;
         }

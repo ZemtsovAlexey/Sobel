@@ -34,7 +34,7 @@ namespace Neuro.Neurons
             var e = input.Select((xn, n) => Weights[n] * xn).Sum();
             var output = Function.Activation(e);
 
-//            Output = output;
+            Output = output;
 
             return output;
         }

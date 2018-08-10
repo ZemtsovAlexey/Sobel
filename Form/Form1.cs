@@ -101,7 +101,7 @@ namespace Sobel
         private void nextVertPos_Click(object sender, EventArgs e)
         {
             Y++;
-            var result = Segmentation.ShowTextCordDebug(new Bitmap(workImage), Y);
+            var result = Segmentation.ShowTextCordDebug(new Bitmap(workImage), Y, (byte)averageNum.Value);
 //            workImage = result.img;
             pictureBox1.Image = result.img; //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
             cords = result.cords;
@@ -242,8 +242,8 @@ namespace Sobel
 
         private void recognizeButton_Click(object sender, EventArgs e)
         {
-            //searchText();
-            //return;
+            searchText();
+            return;
             
             panel2.Controls.Clear();
             var i = 0;
@@ -254,56 +254,30 @@ namespace Sobel
 
             var imageMap = workImage.GetDoubleMatrix(1);
 
-            //Parallel.For(0, cords.Count, c =>
-            for (var c = 0; c < cords.Count; c++)
+            Parallel.For(0, cords.Count, c =>
+//            for (var c = 0; c < cords.Count; c++)
             {
                 try
                 {
-                    var width = cords[c].Right - cords[c].Left + 4;
-                    var height = cords[c].Bottom - cords[c].Top + 4;
-                    var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
-                    var bitmap = mapPart.ToBitmap().ResizeImage(pictureSize.x, pictureSize.y);
-                    var netResult = Network.Compute(bitmap.GetDoubleMatrix());
+                    if (cords[c].Right - cords[c].Left > 6 && cords[c].Bottom - cords[c].Top > 6)
+                    {
+                        var width = cords[c].Right - cords[c].Left + 4;
+                        var height = cords[c].Bottom - cords[c].Top + 4;
+                        var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
+                        var bitmap = mapPart.ToBitmap().ScaleImage(pictureSize.x, pictureSize.y);
+                        var netResult = Network.Compute(bitmap.GetDoubleMatrix());
 
-                    results[c] = (null, cords[c], netResult[0]);
-                    i++;
+                        results[c] = (bitmap, cords[c], netResult[0]);
+                    }
                 }
                 catch (Exception exception)
                 {
                     error = exception;
-                    // ignored
                 }
-            }//);
+            });
 
             if (error != null)
                 MessageBox.Show($"{error.Message}\n{error.InnerException}\n{error.StackTrace}");
-
-            /*List<(Bitmap img, Cord cord, float answer)> results = new List<(Bitmap img, Cord cord, float answer)>();
-
-            foreach (var cord in cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100))
-                .OrderBy(x => x.Top).ThenBy(x => x.Left))
-            {
-                try
-                {
-                    var width = cord.Right - cord.Left + 4;
-                    var height = cord.Bottom - cord.Top + 4;
-
-                    if (width < 6 || height < 6)
-                    {
-                        continue;
-                    }
-                
-                    var cloneRect = new Rectangle(cord.Left - 2, cord.Top - 2, width, height);
-                    var cloneBitmap = workImage.Clone(cloneRect, workImage.PixelFormat).ResizeImage(pictureSize.x, pictureSize.y);
-                    var netResult = Network.Compute(cloneBitmap.GetDoubleMatrix());
-                
-                    results.Add((cloneBitmap, cord, netResult[0]));
-                }
-                catch
-                {
-                    // ignored
-                }
-            }*/
 
             var viewedCords = results.Where(x => x.answer > 0).ToList();
             var picture = new Bitmap(pictureBox1.Image);
@@ -312,25 +286,8 @@ namespace Sobel
             
             foreach (var cord in viewedCords)
             {
-//                var width = cord.Right - cord.Left + 4;
-//                var height = cord.Bottom - cord.Top + 4;
-//
-//                if (width < 6 || height < 6)
-//                {
-//                    continue;
-//                }
-
                 try
                 {
-//                    var cloneRect = new Rectangle(cord.Left - 2, cord.Top - 2, width, height);
-////                    var cloneBitmap = picture.Clone(cloneRect, picture.PixelFormat);
-//                    var cloneBitmap2 = picture2.Clone(cloneRect, picture2.PixelFormat);//.ToBlackWite();
-//
-////                    var bitmap = cloneBitmap.ResizeImage(pictureSize.x, pictureSize.y);
-//                    var bitmap2 = cloneBitmap2.ResizeImage(pictureSize.x, pictureSize.y);
-
-//                    var netResult = Network.Compute(bitmap.GetDoubleMatrix());
-
                     var box = new PictureBox
                     {
                         Location = new System.Drawing.Point(10, 4 + (i * (pictureSize.y + 3))),
@@ -439,7 +396,7 @@ namespace Sobel
                 }
             }
             
-            var viewedCords = results.Where(x => x.answer > 0.5f).ToList();
+            var viewedCords = results.Where(x => x.answer > 0f).ToList();
             pictureBox1.Image = viewedCords.Select(x => x.cord).Take(500).ToList().DrawCords(bitmap);
         }
 

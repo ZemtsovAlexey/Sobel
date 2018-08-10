@@ -52,8 +52,8 @@ namespace Neuro.Neurons
                 }
             }
 
-//            Outputs = (float[,])outputs.Clone();
-//            OutputCords = (bool[,])outputCords.Clone();
+            Outputs = outputs;
+            OutputCords = outputCords;
 
             return outputs;
         }

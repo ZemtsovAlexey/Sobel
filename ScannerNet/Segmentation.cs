@@ -374,12 +374,13 @@ namespace ScannerNet
             filterdBitmap.UnlockBits(bitmapData);
 
             var average = docBright.Sum() / docBright.Length;
+            var d = (255 - average) / 2;
 
-            var minAvrList = docBright.Where(x => x < average).ToList();
-            var maxAvrList = docBright.Where(x => x > average).ToList();
+            var minAvrList = docBright.Where(x => x <= average - d).ToList();
+            var maxAvrList = docBright.Where(x => x >= average + d).ToList();
 
-            var minAvr = minAvrList.Sum() / minAvrList.Count;
-            var maxAvr = maxAvrList.Sum() / maxAvrList.Count;
+            var minAvr = (minAvrList.Sum() / minAvrList.Count);
+            var maxAvr = (maxAvrList.Sum() / maxAvrList.Count);
 
             return ((maxBright + minBright + minAvr + maxAvr) / 4f);
         }
@@ -541,7 +542,7 @@ namespace ScannerNet
             //CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
 //            CvInvoke.Canny(gray, gray, 70, 130);
 
-            var cordList = gray.ToBitmap().GetCordsDebug(Y);
+            var cordList = gray.ToBitmap().GetCordsDebug(Y, min);
             var resultImage = cordList.DrawCords(bitmap);
 
             return (resultImage, cordList);

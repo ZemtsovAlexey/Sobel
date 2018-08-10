@@ -67,7 +67,7 @@ namespace Neuro.Layers
                 outputs[i] = Neurons[i].Compute(inputs);
             });
 
-//            Outputs = (float[])outputs.Clone();
+            Outputs = outputs;
             
             return outputs;
         }

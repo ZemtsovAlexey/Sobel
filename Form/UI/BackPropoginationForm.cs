@@ -341,7 +341,7 @@ namespace Sobel.UI
             var bitmap = new Bitmap(b, textViewPicture.Width, textViewPicture.Height)
                 .DrawString(recognizedText.Text, fontSize, rotateImage, random: _random)
                 .CutSymbol(padding, scale)
-                .ResizeImage(pictureSize.x, pictureSize.y);
+                .ScaleImage(pictureSize.x, pictureSize.y);
             textViewPicture.Image = bitmap;
 
             var st = new Stopwatch();
@@ -413,7 +413,7 @@ namespace Sobel.UI
                 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
-                    bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ResizeImage(pictureSize.x, pictureSize.y);
+                    bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
                     output = new float[] { -1f };
                     var computed = _networkNew.Compute(bitmap)[0];
 
@@ -439,7 +439,7 @@ namespace Sobel.UI
                 }
                 else
                 {
-                    bitmap = bmp.DrawString(trueAnswerText.Text, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ResizeImage(pictureSize.x, pictureSize.y);
+                    bitmap = bmp.DrawString(trueAnswerText.Text, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
                     output = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? new[] { -1f } : new float[] { 1 };
 //                    output = new float[] { 1f };
                     var computed = _networkNew.Compute(bitmap)[0];
@@ -455,7 +455,7 @@ namespace Sobel.UI
                     {
                         //if (succeses == 0)
                             //totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed + teacher.LearningRate });
-                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
+//                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed + teacher.LearningRate });
                         succeses++;
                     }
 
