@@ -242,8 +242,8 @@ namespace Sobel
 
         private void recognizeButton_Click(object sender, EventArgs e)
         {
-            searchText();
-            return;
+            //searchText();
+            //return;
             
             panel2.Controls.Clear();
             var i = 0;
@@ -403,6 +403,79 @@ namespace Sobel
         private void vertPos_ValueChanged(object sender, EventArgs e)
         {
             Y = (int) vertPos.Value;
+        }
+
+        private void ShowResult()
+        {
+            cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
+            var results = new(Cord cord, string answer)[cords.Count];
+            Exception error = null;
+
+            var imageMap = workImage.GetDoubleMatrix(1);
+
+            Parallel.For(0, cords.Count, c =>
+            {
+                try
+                {
+                    if (cords[c].Right - cords[c].Left > 6 && cords[c].Bottom - cords[c].Top > 6)
+                    {
+                        var width = cords[c].Right - cords[c].Left + 4;
+                        var height = cords[c].Bottom - cords[c].Top + 4;
+                        var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
+                        var bitmap = mapPart.ToBitmap().ScaleImage(pictureSize.x, pictureSize.y);
+                        var matrix = bitmap.GetDoubleMatrix();
+                        string result = null;
+                        float answer = 0;
+
+                        Parallel.For(0, networks.Count, i => 
+                        {
+                            var r = networks[i].Value.Compute(matrix)[0];
+
+                            if (r > 0)
+                            {
+                                answer = answer < r ? r : answer;
+                                result = answer < r ? networks[i].Key : result;
+                            }
+                        });
+
+                        var netResult = Network.Compute(bitmap.GetDoubleMatrix());
+
+                        results[c] = (cords[c], result);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    error = exception;
+                }
+            });
+
+            var resultBitmap = new Bitmap(workImage.Width, workImage.Height);
+        }
+
+        private void DrawSymbol()
+        {
+            Graphics g = Graphics.FromImage(mapBitmap);
+            g.FillRectangle(Brushes.White, 0, 0, mapBitmap.Width, mapBitmap.Height);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        }
+
+        private List<(string Key, ConvolutionalNetwork Value)> networks = new List<(string Key, ConvolutionalNetwork Value)>();
+
+        private void loadNamedNetBtn_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog open = new OpenFileDialog();
+            open.Filter = "Network Files(*.nw)|*.nw";
+
+            if (open.ShowDialog() == DialogResult.OK)
+            {
+                var setting = File.ReadAllBytes(open.FileName);
+                var net = new ConvolutionalNetwork();
+                net.Load(setting);
+
+                networks.Add((netNameTb.Text, net));
+            }
         }
     }
 }
