@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -243,7 +244,8 @@ namespace Sobel
         private void recognizeButton_Click(object sender, EventArgs e)
         {
             //searchText();
-            //return;
+//            ShowResult();
+//            return;
             
             panel2.Controls.Clear();
             var i = 0;
@@ -408,7 +410,7 @@ namespace Sobel
         private void ShowResult()
         {
             cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
-            var results = new(Cord cord, string answer)[cords.Count];
+            var results = new(Cord cord, string answerKey, float answerValue)[cords.Count];
             Exception error = null;
 
             var imageMap = workImage.GetDoubleMatrix(1);
@@ -424,23 +426,26 @@ namespace Sobel
                         var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
                         var bitmap = mapPart.ToBitmap().ScaleImage(pictureSize.x, pictureSize.y);
                         var matrix = bitmap.GetDoubleMatrix();
-                        string result = null;
-                        float answer = 0;
+//                        string result = null;
+//                        float answer = 0;
+                        var result = new (float answer, string result)[networks.Count];
 
                         Parallel.For(0, networks.Count, i => 
                         {
                             var r = networks[i].Value.Compute(matrix)[0];
 
-                            if (r > 0)
-                            {
-                                answer = answer < r ? r : answer;
-                                result = answer < r ? networks[i].Key : result;
-                            }
+                            result[i] = (r, networks[i].Key);
+                            
+//                            if (r > 0)
+//                            {
+//                                answer = answer < r ? r : answer;
+//                                result = answer < r ? networks[i].Key : result;
+//                            }
                         });
 
-                        var netResult = Network.Compute(bitmap.GetDoubleMatrix());
+                        var b = result.OrderByDescending(x => x.answer).First();
 
-                        results[c] = (cords[c], result);
+                        results[c] = (cords[c], b.result, b.answer);
                     }
                 }
                 catch (Exception exception)
@@ -450,15 +455,33 @@ namespace Sobel
             });
 
             var resultBitmap = new Bitmap(workImage.Width, workImage.Height);
-        }
 
-        private void DrawSymbol()
-        {
-            Graphics g = Graphics.FromImage(mapBitmap);
-            g.FillRectangle(Brushes.White, 0, 0, mapBitmap.Width, mapBitmap.Height);
+            Graphics g = Graphics.FromImage(resultBitmap);
+            g.FillRectangle(Brushes.White, 0, 0, resultBitmap.Width, resultBitmap.Height);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.Flush();
+            
+            foreach (var result in results.Where(x => x.answerValue > 0))
+            {
+                DrawSymbol(resultBitmap, result.cord, result.answerKey);
+            }
+
+            pictureBox1.Image = resultBitmap;
+        }
+
+        private void DrawSymbol(Bitmap mapBitmap, Cord cord, string symbol)
+        {
+            Graphics g = Graphics.FromImage(mapBitmap);
+            
+            TextRenderer.DrawText(g, symbol, new Font("Calibri", 20), new Point(cord.Left, cord.Bottom), Color.Black);
+            
+            g.Flush();
+//            g.FillRectangle(Brushes.Black, cord.Left, cord.Bottom, cord.Right - cord.Left, cord.Bottom - cord.Top);
+//            g.SmoothingMode = SmoothingMode.AntiAlias;
+//            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+//            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
         }
 
         private List<(string Key, ConvolutionalNetwork Value)> networks = new List<(string Key, ConvolutionalNetwork Value)>();
