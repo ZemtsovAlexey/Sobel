@@ -244,9 +244,9 @@ namespace Sobel
         private void recognizeButton_Click(object sender, EventArgs e)
         {
             //searchText();
-//            ShowResult();
-//            return;
-            
+            ShowResult();
+            return;
+
             panel2.Controls.Clear();
             var i = 0;
 
@@ -257,7 +257,7 @@ namespace Sobel
             var imageMap = workImage.GetDoubleMatrix(1);
 
             Parallel.For(0, cords.Count, c =>
-//            for (var c = 0; c < cords.Count; c++)
+            //for (var c = 0; c < cords.Count; c++)
             {
                 try
                 {
@@ -475,7 +475,7 @@ namespace Sobel
         {
             Graphics g = Graphics.FromImage(mapBitmap);
             
-            TextRenderer.DrawText(g, symbol, new Font("Calibri", 20), new Point(cord.Left, cord.Bottom), Color.Black);
+            TextRenderer.DrawText(g, symbol, new Font("Calibri", cord.Bottom - cord.Top), new Point(cord.Left, cord.Top), Color.Black);
             
             g.Flush();
 //            g.FillRectangle(Brushes.Black, cord.Left, cord.Bottom, cord.Right - cord.Left, cord.Bottom - cord.Top);
