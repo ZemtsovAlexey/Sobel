@@ -411,8 +411,9 @@ namespace Sobel.UI
                 padding.H = _random.Next((-((int)paddingHNumeric.Value)), ((int)paddingHNumeric.Value));
                 padding.V = _random.Next((-((int)paddingVNumeric.Value)), ((int)paddingVNumeric.Value));
                 
-                if (!text.symble.Equals(trueAnswerText.Text) && trueAnswerCount > 3)
+                if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
+                    //teacher.LearningRate = (float)learningRateNumeric.Value / 2;
                     bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
                     output = new float[] { -1f };
                     var computed = _networkNew.Compute(bitmap)[0];
@@ -439,6 +440,7 @@ namespace Sobel.UI
                 }
                 else
                 {
+                    //teacher.LearningRate = (float)learningRateNumeric.Value;
                     bitmap = bmp.DrawString(trueAnswerText.Text, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
                     //output = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? new[] { -1f } : new float[] { 1 };
                     output = new float[] { 1f };
@@ -446,7 +448,7 @@ namespace Sobel.UI
 
                     st.Start();
 
-                    if (/*!(Math.Abs(padding.H) > 0 || Math.Abs(padding.V) > 0) && */computed < 0f)
+                    if (/*!(Math.Abs(padding.H) > 0 || Math.Abs(padding.V) > 0) && */computed < 0.3f)
                     {
                         totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
                         succeses = 0;

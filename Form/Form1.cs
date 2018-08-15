@@ -7,6 +7,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Neuro.Models;
@@ -488,16 +489,37 @@ namespace Sobel
 
         private void loadNamedNetBtn_Click(object sender, EventArgs e)
         {
-            OpenFileDialog open = new OpenFileDialog();
-            open.Filter = "Network Files(*.nw)|*.nw";
+            //OpenFileDialog open = new OpenFileDialog();
+            //open.Filter = "Network Files(*.nw)|*.nw";
 
-            if (open.ShowDialog() == DialogResult.OK)
+            //if (open.ShowDialog() == DialogResult.OK)
+            //{
+            //    var setting = File.ReadAllBytes(open.FileName);
+            //    var net = new ConvolutionalNetwork();
+            //    net.Load(setting);
+
+            //    networks.Add((netNameTb.Text, net));
+            //}
+
+            networks = new List<(string Key, ConvolutionalNetwork Value)>();
+            FolderBrowserDialog browserDialog = new FolderBrowserDialog();
+
+            if (browserDialog.ShowDialog() == DialogResult.OK)
             {
-                var setting = File.ReadAllBytes(open.FileName);
-                var net = new ConvolutionalNetwork();
-                net.Load(setting);
+                var filesPaths = Directory.GetFiles(browserDialog.SelectedPath, "*.nw");
 
-                networks.Add((netNameTb.Text, net));
+                foreach (var path in filesPaths)
+                {
+                    var setting = File.ReadAllBytes(path);
+                    var symbleMatch = Regex.Match(path, @"\\_?(?<symble>\w+)\.nw");
+                    var symble = symbleMatch.Groups["symble"].Value;
+                    var net = new ConvolutionalNetwork();
+
+                    net.Load(setting);
+                    networks.Add((symble, net));
+                }
+
+                MessageBox.Show("All nets loaded");
             }
         }
     }
