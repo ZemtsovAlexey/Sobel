@@ -414,7 +414,7 @@ namespace Sobel
             var results = new(Cord cord, string answerKey, float answerValue)[cords.Count];
             Exception error = null;
 
-            var imageMap = workImage.GetDoubleMatrix(1);
+            var imageMap = workImage.GetDoubleMatrix();
 
             Parallel.For(0, cords.Count, c =>
             {
