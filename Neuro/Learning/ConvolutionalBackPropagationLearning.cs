@@ -192,11 +192,11 @@ namespace Neuro.Learning
             
             if (convLayers[layerIndex].Type == LayerType.MaxPoolingLayer)
             {
-                var layer1 = (IMaxPoolingLayer) convLayers[layerIndex];
+                var curLayer = (IMaxPoolingLayer) convLayers[layerIndex];
 
-                Parallel.For(0, layer1.NeuronsCount, (int nIndex) =>
+                Parallel.For(0, curLayer.NeuronsCount, nIndex =>
                 {
-                    var outputs = layer1.Neurons[nIndex].Outputs;
+                    var outputs = curLayer.Neurons[nIndex].Outputs;
                     var outputHeight = outputs.GetLength(0);
                     var outputWidth = outputs.GetLength(1);
 
@@ -207,7 +207,7 @@ namespace Neuro.Learning
                     {
                         for (var x = 0; x < outputWidth; x++)
                         {
-                            if (layer1.Neurons[nIndex].OutputCords[y, x])
+                            if (curLayer.Neurons[nIndex].OutputCords[y, x])
                             {
                                 var linerNeuronIndex = (nIndex * outputHeight * outputWidth) + (y * outputWidth + x);
                                 var sum = fullyConnectedLayers[0].Neurons.Select((neuron, ni) => new { neuron, ni }).Sum(j => j.neuron.Weights[linerNeuronIndex] * fullyConnectedNeuronErrors[0][j.ni]);
@@ -223,7 +223,7 @@ namespace Neuro.Learning
             {
                 var layer1 = (IConvolutionalLayer) convLayers[layerIndex];
 
-                Parallel.For(0, layer1.NeuronsCount, (int nIndex) =>
+                Parallel.For(0, layer1.NeuronsCount, nIndex =>
                 {
                     var outputHeight = layer1.Neurons[nIndex].Output.GetLength(0);
                     var outputWidth = layer1.Neurons[nIndex].Output.GetLength(1);
@@ -251,7 +251,44 @@ namespace Neuro.Learning
         {
             var convLayers = network.Layers.Where(x => x.Type == LayerType.Convolution || x.Type == LayerType.MaxPoolingLayer).Select(x => x as IMatrixLayer).ToArray();
 
-            Parallel.For(0, convLayers.Length, (int l) =>
+            for (int l = 0; l < convLayers.Length; l++)
+            {
+                if (convLayers[l].Type == LayerType.Convolution)
+                {
+                    var layer = (IConvolutionalLayer)convLayers[l];
+                    var inputs = l == 0 ? matrix : convLayers[l - 1].Outputs.Sum();
+                    
+                    for (var e = 0; e < convNeuronErrors[l].Length; e++)
+                    {
+                        var error = convNeuronErrors[l][e];
+                        var outputHeight = inputs.GetLength(0);
+                        var outputWidth = inputs.GetLength(1);
+                        var weights = layer.Neurons[e].Weights;
+                        var weightsHeight = weights.GetLength(0);
+                        var weightsWidth = weights.GetLength(1);
+                        var newWeights = new float[weightsHeight,weightsWidth];
+
+                        for (var y = 0; y < outputHeight - (weightsHeight - 1); y++)
+                        {
+                            for (var x = 0; x < outputWidth - (weightsWidth - 1); x++)
+                            {
+                                for (var h = 0; h < weightsHeight; h++)
+                                {
+                                    for (var w = 0; w < weightsWidth; w++)
+                                    {
+//                                        layer.Neurons[e].Weights[h, w] += LearningRate * error[h, w] * inputs[y + h, x + w];
+                                        newWeights[h,w] += weights[h, w] + LearningRate * error[h, w] * inputs[y + h, x + w];
+                                    }
+                                }
+                            }
+                        }
+
+                        layer.Neurons[e].Weights = newWeights;
+                    }
+                }
+            }
+
+            /*Parallel.For(0, convLayers.Length, (int l) =>
             {
                 if (convLayers[l].Type == LayerType.Convolution)
                 {
@@ -270,6 +307,7 @@ namespace Neuro.Learning
                             var weights = layer.Neurons[n].Weights;
                             var weightsHeight = weights.GetLength(0);
                             var weightsWidth = weights.GetLength(1);
+                            var newWeights = new float[weightsHeight, weightsWidth];
 
                             for (var y = 0; y < errorHeigth; y++)
                             {
@@ -288,18 +326,20 @@ namespace Neuro.Learning
 
                                                 for (var w = 0; w < weightsWidth; w++)
                                                 {
-                                                    pwRow[w] += LearningRate * peRow[x] * poRow[x];
+                                                    newWeights[h,w] += pwRow[w] + LearningRate * peRow[x] * poRow[x];
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
+
+                            layer.Neurons[n].Weights = newWeights;
                         });
                     }
                 }
-            });
-
+            });*/
+            
             var input = convLayers.Last().Outputs.ToLinearArray();
             var layersCount = fullyConnectedLayers.Count();
 

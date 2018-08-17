@@ -46,26 +46,12 @@ namespace Neuro.Neurons
         
         public float[,] Compute(float[][,] input)
         {
-            int i, y, x, h, w;
+            int y, x, h, w;
             var outputHeight = Output.GetLength(0);
             var outputWidth = Output.GetLength(1);
-            var inputHeight = input[0].GetLength(0);
-            var inputWidth = input[0].GetLength(1);
 
             var output = new float[_inHeight - _kernelSize + 1, _inWidth - _kernelSize + 1];
-            var Input = new float[inputHeight, inputWidth];
-
-            //суммируем все входные изображения
-            for (i = 0; i < input.Length; i++)
-            {
-                for (y = 0; y < inputHeight; y++)
-                {
-                    for (x = 0; x < inputWidth; x++)
-                    {
-                        Input[y, x] += input[i][y, x];
-                    }
-                }
-            }
+            var Input = input.Sum();
             
             //сканируем изображение ядром
             for (y = 0; y < outputHeight; y++)

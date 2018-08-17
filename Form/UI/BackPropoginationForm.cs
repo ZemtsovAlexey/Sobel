@@ -11,6 +11,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 using Neuro.Domain.Layers;
 using Neuro.Layers;
 using Neuro.Models;
+using Neuro.Networks;
 using Neuro.Neurons;
 using Neuro.ThirdPath;
 using ScannerNet;
@@ -41,6 +42,7 @@ namespace Sobel.UI
             InitLerningChart();
 //            InitNetworkSettingsPanel();
             InitNetworkSettings();
+            Test();
 
             //var a = new Class1();
             //a.Test();
@@ -48,6 +50,51 @@ namespace Sobel.UI
             //networkThirdPath.Init();
         }
 
+        private void Test()
+        {
+            var net = new ConvolutionalNetwork();
+            var activation = ActivationType.None;
+
+            net.InitLayers(3, 3,
+                new ConvolutionalLayer(activation, 1, 2),//24
+                new FullyConnectedLayer(1, activation)
+            );
+
+            var convNeuron = (net.Layers[0] as ConvolutionalLayer).Neurons[0];
+
+            convNeuron.Weights[0, 0] = 0.1f;
+            convNeuron.Weights[0, 1] = 0.2f;
+            convNeuron.Weights[1, 0] = 0.3f;
+            convNeuron.Weights[1, 1] = 0.4f;
+
+            var firstFullConLayer = (net.Layers[1] as FullyConnectedLayer);
+
+            firstFullConLayer[0].Weights[0] = 0.1f;
+            firstFullConLayer[0].Weights[1] = 0.2f;
+            firstFullConLayer[0].Weights[2] = 0.3f;
+            firstFullConLayer[0].Weights[3] = 0.4f;
+
+            var input = new float[3, 3]
+            {
+                {0.1f, 0.2f, 0.3f},
+                {0.4f, 0.5f, 0.6f},
+                {0.7f, 0.8f, 0.9f}
+            };
+            
+            var output = net.Compute(input);
+
+            var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(net)
+            {
+                LearningRate = 1f
+            };
+            
+            teacher.Run(input, new []{ 0.60f });
+            
+            var output2 = net.Compute(input);
+            
+            var a = output;
+        }
+        
         private void InitNetworkSettings()
         {
             bindingSource1 = new BindingSource();
@@ -307,13 +354,8 @@ namespace Sobel.UI
             _neadToStopLearning = false;
             InitLerningChart();
 
-            //LearnNew();
+//            Learn();
             await Task.Run(() => Learn());
-            //            LearnThirdPath();
-            //            await Task.Run(() => LearnAnyNeurons());
-            //            LearnAnyNeurons();
-
-            //            totalTimeText.Text = st.ElapsedMilliseconds.ToString();
         }
 
         private void stopLearnButton_Click(object sender, EventArgs e)

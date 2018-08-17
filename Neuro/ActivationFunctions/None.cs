@@ -15,7 +15,7 @@ namespace Neuro.ActivationFunctions
 
         public float Derivative(float x)
         {
-            return x;
+            return 1;
         }
     }
 }
