@@ -5,18 +5,31 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using ConvNetSharp.Core;
+using ConvNetSharp.Core.Fluent;
+using ConvNetSharp.Core.Layers;
+using ConvNetSharp.Core.Layers.Double;
+using ConvNetSharp.Core.Layers.Single;
+using ConvNetSharp.Core.Serialization;
+using ConvNetSharp.Core.Training;
+using ConvNetSharp.Volume;
+using ConvNetSharp.Volume.Double;
+using ConvNetSharp.Volume.Single;
 using Neuro.Domain.Layers;
 using Neuro.Layers;
 using Neuro.Models;
-using Neuro.Neurons;
 using Neuro.ThirdPath;
 using ScannerNet;
 using ScannerNet.Extensions;
 using ScannerNet.Models;
 using Sobel.Neronet;
+using ActivationType = Neuro.Neurons.ActivationType;
+using BuilderInstance = ConvNetSharp.Volume.Double.BuilderInstance;
+using Volume = ConvNetSharp.Volume.Double.Volume;
 
 namespace Sobel.UI
 {
@@ -34,6 +47,9 @@ namespace Sobel.UI
         private Rectangle dragBoxFromMouseDown;
         private int rowIndexFromMouseDown;
         private int rowIndexOfItemUnderMouseToDrop;
+
+//        private FluentNet<float> net;
+        private Net<float> net = new Net<float>();
         
         public BackPropoginationForm()
         {
@@ -46,6 +62,34 @@ namespace Sobel.UI
             //a.Test();
 
             //networkThirdPath.Init();
+
+//            net = FluentNet<float>.Create(28, 28, 1)
+//                .Conv(5, 5, 8).Stride(1).Pad(0)
+//                .Relu()
+//                .Pool(2, 2).Stride(2)
+//                .Conv(3, 3, 16).Stride(1).Pad(0)
+//                .Relu()
+//                .Pool(2, 2).Stride(2)
+//                .FullyConn(150)
+//                .Sigmoid()
+//                .FullyConn(50)
+//                .Sigmoid()
+//                .FullyConn(2)
+//                .Softmax(2)
+//                .Build();
+            
+            net.AddLayer(new InputLayer<float>(28, 28, 1));
+            net.AddLayer(new ConvLayer<float>(5, 5, 8));
+            net.AddLayer(new ReluLayer<float>());
+            net.AddLayer(new PoolLayer<float>(2, 2));
+            net.AddLayer(new ConvLayer<float>(3, 3, 16));
+            net.AddLayer(new ReluLayer<float>());
+            net.AddLayer(new PoolLayer<float>(2, 2));
+            net.AddLayer(new FullyConnLayer<float>(50));
+            net.AddLayer(new SigmoidLayer<float>());
+            net.AddLayer(new FullyConnLayer<float>(2));
+            net.AddLayer(new SoftmaxLayer<float>(2));
+            
         }
 
         private void InitNetworkSettings()
@@ -308,7 +352,7 @@ namespace Sobel.UI
             InitLerningChart();
 
             //LearnNew();
-            await Task.Run(() => Learn());
+            await Task.Run(() => LearnNew());
             //            LearnThirdPath();
             //            await Task.Run(() => LearnAnyNeurons());
             //            LearnAnyNeurons();
@@ -347,7 +391,10 @@ namespace Sobel.UI
             var st = new Stopwatch();
             st.Start();
 
-            var result = _networkNew.Compute(bitmap);
+            var data = BitmapExt.ToLinearArray(new []{ bitmap.GetFloatMatrix() });
+            var value = BuilderInstance<float>.Volume.From(data, new Shape(28, 28, 1));
+            var r = net.Forward(value);
+            var result = r.ToArray();
 
             var time = st.ElapsedMilliseconds;
             
@@ -422,7 +469,7 @@ namespace Sobel.UI
 
                     if (computed >= 0f)
                     {
-                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
+                        totalError += teacher.Run(bitmap.GetFloatMatrix(), output);
                         
                         succeses = 0;
                     }
@@ -450,7 +497,7 @@ namespace Sobel.UI
 
                     if (/*!(Math.Abs(padding.H) > 0 || Math.Abs(padding.V) > 0) && */computed < 0.3f)
                     {
-                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
+                        totalError += teacher.Run(bitmap.GetFloatMatrix(), output);
                         succeses = 0;
                     }
                     else
@@ -481,6 +528,110 @@ namespace Sobel.UI
 
             startLearnButton.Enabled = true;
         }
+        
+        private void LearnNew()
+        {
+            startLearnButton.Enabled = false;
+
+            var bmp = new Bitmap(textViewPicture.Width, textViewPicture.Height);
+            var iterations = (long)learnIterationsNumeric.Value;
+            (string symble, int position) text;
+            Bitmap bitmap;
+            int falseAnswerCount = 0;
+            int trueAnswerCount = 0;
+            float[] output;
+            float error = 0;
+            int succeses = 0;
+            float totalTime = 0;
+            float totalError = 0;
+            var rotateImage = (float)textRotateNumeric.Value;
+            (int V, int H) padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
+            var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
+
+            long i = 0;
+
+            var trainer = new SgdTrainer<float>(net) { LearningRate = (float)learningRateNumeric.Value, L2Decay = 0.001f };
+            
+            var st = new Stopwatch();
+            
+            while ((totalError > 0.01f || iterations < 20) && (iterations == 0 ||i < iterations))
+            {
+                if (_neadToStopLearning) break;
+
+//                var fontSize = 50;
+                var fontSize = _random.Next(15, 70);
+
+                text = _random.RandomSymble();
+
+                padding.H = _random.Next((-((int)paddingHNumeric.Value)), ((int)paddingHNumeric.Value));
+                padding.V = _random.Next((-((int)paddingVNumeric.Value)), ((int)paddingVNumeric.Value));
+                
+                if (!text.symble.Equals(trueAnswerText.Text) && trueAnswerCount > 2)
+                {
+                    bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
+                    output = new float[] { 0f, 1f };
+                    
+                    var data = BitmapExt.ToLinearArray(new []{ bitmap.GetFloatMatrix() });
+                    var value = BuilderInstance<float>.Volume.From(data, new Shape(28, 28, 1));
+                    
+                    var r = net.Forward(value);
+                    var computed = r.ToArray();
+
+                    st.Start();
+
+                    if (computed[0] >= 0.4f)
+                    {
+                        trainer.Train(value, BuilderInstance<float>.Volume.From(output, new Shape(2)));
+                        
+                        succeses = 0;
+                    }
+                    else
+                    {
+                        succeses++;
+                    }
+
+                    st.Stop();
+                    totalTime += st.ElapsedMilliseconds;
+                    falseAnswerCount++;
+                    trueAnswerCount = 0;
+                }
+                else
+                {
+                    bitmap = bmp.DrawString(trueAnswerText.Text, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
+                    output = new float[] { 1f, 0f };
+                    
+                    var data = BitmapExt.ToLinearArray(new []{ bitmap.GetFloatMatrix() });
+                    var value = BuilderInstance<float>.Volume.From(data, new Shape(28, 28, 1));
+                    
+                    var r = net.Forward(value);
+                    var computed = r.ToArray();
+
+                    st.Start();
+
+                    if (computed[0] < 0.6f)
+                    {
+                        trainer.Train(value, BuilderInstance<float>.Volume.From(output, new Shape(2)));
+                        succeses = 0;
+                    }
+                    else
+                    {
+                        succeses++;
+                    }
+
+                    st.Stop();
+                    totalTime += st.ElapsedMilliseconds;
+                    falseAnswerCount=0;
+                    trueAnswerCount++;
+                }
+                
+                BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses, totalTime / (i + 1), totalError / (i + 1)));
+
+                st.Reset();
+                i++;
+            }
+
+            startLearnButton.Enabled = true;
+        }
 
         private void saveButton_Click(object sender, EventArgs e)
         {
@@ -489,11 +640,21 @@ namespace Sobel.UI
 
             if (open.ShowDialog() == DialogResult.OK)
             {
-                var data = _networkNew.Network.Save();
-                using (var file = open.OpenFile())
-                {
-                    file.Write(data, 0, data.Length);
-                }
+                var data = net.ToJson(); //_networkNew.Network.Save();
+                
+                File.WriteAllText(open.FileName, data);
+                
+//                using (var ms = new MemoryStream())
+//                {
+//                    var bf = new BinaryFormatter();
+//
+//                    bf.Serialize(ms, data);
+//                    
+//                    using (var file = open.OpenFile())
+//                    {
+//                        file.Write(ms.ToArray(), 0, data.Length);
+//                    }
+//                }
             }
         }
 
@@ -504,8 +665,10 @@ namespace Sobel.UI
 
             if (open.ShowDialog() == DialogResult.OK)
             {
-                var a = File.ReadAllBytes(open.FileName);
-                _networkNew.Network.Load(a);
+                var a = File.ReadAllText(open.FileName);
+//                _networkNew.Network.Load(a);
+
+                net = SerializationExtensions.FromJson<float>(a);
                 InitNetworkSettings();
             }
         }

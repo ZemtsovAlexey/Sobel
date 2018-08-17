@@ -10,6 +10,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ConvNetSharp.Core;
+using ConvNetSharp.Core.Serialization;
+using ConvNetSharp.Volume;
 using Neuro.Models;
 using Neuro.Networks;
 using ScannerNet;
@@ -27,6 +30,9 @@ namespace Sobel
         private string lastImgPath = null;
         private (int x, int y) pictureSize = (28, 28);
         private Bitmap workImage;
+        private Net<float> net = new Net<float>();
+        private List<(string Key, Net<float> net)> nets = new List<(string Key, Net<float> net)>();
+
         
         public Form1()
         {
@@ -255,7 +261,7 @@ namespace Sobel
             var results = new (Bitmap img, Cord cord, float answer)[cords.Count];
             Exception error = null;
 
-            var imageMap = workImage.GetDoubleMatrix(1);
+            var imageMap = workImage.GetFloatMatrix(1);
 
             Parallel.For(0, cords.Count, c =>
             //for (var c = 0; c < cords.Count; c++)
@@ -268,7 +274,7 @@ namespace Sobel
                         var height = cords[c].Bottom - cords[c].Top + 4;
                         var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
                         var bitmap = mapPart.ToBitmap().ScaleImage(pictureSize.x, pictureSize.y);
-                        var netResult = Network.Compute(bitmap.GetDoubleMatrix());
+                        var netResult = Network.Compute(bitmap.GetFloatMatrix());
 
                         results[c] = (bitmap, cords[c], netResult[0]);
                     }
@@ -375,8 +381,11 @@ namespace Sobel
 
             if (open.ShowDialog() == DialogResult.OK)
             {
-                var setting = File.ReadAllBytes(open.FileName);
-                Network.Load(setting);
+//                var setting = File.ReadAllBytes(open.FileName);
+//                Network.Load(setting);
+
+                var json = File.ReadAllText(open.FileName);
+                net = SerializationExtensions.FromJson<float>(json);
             }
         }
         
@@ -393,7 +402,7 @@ namespace Sobel
                 {
                     var cloneRect = new Rectangle(x, y, rectWidth, rectHeight);
                     var cloneBitmap = bitmap.Clone(cloneRect, workImage.PixelFormat);
-                    var netResult = Network.Compute(cloneBitmap.GetDoubleMatrix());
+                    var netResult = Network.Compute(cloneBitmap.GetFloatMatrix());
                     
                     results.Add((cloneBitmap, new Cord(y, y + rectHeight, x, x + rectWidth), netResult[0]));
                 }
@@ -414,9 +423,10 @@ namespace Sobel
             var results = new(Cord cord, string answerKey, float answerValue)[cords.Count];
             Exception error = null;
 
-            var imageMap = workImage.GetDoubleMatrix(1);
+            var imageMap = workImage.GetFloatMatrix(1);
 
-            Parallel.For(0, cords.Count, c =>
+//            Parallel.For(0, cords.Count, c =>
+            for (var c = 0; c < cords.Count; c++)
             {
                 try
                 {
@@ -426,34 +436,40 @@ namespace Sobel
                         var height = cords[c].Bottom - cords[c].Top + 4;
                         var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
                         var bitmap = mapPart.ToBitmap().ScaleImage(pictureSize.x, pictureSize.y);
-                        var matrix = bitmap.GetDoubleMatrix();
+//                        var matrix = bitmap.GetFloatMatrix();
 //                        string result = null;
 //                        float answer = 0;
-                        var result = new (float answer, string result)[networks.Count];
+                        
+                        var data = BitmapExt.ToLinearArray(new []{ bitmap.GetFloatMatrix() });
+                        var value = BuilderInstance<float>.Volume.From(data, new Shape(28, 28, 1));
+                        
+                        var result = new (float[] answer, string result)[nets.Count];
 
-                        Parallel.For(0, networks.Count, i => 
+//                        Parallel.For(0, nets.Count, i => 
+                        for(var i = 0; i < nets.Count; i++)
                         {
-                            var r = networks[i].Value.Compute(matrix)[0];
+//                            var r = networks[i].Value.Compute(matrix)[0];
+                            var r = nets[i].net.Forward(value).ToArray();
 
-                            result[i] = (r, networks[i].Key);
+                            result[i] = (r, nets[i].Key);
                             
 //                            if (r > 0)
 //                            {
 //                                answer = answer < r ? r : answer;
 //                                result = answer < r ? networks[i].Key : result;
 //                            }
-                        });
+                        }//);
 
-                        var b = result.OrderByDescending(x => x.answer).First();
+                        var b = result/*.Where(x => x.answer[0] > x.answer[1])*/.OrderByDescending(x => x.answer[0]).FirstOrDefault();
 
-                        results[c] = (cords[c], b.result, b.answer);
+                        results[c] = (cords[c], b.result, b.answer[0]);
                     }
                 }
                 catch (Exception exception)
                 {
                     error = exception;
                 }
-            });
+            }//);
 
             var resultBitmap = new Bitmap(workImage.Width, workImage.Height);
 
@@ -464,7 +480,7 @@ namespace Sobel
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.Flush();
             
-            foreach (var result in results.Where(x => x.answerValue > 0))
+            foreach (var result in results.Where(x => x.answerValue > 0.5f))
             {
                 DrawSymbol(resultBitmap, result.cord, result.answerKey);
             }
@@ -510,13 +526,18 @@ namespace Sobel
 
                 foreach (var path in filesPaths)
                 {
-                    var setting = File.ReadAllBytes(path);
+//                    var setting = File.ReadAllBytes(path);
                     var symbleMatch = Regex.Match(path, @"\\_?(?<symble>\w+)\.nw");
                     var symble = symbleMatch.Groups["symble"].Value;
-                    var net = new ConvolutionalNetwork();
+//                    var net = new ConvolutionalNetwork();
 
-                    net.Load(setting);
-                    networks.Add((symble, net));
+//                    net.Load(setting);
+//                    networks.Add((symble, net));
+                    
+                    var json = File.ReadAllText(path);
+                    var n = SerializationExtensions.FromJson<float>(json);
+                    
+                    nets.Add((symble, n));
                 }
 
                 MessageBox.Show("All nets loaded");

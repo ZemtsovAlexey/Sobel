@@ -26,12 +26,10 @@ namespace Sobel.Neronet
             Network = new ConvolutionalNetwork();
 
             Network.InitLayers(28, 28,
-                new ConvolutionalLayer(relu, 5, 5),//24
-                new MaxPoolingLayer(2),//12
-                new ConvolutionalLayer(relu, 15, 3),//10
-                new MaxPoolingLayer(2),//5
-                new FullyConnectedLayer(150, activation),
-                new FullyConnectedLayer(100, activation),
+                new ConvolutionalLayer(relu, 2, 9),//20
+                new ConvolutionalLayer(relu, 4, 9),//12
+                new ConvolutionalLayer(relu, 8, 9),//6
+                new ConvolutionalLayer(relu, 16, 4),//2
                 new FullyConnectedLayer(50, activation),
                 new FullyConnectedLayer(1, activation)
                 );
@@ -41,7 +39,7 @@ namespace Sobel.Neronet
         
         public float[] Compute(Bitmap bmp)
         {
-            return Network.Compute(bmp.GetDoubleMatrix());
+            return Network.Compute(bmp.GetFloatMatrix());
         }
 
         public void SearchSolution(Bitmap bmp, float[] outputs)
@@ -51,7 +49,7 @@ namespace Sobel.Neronet
                 LearningRate = LearningRate
             };
 
-            teacher.Run(bmp.GetDoubleMatrix(), outputs);
+            teacher.Run(bmp.GetFloatMatrix(), outputs);
         }
 
         public void SearchSolutionStop()

@@ -101,9 +101,38 @@ namespace ScannerNet.Extensions
             return result;
         }
         
-        public static float[,] GetDoubleMatrix(this Bitmap bitmap, float delimetr = 100000f)
+        public static float[,] GetFloatMatrix(this Bitmap bitmap, float delimetr = 100000f)
         {
             var result = new float[bitmap.Height, bitmap.Width];
+            var procesBitmap = (Bitmap)bitmap.Clone();
+            var bitmapData = procesBitmap.LockBits(new Rectangle(0, 0, procesBitmap.Width, procesBitmap.Height), ImageLockMode.ReadWrite, procesBitmap.PixelFormat);
+            var step = procesBitmap.GetStep();
+
+            unsafe
+            {
+                int imageHeight = procesBitmap.Height;
+                int imageWidth = procesBitmap.Width;
+                
+                Parallel.For(0, imageHeight, (int y) =>
+                {
+                    var pRow = (byte*)bitmapData.Scan0 + y * bitmapData.Stride;
+                    
+                    Parallel.For(0, imageWidth, (int x) =>
+                    {
+                        var offset = x * step;
+                        result[y, x] = step == 1 ? pRow[offset] / 255 : ((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / 255;
+                    });
+                });
+            }
+            
+            procesBitmap.UnlockBits(bitmapData);
+
+            return result;
+        }
+        
+        public static double[,] GetDoubleMatrix(this Bitmap bitmap, float delimetr = 100000f)
+        {
+            var result = new double[bitmap.Height, bitmap.Width];
             var procesBitmap = (Bitmap)bitmap.Clone();
             var bitmapData = procesBitmap.LockBits(new Rectangle(0, 0, procesBitmap.Width, procesBitmap.Height), ImageLockMode.ReadWrite, procesBitmap.PixelFormat);
             var step = procesBitmap.GetStep();
@@ -445,6 +474,27 @@ namespace ScannerNet.Extensions
             Bitmap bmp = new Bitmap(newImage);
 
             return bmp;
+        }
+        
+        public static T[] ToLinearArray<T>(T[][,] outputs) where T : struct
+        {
+            var imageHeight = outputs[0].GetLength(0);
+            var imageWidth = outputs[0].GetLength(1);
+            var result = new T[outputs.Length * imageHeight * imageWidth];
+
+            for (var i = 0; i < outputs.Length; i++)
+            {
+                for (var h = 0; h < imageHeight; h++)
+                {
+                    for (var w = 0; w < imageWidth; w++)
+                    {
+                        var position = (i * (imageWidth * imageHeight)) + (h * imageWidth + w);
+                        result[position] = outputs[i][h, w];
+                    }
+                }
+            }
+
+            return result;
         }
         
         private unsafe static byte GetPixelBright(byte* row, int step, int offset)
