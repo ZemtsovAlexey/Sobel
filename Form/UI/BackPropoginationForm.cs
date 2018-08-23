@@ -30,7 +30,7 @@ namespace Sobel.UI
         private Series _seriesSuccess;
         private int _succeses = 0;
         private bool _neadToStopLearning;
-        private (int x, int y) pictureSize = (28, 28);
+        private (int x, int y) pictureSize = (26, 26);
         private BindingSource bindingSource1 = new BindingSource();
         private Rectangle dragBoxFromMouseDown;
         private int rowIndexFromMouseDown;
@@ -211,6 +211,7 @@ namespace Sobel.UI
                     
                     netSettingsDataGridView.EndEdit();
                     
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[1].Value = ActivationType.BipolarSigmoid;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value = null;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value ?? 1;;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[0].Value = LayerType.FullyConnected;
@@ -222,6 +223,7 @@ namespace Sobel.UI
                     
                     netSettingsDataGridView.EndEdit();
                     
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[1].Value = ActivationType.ReLu;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value ?? 1;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value ?? 3;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[0].Value = selectedValue;
@@ -444,7 +446,7 @@ namespace Sobel.UI
                 if (_neadToStopLearning) break;
 
                 teacher.LearningRate = (float)learningRateNumeric.Value;
-                var fontSize = 50;//_random.Next(15, 50);
+                var fontSize = _random.Next(25, 50);
                 
 //                st.Start();
 
@@ -453,7 +455,7 @@ namespace Sobel.UI
                 padding.H = _random.Next((-((int)paddingHNumeric.Value)), ((int)paddingHNumeric.Value));
                 padding.V = _random.Next((-((int)paddingVNumeric.Value)), ((int)paddingVNumeric.Value));
                 
-                if (!text.symble.Equals(trueAnswerText.Text) && trueAnswerCount > 2)
+                if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
                     //teacher.LearningRate = (float)learningRateNumeric.Value / 2;
                     bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
@@ -523,6 +525,97 @@ namespace Sobel.UI
 
             startLearnButton.Enabled = true;
         }
+        
+        private void LearnAnyNeurons()
+        {
+            startLearnButton.Enabled = false;
+
+            var bmp = new Bitmap(textViewPicture.Width, textViewPicture.Height);
+            var iterations = (long)learnIterationsNumeric.Value;
+            (string symble, int position) text;
+            Bitmap bitmap;
+            float[] output;
+            int succeses = 0;
+            float totalTime = 0;
+            var rotateImage = (float)textRotateNumeric.Value;
+            var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
+            var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
+
+            long i = 0;
+
+            var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
+            {
+                LearningRate = (float)learningRateNumeric.Value
+            };
+
+            var st = new Stopwatch();
+            
+            while ((iterations == 0 ||i < iterations))
+            {
+                if (_neadToStopLearning) break;
+                
+                st.Start();
+
+                text = _random.RandomSymble();
+                
+                int maxIter = 0;
+                double maxRes = 0;
+                var k = 0;
+
+                bitmap = bmp.DrawString(text.symble, 50, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
+                var result = _networkNew.Compute(bitmap);
+                
+                foreach (var neuron in result)
+                {
+                    if (maxRes < neuron)
+                    {
+                        maxRes = neuron;
+                        maxIter = k;
+                    }
+
+                    k++;
+                }
+
+                if (text.position != maxIter)
+                {
+                    output = new float[79];
+
+                    for (var j = 0; j < 79; j++)
+                    {
+                        output[j] = j == text.position ? 1f : 0f;
+                    }
+                    
+                    teacher.Run(bitmap.GetDoubleMatrix(), output);
+                    succeses = 0;
+                }
+//                else if (text.position == maxIter && maxRes < 0.7)
+//                {
+//                    output = new double[5];
+//
+//                    for (var j = 0; j < 5; j++)
+//                    {
+//                        output[j] = j == text.position ? 0.75 : 0.1;
+//                    }
+//                    
+//                    teacher.Run(bitmap.GetDoubleMatrix(), output);
+//                    succeses = 0;
+//                }
+                else
+                {
+                    succeses++;
+                }
+                
+                st.Stop();
+                totalTime += st.ElapsedMilliseconds;
+
+                BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses, totalTime / (i + 1), 0));
+
+                st.Reset();
+                i++;
+            }
+
+            startLearnButton.Enabled = true;
+        }
 
         private void saveButton_Click(object sender, EventArgs e)
         {
@@ -577,6 +670,47 @@ namespace Sobel.UI
 
             _networkNew.Network.InitLayers(pictureSize.x, pictureSize.y, initData.ToArray());
             _networkNew.Network.Randomize();
-        }       
+        }
+
+        private void LoadTestImgButton_Click(object sender, EventArgs e)
+        {
+                OpenFileDialog open = new OpenFileDialog();
+                open.Filter = "Image Files(*.jpg; *.jpeg; *.gif; *.bmp)|*.jpg; *.jpeg; *.gif; *.bmp; *.png";
+                if (open.ShowDialog() == DialogResult.OK)
+                {
+                    Bitmap bit = new Bitmap(open.FileName);
+
+                    var rotateImage = (float)textRotateNumeric.Value;
+                    var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
+                    var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
+                    var averege = bit.GetAverBright();
+                    
+                    var bitmap = bit
+                        .ToBlackWite(averege)
+                        .CutSymbol(padding, scale)
+                        .ScaleImage(pictureSize.x, pictureSize.y);
+                    
+                    textViewPicture.Image = bitmap;
+                    
+                    var result = _networkNew.Compute(bitmap);
+
+                    int maxIter = 0;
+                    double maxRes = 0;
+                    var k = 0;
+
+                    foreach (var neuron in result)
+                    {
+                        if (maxRes < neuron)
+                        {
+                            maxRes = neuron;
+                            maxIter = k;
+                        }
+
+                        k++;
+                    }
+
+                    realAnswerText.Text = $@"{maxIter} - {string.Join(" | ", result)}";
+                }
+        }
     }
 }

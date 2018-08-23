@@ -86,6 +86,10 @@ namespace Neuro.Learning
         private void CalculateConvLayersErrorParallel()
         {
             var convLayers = network.Layers.Where(x => x.Type == LayerType.Convolution || x.Type == LayerType.MaxPoolingLayer).Select(x => x as IMatrixLayer).ToArray();
+            
+            if (convLayers.Length == 0)
+                return;
+            
             float[,] errorsNext;
             
             //расчет ошибки на слое соединия с полносвязной сетью
@@ -188,6 +192,9 @@ namespace Neuro.Learning
 
         private void CalcLastConvErrors(IMatrixLayer[] convLayers)
         {
+            if (convLayers.Length == 0)
+                return;
+            
             var layerIndex = convLayers.Length - 1;
             
             if (convLayers[layerIndex].Type == LayerType.MaxPoolingLayer)
@@ -244,7 +251,7 @@ namespace Neuro.Learning
                                 .Select((neuron, ni) => new {neuron, ni})
                                 .Sum(j => j.neuron.Weights[linerNeuronIndex] * fullyConnectedNeuronErrors[0][j.ni]);
 
-                            errors[x, y] = /*activationFunction.Derivative(outputs[y, x]) **/ sum;
+                            errors[x, y] = activationFunction.Derivative(outputs[y, x]) * sum;
                         }
                     }
                 });
@@ -265,8 +272,6 @@ namespace Neuro.Learning
                     for (var e = 0; e < convNeuronErrors[l].Length; e++)
                     {
                         var error = convNeuronErrors[l][e];
-                        var inputHeight = inputs.GetLength(0);
-                        var inputWidth = inputs.GetLength(1);
                         var errorHeight = error.GetLength(0);
                         var errorWidth = error.GetLength(1);
 
@@ -276,25 +281,6 @@ namespace Neuro.Learning
                         var function = layer.Neurons[e].Function;
 
                         var newWeights = new float[weightsHeight, weightsWidth];
-                        var inputsSum = new float[weightsHeight, weightsWidth];
-                        var errorSum = new float[weightsHeight, weightsWidth];
-
-                        //for (var y = 0; y < outputHeight - (weightsHeight - 1); y++)
-                        //{
-                        //    for (var x = 0; x < outputWidth - (weightsWidth - 1); x++)
-                        //    {
-                        //        for (var h = 0; h < weightsHeight; h++)
-                        //        {
-                        //            for (var w = 0; w < weightsWidth; w++)
-                        //            {
-                        //                layer.Neurons[e].Weights[h, w] += LearningRate * error[h, w] * inputs[y + h, x + w];
-                        //                //newWeights[h, w] += LearningRate * error[y, x] * inputs[y + h, x + w];
-                        //                //inputsSum[h, w] += inputs[y + h, x + w];
-                        //                //errorSum[h, w] += error[y, x];
-                        //            }
-                        //        }
-                        //    }
-                        //}
 
                         for (var y = 0; y < weightsHeight; y++)
                         {
@@ -304,81 +290,29 @@ namespace Neuro.Learning
                                 {
                                     for (var w = 0; w < errorWidth; w++)
                                     {
-                                        newWeights[y, x] += inputs[y + h, x + w] * error[h, w];
+                                        weights[y, x] += inputs[y + h, x + w] * error[errorHeight - 1 - h, errorWidth - 1 - w] * LearningRate;
+//                                        newWeights[y, x] += inputs[y + h, x + w] * error[h, w];
                                     }
                                 }
 
-                                newWeights[y, x] = function.Derivative(newWeights[y, x]) * (LearningRate / network.Layers.Length);
+//                                newWeights[y, x] *= (LearningRate / network.Layers.Length);
                             }
                         }
+//
+//                        for (var h = 0; h < weightsHeight; h++)
+//                        {
+//                            for (var w = 0; w < weightsWidth; w++)
+//                            {
+//                                newWeights[h, w] = weights[h, w] + newWeights[h, w] * LearningRate;
+//                            }
+//                        }
 
-                        for (var h = 0; h < weightsHeight; h++)
-                        {
-                            for (var w = 0; w < weightsWidth; w++)
-                            {
-                                newWeights[h, w] -= weights[h, w];// + LearningRate * error.Sum();
-                            }
-                        }
-
-                        layer.Neurons[e].Weights = newWeights;
+//                        layer.Neurons[e].Weights = newWeights;
                     }
                 }
             }
 
-            //Parallel.For(0, convLayers.Length, (int l) =>
-            //{
-            //    if (convLayers[l].Type == LayerType.Convolution)
-            //    {
-            //        var layer = (IConvolutionalLayer)convLayers[l];
-
-            //        for (var e = 0; e < convNeuronErrors[l].Length; e++)
-            //        {
-            //            var error = convNeuronErrors[l][e];
-            //            var errorHeigth = error.GetLength(0);
-            //            var errorWidth = error.GetLength(1);
-
-            //            //проход по ошибкам
-            //            Parallel.For(0, layer.NeuronsCount, (int n) =>
-            //            {
-            //                var outputs = layer.Neurons[n].Output;
-            //                var weights = layer.Neurons[n].Weights;
-            //                var weightsHeight = weights.GetLength(0);
-            //                var weightsWidth = weights.GetLength(1);
-            //                var newWeights = new float[weightsHeight, weightsWidth];
-
-            //                for (var y = 0; y < errorHeigth; y++)
-            //                {
-            //                    for (var x = 0; x < errorWidth; x++)
-            //                    {
-            //                        unsafe
-            //                        {
-            //                            fixed (float* pWeights = weights, pError = error, pOutputs = outputs)
-            //                            {
-            //                                //проход по весам
-            //                                for (var h = 0; h < weightsHeight; h++)
-            //                                {
-            //                                    var pwRow = pWeights + h * weightsWidth;
-            //                                    var peRow = pError + y * errorHeigth;
-            //                                    var poRow = pOutputs + y * errorHeigth;
-
-            //                                    for (var w = 0; w < weightsWidth; w++)
-            //                                    {
-            //                                        //newWeights[h, w] += pwRow[w] + LearningRate * peRow[x] * poRow[x];
-            //                                        pwRow[w] += LearningRate * peRow[x] * poRow[x];
-            //                                    }
-            //                                }
-            //                            }
-            //                        }
-            //                    }
-            //                }
-
-            //                //layer.Neurons[n].Weights = newWeights;
-            //            });
-            //        }
-            //    }
-            //});
-
-            var input = convLayers.Last().Outputs.ToLinearArray();
+            var input = convLayers.Length > 0 ? convLayers.Last().Outputs.ToLinearArray() : matrix.ToLinearArray();
             var layersCount = fullyConnectedLayers.Count();
 
             Parallel.For(0, layersCount, l =>
@@ -391,11 +325,10 @@ namespace Neuro.Learning
                     var neuron = layer.Neurons[n];
                     var weightsLegth = neuron.Weights.Length;
                     var error = fullyConnectedNeuronErrors[l][n];
-                    var newWeight = new float[weightsLegth];
 
                     for (var wIndex = 0; wIndex < weightsLegth; wIndex++)
                     {
-                        neuron.Weights[wIndex] = neuron.Weights[wIndex] + LearningRate * error * outputs[wIndex];
+                        neuron.Weights[wIndex] +=LearningRate * error * outputs[wIndex];
                     }
                 });
             });

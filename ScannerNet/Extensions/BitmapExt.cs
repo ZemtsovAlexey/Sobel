@@ -57,7 +57,7 @@ namespace ScannerNet.Extensions
                     
                     for (var x = 0; x < data.GetLength(1); x++)
                     {
-                        var bright = (byte) Math.Max(0, Math.Min(255, data[y, x]));
+                        var bright = (byte) Math.Max(0, Math.Min(255, data[y, x] * 255));
                         row[offset + 3] = 255;
                         row[offset + 2] = bright;
                         row[offset + 1] = bright;

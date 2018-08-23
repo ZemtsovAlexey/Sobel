@@ -22,10 +22,10 @@ namespace Sobel
     public partial class Form1 : Form
     {
         public ConvolutionalNetwork Network = new ConvolutionalNetwork();
-        private int ImageWidth = 20;
-        private int ImageHeight = 20;
+        private int ImageWidth = 26;
+        private int ImageHeight = 26;
         private string lastImgPath = null;
-        private (int x, int y) pictureSize = (28, 28);
+        private (int x, int y) pictureSize = (26, 26);
         private Bitmap workImage;
         
         public Form1()
@@ -411,7 +411,7 @@ namespace Sobel
         private void ShowResult()
         {
             cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
-            var results = new(Cord cord, string answerKey, float answerValue)[cords.Count];
+            var results = new(Cord cord, string answerKey, float answerValue, Bitmap bitmap)[cords.Count];
             Exception error = null;
 
             var imageMap = workImage.GetDoubleMatrix();
@@ -427,26 +427,19 @@ namespace Sobel
                         var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
                         var bitmap = mapPart.ToBitmap().ScaleImage(pictureSize.x, pictureSize.y);
                         var matrix = bitmap.GetDoubleMatrix();
-//                        string result = null;
-//                        float answer = 0;
-                        var result = new (float answer, string result)[networks.Count];
+                        var result = new (float answer, string result, Bitmap bitmap)[networks.Count];
 
                         Parallel.For(0, networks.Count, i => 
                         {
                             var r = networks[i].Value.Compute(matrix)[0];
 
-                            result[i] = (r, networks[i].Key);
+                            result[i] = (r, networks[i].Key, (Bitmap)bitmap.Clone());
                             
-//                            if (r > 0)
-//                            {
-//                                answer = answer < r ? r : answer;
-//                                result = answer < r ? networks[i].Key : result;
-//                            }
                         });
 
                         var b = result.OrderByDescending(x => x.answer).First();
 
-                        results[c] = (cords[c], b.result, b.answer);
+                        results[c] = (cords[c], b.result, b.answer, b.bitmap);
                     }
                 }
                 catch (Exception exception)
@@ -455,7 +448,7 @@ namespace Sobel
                 }
             });
 
-            var resultBitmap = new Bitmap(workImage.Width, workImage.Height);
+            var resultBitmap = new Bitmap(workImage.Width, workImage.Height, PixelFormat.Format32bppArgb);
 
             Graphics g = Graphics.FromImage(resultBitmap);
             g.FillRectangle(Brushes.White, 0, 0, resultBitmap.Width, resultBitmap.Height);
@@ -466,19 +459,59 @@ namespace Sobel
             
             foreach (var result in results.Where(x => x.answerValue > 0))
             {
-                DrawSymbol(resultBitmap, result.cord, result.answerKey);
+                DrawSymbol(resultBitmap, result.cord, result.answerKey, result.bitmap);
             }
 
             pictureBox1.Image = resultBitmap;
+
+//            var k = 0;
+//            foreach (var cord in results)
+//            {
+//                try
+//                {
+//                    var box = new PictureBox
+//                    {
+//                        Location = new System.Drawing.Point(10, 4 + (k * (pictureSize.y + 3))),
+//                        Name = $"pictureBoxResult{k}",
+//                        Size = new System.Drawing.Size(pictureSize.x, pictureSize.y),
+//                        BackColor = Color.Black,
+//                        Image = cord.bitmap,
+//                        BorderStyle = BorderStyle.FixedSingle
+//                    };
+//
+//                    var label = new Label
+//                    {
+//                        Location = new System.Drawing.Point(10 + pictureSize.x, 8 + (k * (pictureSize.y + 3))),
+//                        Name = $"labelResult{k}",
+//                        Size = new System.Drawing.Size(120, pictureSize.y),
+//                        Text = cord.answerValue.ToString(),
+//                        ForeColor = cord.answerValue > 0.5 ? Color.DarkGreen : Color.Black
+//                    };
+//
+//                    panel2.Controls.Add(box);
+//                    panel2.Controls.Add(label);
+//                }
+//                catch
+//                {
+//                    continue;
+//                }
+//                
+//                k++;
+//            }
         }
 
-        private void DrawSymbol(Bitmap mapBitmap, Cord cord, string symbol)
+        private void DrawSymbol(Bitmap mapBitmap, Cord cord, string symbol, Bitmap bitmap)
         {
-            Graphics g = Graphics.FromImage(mapBitmap);
+            using (var g = Graphics.FromImage(mapBitmap))
+            {
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+//                g.DrawImage(bitmap, new Point(cord.Left, cord.Top));
+                TextRenderer.DrawText(g, symbol, new Font("Calibri", cord.Bottom - cord.Top), new Point(cord.Left, cord.Top), Color.Black);
+            }
             
-            TextRenderer.DrawText(g, symbol, new Font("Calibri", cord.Bottom - cord.Top), new Point(cord.Left, cord.Top), Color.Black);
+//            TextRenderer.DrawText(g, symbol, new Font("Calibri", cord.Bottom - cord.Top), new Point(cord.Left, cord.Top), Color.Black);
             
-            g.Flush();
+//            g.Flush();
 //            g.FillRectangle(Brushes.Black, cord.Left, cord.Bottom, cord.Right - cord.Left, cord.Bottom - cord.Top);
 //            g.SmoothingMode = SmoothingMode.AntiAlias;
 //            g.InterpolationMode = InterpolationMode.HighQualityBicubic;

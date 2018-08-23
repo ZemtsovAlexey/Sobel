@@ -22,5 +22,22 @@
 
             return result;
         }
+
+        public static T[] ToLinearArray<T>(this T[,] outputs) where T : struct
+        {
+            var imageHeight = outputs.GetLength(0);
+            var imageWidth = outputs.GetLength(1);
+            var result = new T[outputs.Length * imageHeight * imageWidth];
+
+            for (var h = 0; h < imageHeight; h++)
+            {
+                for (var w = 0; w < imageWidth; w++)
+                {
+                    result[h * imageWidth + w] = outputs[h, w];
+                }
+            }
+
+            return result;
+        }
     }
 }
