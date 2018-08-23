@@ -354,7 +354,7 @@ namespace Sobel.UI
             _neadToStopLearning = false;
             InitLerningChart();
 
-//            Learn();
+            //Learn();
             await Task.Run(() => Learn());
         }
 
@@ -453,7 +453,7 @@ namespace Sobel.UI
                 padding.H = _random.Next((-((int)paddingHNumeric.Value)), ((int)paddingHNumeric.Value));
                 padding.V = _random.Next((-((int)paddingVNumeric.Value)), ((int)paddingVNumeric.Value));
                 
-                if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
+                if (!text.symble.Equals(trueAnswerText.Text) && trueAnswerCount > 2)
                 {
                     //teacher.LearningRate = (float)learningRateNumeric.Value / 2;
                     bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);

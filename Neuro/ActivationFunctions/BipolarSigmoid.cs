@@ -4,7 +4,7 @@ namespace Neuro.ActivationFunctions
 {
     public class BipolarSigmoid : IActivationFunction
     {
-        public float Alpha { get; set; } = 2;
+        public float Alpha { get; set; } = 1;
         public float MinRange { get; set; } = -1;
         public float MaxRange { get; set; } = 1;
         
