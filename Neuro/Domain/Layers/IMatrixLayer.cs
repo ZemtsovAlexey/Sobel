@@ -1,13 +1,15 @@
-﻿namespace Neuro.Layers
+﻿using Neuro.Models;
+
+namespace Neuro.Layers
 {
     public interface IMatrixLayer : ILayer
     {
-        float[][,] Outputs { get; }
+        Matrix[] Outputs { get; }
      
         int OutputWidht { get; }
         
         int OutputHeight { get; }
-        
-        float[][,] Compute(float[][,] input);
+
+        Matrix[] Compute(Matrix[] input);
     }
 }

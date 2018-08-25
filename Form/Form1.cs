@@ -379,29 +379,6 @@ namespace Sobel
                 Network.Load(setting);
             }
         }
-        
-        private void searchText()
-        {
-            const int rectHeight = 28;
-            const int rectWidth = 28;
-            var results = new List<(Bitmap img, Cord cord, float answer)>();
-            var bitmap = (Bitmap)workImage.Clone();
-            
-            for (var y = 0; y < bitmap.Height - rectHeight; y = y + 3)
-            {
-                for (var x = 0; x < bitmap.Width - rectWidth; x = x + 3)
-                {
-                    var cloneRect = new Rectangle(x, y, rectWidth, rectHeight);
-                    var cloneBitmap = bitmap.Clone(cloneRect, workImage.PixelFormat);
-                    var netResult = Network.Compute(cloneBitmap.GetDoubleMatrix());
-                    
-                    results.Add((cloneBitmap, new Cord(y, y + rectHeight, x, x + rectWidth), netResult[0]));
-                }
-            }
-            
-            var viewedCords = results.Where(x => x.answer > 0f).ToList();
-            pictureBox1.Image = viewedCords.Select(x => x.cord).Take(500).ToList().DrawCords(bitmap);
-        }
 
         private void vertPos_ValueChanged(object sender, EventArgs e)
         {

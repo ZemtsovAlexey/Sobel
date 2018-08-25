@@ -84,14 +84,14 @@ namespace Neuro.Networks
         
         public float[] Compute(float[,] input)
         {
-            var output = new[] {input};
+            var output = new[] {new Matrix(input)};
 
             foreach (IMatrixLayer layer in Layers.Where(l => l.Type == LayerType.Convolution || l.Type == LayerType.MaxPoolingLayer))
             {
                 output = layer.Compute(output);
             }
             
-            var outputLinear = output.ToLinearArray();
+            var outputLinear = output.To1DArray();
 
             foreach (ILinearCompute layer in Layers.Where(l => l.Type == LayerType.FullyConnected))
             {
@@ -154,7 +154,7 @@ namespace Neuro.Networks
                         layerSaveData.ConvNeurons.Add(new ConvNeuronSaveData
                         {
                             KernelSize = neuron.Weights.GetLength(0),
-                            Weights = neuron.Weights
+                            Weights = neuron.Weights.Value
                         });
                     }
                 }
@@ -222,7 +222,7 @@ namespace Neuro.Networks
 
                     for (var n = 0; n < layer.NeuronsCount; n++)
                     {
-                        layer.Neurons[n].Weights = obj.Layers[l].ConvNeurons[n].Weights;
+                        layer.Neurons[n].Weights = new Matrix(obj.Layers[l].ConvNeurons[n].Weights);
                     }
                 }
                 

@@ -9,7 +9,7 @@ namespace Neuro.Layers
     {
         public LayerType Type { get; } = LayerType.MaxPoolingLayer;
         public MaxPoolingNeuron[] Neurons { get; private set; }
-        public float[][,] Outputs { get; private set; }
+        public Matrix[] Outputs { get; private set; }
         public int OutputWidht { get; private set; }
         public int OutputHeight { get; private set; }
         public int NeuronsCount => Neurons.Length;
@@ -23,7 +23,7 @@ namespace Neuro.Layers
         public void Init(int neuronsCount, int inputWidth, int inputHeitght)
         {
             Neurons = new MaxPoolingNeuron[neuronsCount];
-            Outputs = new float[neuronsCount][,];
+            Outputs = new Matrix[neuronsCount];
             OutputHeight = inputHeitght / KernelSize;
             OutputWidht = inputWidth / KernelSize;
             
@@ -33,7 +33,7 @@ namespace Neuro.Layers
             }
         }
 
-        public float[][,] Compute(float[][,] input)
+        public Matrix[] Compute(Matrix[] input)
         {
             var outputs = Neurons.AsParallel().Select((n, i) => n.Compute(input[i])).ToArray();
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Neuro.Models;
+using System;
 
 namespace Neuro.Neurons
 {
@@ -6,7 +7,7 @@ namespace Neuro.Neurons
     {
         private int _kernelSize = 2;
 
-        public float[,] Outputs { get; private set; }
+        public Matrix Outputs { get; private set; }
         public bool[,] OutputCords { get; private set; }
 
         public MaxPoolingNeuron(int inWidth, int inHeight, int kernelSize = 2)
@@ -17,17 +18,17 @@ namespace Neuro.Neurons
             }
 
             _kernelSize = kernelSize;
-            Outputs = new float[inHeight / kernelSize, inWidth / kernelSize];
+            Outputs = new Matrix(new float[inHeight / kernelSize, inWidth / kernelSize]);
             OutputCords = new bool[inHeight / kernelSize, inWidth / kernelSize];
         }
         
-        public float[,] Compute(float[,] input)
+        public Matrix Compute(Matrix input)
         {
             int y, x, h, w, iy, ix;
             var outputHeight = Outputs.GetLength(0);
             var outputWidth = Outputs.GetLength(1);
             
-            var outputs = new float[outputHeight, outputWidth];
+            var outputs = new Matrix(new float[outputHeight, outputWidth]);
             var outputCords = new bool[outputHeight, outputWidth];
             
             //сканируем изображение ядром

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Neuro.ActivationFunctions;
 using Neuro.Extensions;
+using Neuro.Models;
 
 namespace Neuro.Neurons
 {
@@ -13,21 +13,16 @@ namespace Neuro.Neurons
         private readonly int _inHeight;
 
         public IActivationFunction Function { get; set; }
-        public float[,] Weights { get; set; }
-        public float[,] Output { get; set; }
+        public Matrix Weights { get; set; }
+        public Matrix Output { get; set; }
 
         public ConvolutionalNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3)
         {
-            //if (kernelSize % 2 == 0)
-            //{
-            //    throw new ArgumentException("Размер ядра должен быть не четным");
-            //}
-
             _inWidth = inWidth;
             _inHeight = inHeight;
             _kernelSize = kernelSize;
-            Weights = new float[kernelSize, kernelSize];
-            Output = new float[inHeight - kernelSize + 1, inWidth - kernelSize + 1];
+            Weights = new Matrix(new float[kernelSize, kernelSize]);
+            Output = new Matrix(new float[inHeight - kernelSize + 1, inWidth - kernelSize + 1]);
             Function = function;
         }
 
@@ -44,31 +39,9 @@ namespace Neuro.Neurons
             }
         }
         
-        public float[,] Compute(float[][,] input)
+        public Matrix Compute(Matrix[] input)
         {
-            int y, x, h, w;
-            var outputHeight = Output.GetLength(0);
-            var outputWidth = Output.GetLength(1);
-
-            var output = new float[_inHeight - _kernelSize + 1, _inWidth - _kernelSize + 1];
-            var Input = input.Sum();
-            
-            //сканируем изображение ядром
-            for (y = 0; y < outputHeight; y++)
-            {
-                for (x = 0; x < outputWidth; x++)
-                {
-                    for (h = 0; h < _kernelSize; h++)
-                    {
-                        for (w = 0; w < _kernelSize; w++)
-                        {
-                            output[y, x] += Input[y + h, x + w] * Weights[h, w];
-                        }
-                    }
-
-                    output[y, x] = Function.Activation(output[y, x]);
-                }
-            }
+            var output = input.Sum().Сonvolution(Weights, 1) * Function.Activation;
 
             Output = output;
             
