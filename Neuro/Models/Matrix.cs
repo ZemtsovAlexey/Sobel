@@ -43,6 +43,28 @@ namespace Neuro.Models
             return new Matrix(result);
         }
 
+        public static Matrix operator -(Matrix a, Matrix b)
+        {
+            if (a.Value == null || a.Value?.Length == 0)
+                throw new ArgumentNullException("Matrix \"a\" is empty");
+
+            if (b.Value == null || b.Value?.Length == 0)
+                throw new ArgumentNullException("Matrix \"b\" is empty");
+
+            if (a.Value.Length != b.Value.Length)
+                throw new Exception("Matrix size of \"a\" not equal to size of \"b\"");
+
+            var height = a.Value.GetLength(0);
+            var width = a.Value.GetLength(1);
+            var result = new float[height, width];
+
+            for (var y = 0; y < height; y++)
+                for (var x = 0; x < height; x++)
+                    result[y, x] = a.Value[y, x] - b.Value[y, x];
+
+            return new Matrix(result);
+        }
+
         public static Matrix operator +(Matrix a, float value)
         {
             if (a.Value == null || a.Value?.Length == 0)

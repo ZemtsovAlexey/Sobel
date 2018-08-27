@@ -15,6 +15,7 @@ namespace Neuro.Neurons
         public IActivationFunction Function { get; set; }
         public Matrix Weights { get; set; }
         public Matrix Output { get; set; }
+        public int Padding { get; } = 1;
 
         public ConvolutionalNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3)
         {
@@ -22,7 +23,7 @@ namespace Neuro.Neurons
             _inHeight = inHeight;
             _kernelSize = kernelSize;
             Weights = new Matrix(new float[kernelSize, kernelSize]);
-            Output = new Matrix(new float[inHeight - kernelSize + 1, inWidth - kernelSize + 1]);
+            Output = new Matrix(new float[inHeight - kernelSize + Padding, inWidth - kernelSize + Padding]);
             Function = function;
         }
 
@@ -41,7 +42,7 @@ namespace Neuro.Neurons
         
         public Matrix Compute(Matrix[] input)
         {
-            var output = input.Sum().Сonvolution(Weights, 1) * Function.Activation;
+            var output = input.Sum().Сonvolution(Weights, Padding) * Function.Activation;
 
             Output = output;
             

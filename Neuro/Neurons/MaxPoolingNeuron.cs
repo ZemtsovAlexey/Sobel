@@ -5,8 +5,10 @@ namespace Neuro.Neurons
 {
     public class MaxPoolingNeuron
     {
-        private int _kernelSize = 2;
+        private int inputHeight;
+        private int inputWidth;
 
+        public int KernelSize = 2;
         public Matrix Outputs { get; private set; }
         public bool[,] OutputCords { get; private set; }
 
@@ -17,9 +19,11 @@ namespace Neuro.Neurons
                 throw new ArgumentException("Размер входного изображения должен быть кратным размеру ядра");
             }
 
-            _kernelSize = kernelSize;
+            KernelSize = kernelSize;
+            inputHeight = inHeight;
+            inputWidth = inWidth;
             Outputs = new Matrix(new float[inHeight / kernelSize, inWidth / kernelSize]);
-            OutputCords = new bool[inHeight / kernelSize, inWidth / kernelSize];
+            OutputCords = new bool[inHeight, inWidth];
         }
         
         public Matrix Compute(Matrix input)
@@ -29,27 +33,30 @@ namespace Neuro.Neurons
             var outputWidth = Outputs.GetLength(1);
             
             var outputs = new Matrix(new float[outputHeight, outputWidth]);
-            var outputCords = new bool[outputHeight, outputWidth];
+            var outputCords = new bool[inputHeight, inputWidth];
             
             //сканируем изображение ядром
             for (y = 0; y < outputHeight; y++)
             {
                 for (x = 0; x < outputWidth; x++)
                 {
-                    for (h = 0; h < _kernelSize; h++)
+                    iy = y * KernelSize;
+                    ix = x * KernelSize;
+                    (int y, int x) maxCord = (0, 0);
+
+                    for (h = 0; h < KernelSize; h++)
                     {
-                        for (w = 0; w < _kernelSize; w++)
+                        for (w = 0; w < KernelSize; w++)
                         {
-                            iy = y * _kernelSize;
-                            ix = x * _kernelSize;
-					
                             if (outputs[y, x] < input[iy + h, ix + w])
                             {
                                 outputs[y, x] = input[iy + h, ix + w];
-                                outputCords[y, x] = true;
+                                maxCord = (iy + h, ix + w);
                             }
                         }
                     }
+
+                    outputCords[maxCord.y, maxCord.x] = true;
                 }
             }
 
