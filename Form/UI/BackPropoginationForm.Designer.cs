@@ -33,6 +33,7 @@
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.LoadTestImgButton = new System.Windows.Forms.Button();
             this.scaleToNum = new System.Windows.Forms.NumericUpDown();
             this.scaleFromNum = new System.Windows.Forms.NumericUpDown();
             this.randomScaleCheckBox = new System.Windows.Forms.CheckBox();
@@ -76,7 +77,6 @@
             this.weightsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.neuronsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.convolutionalLayerBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.LoadTestImgButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.scaleToNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.scaleFromNum)).BeginInit();
@@ -128,6 +128,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Testing";
             // 
+            // LoadTestImgButton
+            // 
+            this.LoadTestImgButton.Location = new System.Drawing.Point(199, 155);
+            this.LoadTestImgButton.Name = "LoadTestImgButton";
+            this.LoadTestImgButton.Size = new System.Drawing.Size(75, 23);
+            this.LoadTestImgButton.TabIndex = 52;
+            this.LoadTestImgButton.Text = "LoadTestImg";
+            this.LoadTestImgButton.UseVisualStyleBackColor = true;
+            this.LoadTestImgButton.Click += new System.EventHandler(this.LoadTestImgButton_Click);
+            // 
             // scaleToNum
             // 
             this.scaleToNum.Location = new System.Drawing.Point(396, 125);
@@ -139,6 +149,11 @@
             this.scaleToNum.Name = "scaleToNum";
             this.scaleToNum.Size = new System.Drawing.Size(36, 20);
             this.scaleToNum.TabIndex = 51;
+            this.scaleToNum.Value = new decimal(new int[] {
+            6,
+            0,
+            0,
+            0});
             // 
             // scaleFromNum
             // 
@@ -151,6 +166,11 @@
             this.scaleFromNum.Name = "scaleFromNum";
             this.scaleFromNum.Size = new System.Drawing.Size(36, 20);
             this.scaleFromNum.TabIndex = 50;
+            this.scaleFromNum.Value = new decimal(new int[] {
+            6,
+            0,
+            0,
+            0});
             // 
             // randomScaleCheckBox
             // 
@@ -526,7 +546,7 @@
             legend1.Name = "Legend1";
             this.chart1.Legends.Add(legend1);
             this.chart1.Location = new System.Drawing.Point(219, 19);
-            this.chart1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chart1.Margin = new System.Windows.Forms.Padding(2);
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
@@ -561,7 +581,7 @@
             // 
             this.panel1.Controls.Add(this.netSettingsDataGridView);
             this.panel1.Location = new System.Drawing.Point(4, 16);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel1.Margin = new System.Windows.Forms.Padding(2);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(492, 257);
             this.panel1.TabIndex = 2;
@@ -599,16 +619,6 @@
             // 
             this.convolutionalLayerBindingSource.DataSource = typeof(Neuro.Layers.ConvolutionalLayer);
             // 
-            // LoadTestImgButton
-            // 
-            this.LoadTestImgButton.Location = new System.Drawing.Point(199, 155);
-            this.LoadTestImgButton.Name = "LoadTestImgButton";
-            this.LoadTestImgButton.Size = new System.Drawing.Size(75, 23);
-            this.LoadTestImgButton.TabIndex = 52;
-            this.LoadTestImgButton.Text = "LoadTestImg";
-            this.LoadTestImgButton.UseVisualStyleBackColor = true;
-            this.LoadTestImgButton.Click += new System.EventHandler(this.LoadTestImgButton_Click);
-            // 
             // BackPropoginationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -619,7 +629,7 @@
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
             this.Name = "BackPropoginationForm";
-            this.Text = "BackPropogination Net";
+            this.Text = "6";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.scaleToNum)).EndInit();

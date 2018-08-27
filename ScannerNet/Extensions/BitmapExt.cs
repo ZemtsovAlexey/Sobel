@@ -101,7 +101,7 @@ namespace ScannerNet.Extensions
             return result;
         }
         
-        public static float[,] GetDoubleMatrix(this Bitmap bitmap, float delimetr = 255f)
+        public static float[,] GetDoubleMatrix(this Bitmap bitmap, float delimetr = 255f, bool invert = true)
         {
             var result = new float[bitmap.Height, bitmap.Width];
             var procesBitmap = (Bitmap)bitmap.Clone();
@@ -120,7 +120,9 @@ namespace ScannerNet.Extensions
                     Parallel.For(0, imageWidth, (int x) =>
                     {
                         var offset = x * step;
-                        result[y, x] = step == 1 ? pRow[offset] / delimetr : ((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / delimetr;
+                        result[y, x] = step == 1 
+                            ? (invert ? 1 - (pRow[offset] / delimetr) : (pRow[offset] / delimetr)) 
+                            : (invert ? 1 - (((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / delimetr) : (((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / delimetr));
                     });
                 });
             }

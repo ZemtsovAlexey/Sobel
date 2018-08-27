@@ -14,6 +14,7 @@ namespace Neuro.Neurons
 
         public IActivationFunction Function { get; set; }
         public Matrix Weights { get; set; }
+        public float Bias { get; set; } = 0;
         public Matrix Output { get; set; }
         public int Padding { get; } = 1;
 
@@ -42,7 +43,7 @@ namespace Neuro.Neurons
         
         public Matrix Compute(Matrix[] input)
         {
-            var output = input.Sum().Сonvolution(Weights, Padding) * Function.Activation;
+            var output = (input.Sum().Сonvolution(Weights, Padding) + Bias) * Function.Activation;
 
             Output = output;
             

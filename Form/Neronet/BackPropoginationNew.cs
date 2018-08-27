@@ -28,10 +28,10 @@ namespace Sobel.Neronet
             Network.InitLayers(26, 26,
                 new ConvolutionalLayer(relu, 5, 3),//24
                 new MaxPoolingLayer(2),//12
-                new ConvolutionalLayer(relu, 15, 3),//10
+                new ConvolutionalLayer(relu, 10, 3),//10
                 new MaxPoolingLayer(2),//5
-                new FullyConnectedLayer(150, activation),
-                new FullyConnectedLayer(100, activation),
+                //new FullyConnectedLayer(100, activation),
+                new FullyConnectedLayer(50, activation),
                 new FullyConnectedLayer(50, activation),
                 new FullyConnectedLayer(1, activation)
                 );

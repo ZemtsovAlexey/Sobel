@@ -65,6 +65,22 @@ namespace Neuro.Models
             return new Matrix(result);
         }
 
+        public static Matrix operator -(Matrix a, float value)
+        {
+            if (a.Value == null || a.Value?.Length == 0)
+                throw new ArgumentNullException("Matrix \"a\" is empty");
+
+            var height = a.Value.GetLength(0);
+            var width = a.Value.GetLength(1);
+            var result = new float[height, width];
+
+            for (var y = 0; y < height; y++)
+                for (var x = 0; x < height; x++)
+                    result[y, x] = a.Value[y, x] - value;
+
+            return new Matrix(result);
+        }
+
         public static Matrix operator +(Matrix a, float value)
         {
             if (a.Value == null || a.Value?.Length == 0)
@@ -137,6 +153,22 @@ namespace Neuro.Models
 
             return new Matrix(output);
         }
+
+        public static Matrix operator /(Matrix matrix, float value)
+        {
+            if (matrix.Value == null || matrix.Value.Length == 0)
+                throw new ArgumentNullException("Matrix is empty");
+
+            var matrixHeight = matrix.Value.GetLength(0);
+            var matrixWidth = matrix.Value.GetLength(1);
+            var output = new float[matrixHeight, matrixWidth];
+
+            for (var y = 0; y < matrixHeight; y++)
+                for (var x = 0; x < matrixWidth; x++)
+                    output[y, x] = matrix[y, x] / value;
+
+            return new Matrix(output);
+        }
     }
 
     internal static class MatrixExtensions
@@ -178,6 +210,26 @@ namespace Neuro.Models
             }
 
             return new Matrix(sum);
+        }
+
+        public static float Sum(this Matrix matrix)
+        {
+            if (matrix == null || matrix.Length < 1)
+                throw new ArgumentNullException("Matrix is null");
+
+            var inputHeight = matrix.Value.GetLength(0);
+            var inputWidth = matrix.Value.GetLength(1);
+            var sum = 0f;
+
+            for (var y = 0; y < inputHeight; y++)
+            {
+                for (var x = 0; x < inputWidth; x++)
+                {
+                    sum += matrix.Value[y, x];
+                }
+            }
+
+            return sum;
         }
 
         public static Matrix Сonvolution(this Matrix matrix, Matrix kernel, int step = 1)

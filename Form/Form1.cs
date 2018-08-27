@@ -391,7 +391,7 @@ namespace Sobel
             var results = new(Cord cord, string answerKey, float answerValue, Bitmap bitmap)[cords.Count];
             Exception error = null;
 
-            var imageMap = workImage.GetDoubleMatrix();
+            var imageMap = workImage.GetDoubleMatrix(invert: false);
 
             Parallel.For(0, cords.Count, c =>
             {
@@ -441,40 +441,40 @@ namespace Sobel
 
             pictureBox1.Image = resultBitmap;
 
-//            var k = 0;
-//            foreach (var cord in results)
-//            {
-//                try
-//                {
-//                    var box = new PictureBox
-//                    {
-//                        Location = new System.Drawing.Point(10, 4 + (k * (pictureSize.y + 3))),
-//                        Name = $"pictureBoxResult{k}",
-//                        Size = new System.Drawing.Size(pictureSize.x, pictureSize.y),
-//                        BackColor = Color.Black,
-//                        Image = cord.bitmap,
-//                        BorderStyle = BorderStyle.FixedSingle
-//                    };
-//
-//                    var label = new Label
-//                    {
-//                        Location = new System.Drawing.Point(10 + pictureSize.x, 8 + (k * (pictureSize.y + 3))),
-//                        Name = $"labelResult{k}",
-//                        Size = new System.Drawing.Size(120, pictureSize.y),
-//                        Text = cord.answerValue.ToString(),
-//                        ForeColor = cord.answerValue > 0.5 ? Color.DarkGreen : Color.Black
-//                    };
-//
-//                    panel2.Controls.Add(box);
-//                    panel2.Controls.Add(label);
-//                }
-//                catch
-//                {
-//                    continue;
-//                }
-//                
-//                k++;
-//            }
+            var k = 0;
+            foreach (var cord in results)
+            {
+                try
+                {
+                    var box = new PictureBox
+                    {
+                        Location = new System.Drawing.Point(10, 4 + (k * (pictureSize.y + 3))),
+                        Name = $"pictureBoxResult{k}",
+                        Size = new System.Drawing.Size(pictureSize.x, pictureSize.y),
+                        BackColor = Color.Black,
+                        Image = cord.bitmap,
+                        BorderStyle = BorderStyle.FixedSingle
+                    };
+
+                    var label = new Label
+                    {
+                        Location = new System.Drawing.Point(10 + pictureSize.x, 8 + (k * (pictureSize.y + 3))),
+                        Name = $"labelResult{k}",
+                        Size = new System.Drawing.Size(120, pictureSize.y),
+                        Text = cord.answerValue.ToString(),
+                        ForeColor = cord.answerValue > 0.5 ? Color.DarkGreen : Color.Black
+                    };
+
+                    panel2.Controls.Add(box);
+                    panel2.Controls.Add(label);
+                }
+                catch
+                {
+                    continue;
+                }
+
+                k++;
+            }
         }
 
         private void DrawSymbol(Bitmap mapBitmap, Cord cord, string symbol, Bitmap bitmap)
