@@ -109,19 +109,13 @@ namespace Neuro.Learning
                     Parallel.For(0, prevLayer.NeuronsCount, n =>
                     //for (var n = 0; n < prevLayer.NeuronsCount; n++)
                     {
-                        // f'(u[l-1])
-                        var f = prevLayer is IConvolutionalLayer 
-                            ? prevLayer.Outputs[n] * (prevLayer as IConvolutionalLayer).Neurons[n].Function.Derivative
-                            : prevLayer.Outputs[n];
-
                         // b[l-1] = f'(u[l-1]) * sum(b[l]) * rot180(k)
-                        prevB[n] = f * Eb.BackСonvolution(layer.Neurons[n].Weights.Rot180());
+                        prevB[n] = prevLayer.Outputs[n] * Eb.BackСonvolution(layer.Neurons[n].Weights.Rot180());
 
                         if (prevLayer is IConvolutionalLayer)
                         {
                             prevB[n] *= (prevLayer as IConvolutionalLayer).Neurons[n].Function.Derivative;
                         }
-                        //prevB[n] = Eb.BackСonvolution(layer.Neurons[n].Weights.Rot180()) * f;
                     });
                 }
 
@@ -139,11 +133,6 @@ namespace Neuro.Learning
 
                         prevB[n] = new Matrix(new double[prevLayer.OutputHeight, prevLayer.OutputWidht]);
 
-                        // f'(u[l-1])
-                        var f = prevLayer is IConvolutionalLayer
-                            ? prevLayer.Outputs[n] * (prevLayer as IConvolutionalLayer).Neurons[n].Function.Derivative
-                            : prevLayer.Outputs[n];
-
                         // b[l-1] = upsample(b[l]) * f'(u[l-1])
                         for (var y = 0; y < prevLayer.OutputHeight; y++)
                         {
@@ -156,7 +145,7 @@ namespace Neuro.Learning
                             }
                         }
 
-                        prevB[n] *= f;
+                        prevB[n] *= prevLayer.Outputs[n];
 
                         if (prevLayer is IConvolutionalLayer)
                         {
