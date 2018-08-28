@@ -2,6 +2,6 @@
 {
     public interface ILinearCompute
     {
-        float[] Compute(float[] inputs);
+        double[] Compute(double[] inputs);
     }
 }

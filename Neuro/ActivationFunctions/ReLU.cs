@@ -4,16 +4,16 @@ namespace Neuro.ActivationFunctions
 {
     public class ReLU : IActivationFunction
     {
-        public float Alpha { get; set; } = 2;
-        public float MinRange { get; set; } = 0;
-        public float MaxRange { get; set; } = 1;
+        public double Alpha { get; set; } = 2;
+        public double MinRange { get; set; } = 0;
+        public double MaxRange { get; set; } = 1;
         
-        public float Activation(float x)
+        public double Activation(double x)
         {
             return x > 0 ? x : 0;// Math.Max(0.01, x);
         }
 
-        public float Derivative(float x)
+        public double Derivative(double x)
         {
             return x <= 0 ? 0 : 1;
 //            var random = new Random((int)DateTime.Now.Ticks);

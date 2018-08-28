@@ -6,7 +6,7 @@ namespace Neuro.Networks
 {
     public class ActivationNetwork// : Network
     {
-        public float[] Output;
+        public double[] Output;
         public FullyConnectedLayer[] Layers { get; set; }
         public int LayersCount => Layers.Length;
         public FullyConnectedLayer this[int index] => Layers[index];
@@ -39,7 +39,7 @@ namespace Neuro.Networks
             }
         }
         
-        public float[] Compute(float[] input)
+        public double[] Compute(double[] input)
         {
             Output = input;
 
@@ -94,7 +94,7 @@ namespace Neuro.Networks
 
                 foreach (var neuron in layer.Neurons)
                 {
-                    var weights = new float[neuron.Weights.Length];
+                    var weights = new double[neuron.Weights.Length];
 
                     for (var i = 0; i < neuron.Weights.Length; i++)
                     {

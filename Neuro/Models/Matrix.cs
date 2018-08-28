@@ -4,14 +4,14 @@ namespace Neuro.Models
 {
     public class Matrix
     {
-        public float[,] Value { get; set; }
+        public double[,] Value { get; set; }
 
-        public Matrix(float[,] value)
+        public Matrix(double[,] value)
         {
             Value = value;
         }
 
-        public float this[int y, int x]
+        public double this[int y, int x]
         {
             get { return Value[y, x]; }
             set { Value[y, x] = value; }
@@ -34,7 +34,7 @@ namespace Neuro.Models
 
             var height = a.Value.GetLength(0);
             var width = a.Value.GetLength(1);
-            var result = new float[height, width];
+            var result = new double[height, width];
 
             for (var y = 0; y < height; y++)
                 for (var x = 0; x < height; x++)
@@ -56,7 +56,7 @@ namespace Neuro.Models
 
             var height = a.Value.GetLength(0);
             var width = a.Value.GetLength(1);
-            var result = new float[height, width];
+            var result = new double[height, width];
 
             for (var y = 0; y < height; y++)
                 for (var x = 0; x < height; x++)
@@ -65,14 +65,14 @@ namespace Neuro.Models
             return new Matrix(result);
         }
 
-        public static Matrix operator -(Matrix a, float value)
+        public static Matrix operator -(Matrix a, double value)
         {
             if (a.Value == null || a.Value?.Length == 0)
                 throw new ArgumentNullException("Matrix \"a\" is empty");
 
             var height = a.Value.GetLength(0);
             var width = a.Value.GetLength(1);
-            var result = new float[height, width];
+            var result = new double[height, width];
 
             for (var y = 0; y < height; y++)
                 for (var x = 0; x < height; x++)
@@ -81,14 +81,14 @@ namespace Neuro.Models
             return new Matrix(result);
         }
 
-        public static Matrix operator +(Matrix a, float value)
+        public static Matrix operator +(Matrix a, double value)
         {
             if (a.Value == null || a.Value?.Length == 0)
                 throw new ArgumentNullException("Matrix \"a\" is empty");
 
             var height = a.Value.GetLength(0);
             var width = a.Value.GetLength(1);
-            var result = new float[height, width];
+            var result = new double[height, width];
 
             for (var y = 0; y < height; y++)
                 for (var x = 0; x < height; x++)
@@ -110,7 +110,7 @@ namespace Neuro.Models
 
             var height = a.Value.GetLength(0);
             var width = a.Value.GetLength(1);
-            var result = new float[height, width];
+            var result = new double[height, width];
 
             for (var y = 0; y < height; y++)
                 for (var x = 0; x < height; x++)
@@ -119,7 +119,7 @@ namespace Neuro.Models
             return new Matrix(result);
         }
 
-        public static Matrix operator *(Matrix matrix, Func<float, float> func)
+        public static Matrix operator *(Matrix matrix, Func<double, double> func)
         {
             if (matrix.Value == null || matrix.Value.Length == 0)
                 throw new ArgumentNullException("Matrix is empty");
@@ -129,7 +129,7 @@ namespace Neuro.Models
 
             var matrixHeight = matrix.Value.GetLength(0);
             var matrixWidth = matrix.Value.GetLength(1);
-            var output = new float[matrixHeight, matrixWidth];
+            var output = new double[matrixHeight, matrixWidth];
 
             for (var y = 0; y < matrixHeight; y++)
                 for (var x = 0; x < matrixWidth; x++)
@@ -138,14 +138,14 @@ namespace Neuro.Models
             return new Matrix(output);
         }
 
-        public static Matrix operator *(Matrix matrix, float value)
+        public static Matrix operator *(Matrix matrix, double value)
         {
             if (matrix.Value == null || matrix.Value.Length == 0)
                 throw new ArgumentNullException("Matrix is empty");
 
             var matrixHeight = matrix.Value.GetLength(0);
             var matrixWidth = matrix.Value.GetLength(1);
-            var output = new float[matrixHeight, matrixWidth];
+            var output = new double[matrixHeight, matrixWidth];
 
             for (var y = 0; y < matrixHeight; y++)
                 for (var x = 0; x < matrixWidth; x++)
@@ -154,14 +154,14 @@ namespace Neuro.Models
             return new Matrix(output);
         }
 
-        public static Matrix operator /(Matrix matrix, float value)
+        public static Matrix operator /(Matrix matrix, double value)
         {
             if (matrix.Value == null || matrix.Value.Length == 0)
                 throw new ArgumentNullException("Matrix is empty");
 
             var matrixHeight = matrix.Value.GetLength(0);
             var matrixWidth = matrix.Value.GetLength(1);
-            var output = new float[matrixHeight, matrixWidth];
+            var output = new double[matrixHeight, matrixWidth];
 
             for (var y = 0; y < matrixHeight; y++)
                 for (var x = 0; x < matrixWidth; x++)
@@ -180,7 +180,7 @@ namespace Neuro.Models
 
             var height = input.Value.GetLength(0);
             var width = input.Value.GetLength(1);
-            var result = new float[height, width];
+            var result = new double[height, width];
 
             //for (var y = 0; y < height; y++)
             //    for (var x = 0; x < width; x++)
@@ -188,7 +188,7 @@ namespace Neuro.Models
 
             unsafe
             {
-                fixed (float* v = input.Value, r = result)
+                fixed (double* v = input.Value, r = result)
                     for (var y = 0; y < height; y++)
                         for (var x = 0; x < width; x++)
                             r[y * width + x] = v[(height - 1 - y) * width + (width - 1 - x)];
@@ -204,7 +204,7 @@ namespace Neuro.Models
 
             var inputHeight = matrixs[0].Value.GetLength(0);
             var inputWidth = matrixs[0].Value.GetLength(1);
-            var sum = new float[inputHeight, inputWidth];
+            var sum = new double[inputHeight, inputWidth];
 
             foreach (var matrix in matrixs)
             {
@@ -220,14 +220,14 @@ namespace Neuro.Models
             return new Matrix(sum);
         }
 
-        public static float Sum(this Matrix matrix)
+        public static double Sum(this Matrix matrix)
         {
             if (matrix == null || matrix.Length < 1)
                 throw new ArgumentNullException("Matrix is null");
 
             var inputHeight = matrix.Value.GetLength(0);
             var inputWidth = matrix.Value.GetLength(1);
-            var sum = 0f;
+            var sum = 0d;
 
             for (var y = 0; y < inputHeight; y++)
             {
@@ -258,8 +258,8 @@ namespace Neuro.Models
             var outputHeight = matrixHeight - kernelHeight + step;
             var outputWidth = matrixWidth - kernelWidth + step;
 
-            var output = new float[outputHeight, outputWidth];
-            var output2 = new float[outputHeight, outputWidth];
+            var output = new double[outputHeight, outputWidth];
+            var output2 = new double[outputHeight, outputWidth];
 
             //for (var y = 0; y < outputHeight; y++)
             //    for (var x = 0; x < outputWidth; x++)
@@ -269,7 +269,7 @@ namespace Neuro.Models
 
             unsafe
             {
-                fixed (float* oValue = matrix.Value, kValue = kernel.Value)
+                fixed (double* oValue = matrix.Value, kValue = kernel.Value)
                 {
                     for (var y = 0; y < outputHeight; y++)
                     {
@@ -308,7 +308,7 @@ namespace Neuro.Models
             var outputHeight = matrixHeight + kernelHeight - step;
             var outputWidth = matrixWidth + kernelWidth - step;
 
-            var output = new float[outputHeight, outputWidth];
+            var output = new double[outputHeight, outputWidth];
 
             var paddY = kernelHeight - step;
             var paddX = kernelWidth - step;
@@ -322,11 +322,11 @@ namespace Neuro.Models
             return new Matrix(output);
         }
 
-        public static float[] To1DArray(this Matrix[] outputs)
+        public static double[] To1DArray(this Matrix[] outputs)
         {
             var imageHeight = outputs[0].GetLength(0);
             var imageWidth = outputs[0].GetLength(1);
-            var result = new float[outputs.Length * imageHeight * imageWidth];
+            var result = new double[outputs.Length * imageHeight * imageWidth];
 
             for (var i = 0; i < outputs.Length; i++)
             {
@@ -343,11 +343,11 @@ namespace Neuro.Models
             return result;
         }
 
-        public static float[] To1DArray(this Matrix outputs)
+        public static double[] To1DArray(this Matrix outputs)
         {
             var imageHeight = outputs.GetLength(0);
             var imageWidth = outputs.GetLength(1);
-            var result = new float[outputs.Length * imageHeight * imageWidth];
+            var result = new double[outputs.Length * imageHeight * imageWidth];
 
             for (var h = 0; h < imageHeight; h++)
             {

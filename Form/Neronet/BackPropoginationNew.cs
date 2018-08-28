@@ -12,8 +12,8 @@ namespace Sobel.Neronet
         public ConvolutionalNetwork Network;
 
         public int Iterations = 2000;
-        public float LearningRate = 0.01f;
-        public float ResultError = 0;
+        public double LearningRate = 0.01f;
+        public double ResultError = 0;
         public int Iteration { get; set; }
 
         private bool _needToStop = false;
@@ -39,12 +39,12 @@ namespace Sobel.Neronet
             Network.Randomize();
         }
         
-        public float[] Compute(Bitmap bmp)
+        public double[] Compute(Bitmap bmp)
         {
             return Network.Compute(bmp.GetDoubleMatrix());
         }
 
-        public void SearchSolution(Bitmap bmp, float[] outputs)
+        public void SearchSolution(Bitmap bmp, double[] outputs)
         {
             var teacher = new ConvolutionalBackPropagationLearning(Network)
             {

@@ -14,7 +14,7 @@ namespace Neuro.Neurons
 
         public IActivationFunction Function { get; set; }
         public Matrix Weights { get; set; }
-        public float Bias { get; set; } = 0;
+        public double Bias { get; set; } = 0;
         public Matrix Output { get; set; }
         public int Padding { get; } = 1;
 
@@ -23,8 +23,8 @@ namespace Neuro.Neurons
             _inWidth = inWidth;
             _inHeight = inHeight;
             _kernelSize = kernelSize;
-            Weights = new Matrix(new float[kernelSize, kernelSize]);
-            Output = new Matrix(new float[inHeight - kernelSize + Padding, inWidth - kernelSize + Padding]);
+            Weights = new Matrix(new double[kernelSize, kernelSize]);
+            Output = new Matrix(new double[inHeight - kernelSize + Padding, inWidth - kernelSize + Padding]);
             Function = function;
         }
 

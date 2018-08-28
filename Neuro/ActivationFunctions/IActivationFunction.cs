@@ -2,14 +2,14 @@
 {
     public interface IActivationFunction
     {
-        float Alpha { get; set; }
+        double Alpha { get; set; }
         
-        float MinRange { get; set; }
+        double MinRange { get; set; }
         
-        float MaxRange { get; set; }
+        double MaxRange { get; set; }
         
-        float Activation(float x);
+        double Activation(double x);
 
-        float Derivative(float x);
+        double Derivative(double x);
     }
 }

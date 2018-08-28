@@ -4,26 +4,26 @@ namespace Neuro.ActivationFunctions
 {
     public class LeCunTanh : IActivationFunction
     {
-        public float Alpha { get; set; }
-        public float MinRange { get; set; } = -1;
-        public float MaxRange { get; set; } = 1;
+        public double Alpha { get; set; }
+        public double MinRange { get; set; } = -1;
+        public double MaxRange { get; set; } = 1;
         
-        public float Activation(float x)
+        public double Activation(double x)
         {
-            const float divX = 2f / 3;
-            const float scale = 1.7159f;
-            float e2x = (float)Math.Exp(2 * divX * x);
+            const double divX = 2f / 3;
+            const double scale = 1.7159f;
+            double e2x = (double)Math.Exp(2 * divX * x);
             
             return scale * (e2x - 1) / (e2x + 1);
         }
 
-        public float Derivative(float x)
+        public double Derivative(double x)
         {
-            const float numerator = 4.57573f;
-            float
+            const double numerator = 4.57573f;
+            double
                 exp = 2 * x / 3,
-                ePlus = (float)Math.Exp(exp),
-                eMinus = (float)Math.Exp(-exp),
+                ePlus = (double)Math.Exp(exp),
+                eMinus = (double)Math.Exp(-exp),
                 sum = ePlus + eMinus,
                 square = sum * sum;
             

@@ -4,16 +4,16 @@ namespace Neuro.ActivationFunctions
 {
     public class Sigmoid : IActivationFunction
     {
-        public float Alpha { get; set; } = 1;
-        public float MinRange { get; set; } = 0;
-        public float MaxRange { get; set; } = 1;
+        public double Alpha { get; set; } = 1;
+        public double MinRange { get; set; } = 0;
+        public double MaxRange { get; set; } = 1;
         
-        public float Activation(float x)
+        public double Activation(double x)
         {
-            return 1 / (1 + (float)Math.Exp(-Alpha * x));
+            return 1 / (1 + (double)Math.Exp(-Alpha * x));
         }
 
-        public float Derivative(float x)
+        public double Derivative(double x)
         {
             return  Alpha * x * (1 - x);
         }

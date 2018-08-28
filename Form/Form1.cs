@@ -68,7 +68,7 @@ namespace Sobel
                 averageNum.Value = (decimal)workImage.GetAverBright();
             }
 
-            var averege = (float)averageNum.Value;
+            var averege = (double)averageNum.Value;
             workImage = ((Bitmap) workImage.Clone()).ToBlackWite(averege);
             pictureBox1.Image = workImage;
         }
@@ -154,7 +154,7 @@ namespace Sobel
 //            {
 //                var bmp = new Bitmap(neouronetPictureBox.Width, neouronetPictureBox.Height);
 //                var text = _random.RandomSymble();
-//                var bitmap = bmp.DrawString(text, (int)nwFontSizeNumeric.Value, fontFamilyTextBox.Text).ResizeImage(new RectangleF(0, 0, (float)ImageWidth, (float)ImageHeight));
+//                var bitmap = bmp.DrawString(text, (int)nwFontSizeNumeric.Value, fontFamilyTextBox.Text).ResizeImage(new RectangleF(0, 0, (double)ImageWidth, (double)ImageHeight));
 //                var vector = bitmap.ToDoubles();
 //
 //                vectors[i] = vector;
@@ -205,7 +205,7 @@ namespace Sobel
 
         private void cannyApplyButton_Click(object sender, EventArgs e)
         {
-            //var c = new Canny(new Bitmap(pictureBox1.Image), (float)cannyThNumeric.Value, (float)cannyTlNumeric.Value, (int)kernelNumeric.Value, (int)sigmaNumeric.Value);
+            //var c = new Canny(new Bitmap(pictureBox1.Image), (double)cannyThNumeric.Value, (double)cannyTlNumeric.Value, (int)kernelNumeric.Value, (int)sigmaNumeric.Value);
             //pictureBox1.Image = c.DisplayImage(c.EdgeMap);
             workImage = new Bitmap(workImage).Canny((double)cannyThNumeric.Value, (double)cannyTlNumeric.Value, (int)kernelNumeric.Value);
             pictureBox1.Image = workImage;
@@ -252,12 +252,12 @@ namespace Sobel
             var i = 0;
 
             cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
-            var results = new (Bitmap img, Cord cord, float answer)[cords.Count];
+            var results = new (Bitmap img, Cord cord, double answer)[cords.Count];
             Exception error = null;
 
             var imageMap = workImage.GetDoubleMatrix(1);
 
-            Parallel.For(0, cords.Count, c =>
+            Parallel.For(0, cords.Count, (int c) =>
             //for (var c = 0; c < cords.Count; c++)
             {
                 try
@@ -388,7 +388,7 @@ namespace Sobel
         private void ShowResult()
         {
             cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
-            var results = new(Cord cord, string answerKey, float answerValue, Bitmap bitmap)[cords.Count];
+            var results = new(Cord cord, string answerKey, double answerValue, Bitmap bitmap)[cords.Count];
             Exception error = null;
 
             var imageMap = workImage.GetDoubleMatrix(invert: false);
@@ -404,7 +404,7 @@ namespace Sobel
                         var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
                         var bitmap = mapPart.ToBitmap().ScaleImage(pictureSize.x, pictureSize.y);
                         var matrix = bitmap.GetDoubleMatrix();
-                        var result = new (float answer, string result, Bitmap bitmap)[networks.Count];
+                        var result = new (double answer, string result, Bitmap bitmap)[networks.Count];
 
                         Parallel.For(0, networks.Count, i => 
                         {

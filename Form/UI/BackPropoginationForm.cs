@@ -74,7 +74,7 @@ namespace Sobel.UI
             firstFullConLayer[0].Weights[2] = 0.3f;
             firstFullConLayer[0].Weights[3] = 0.4f;
 
-            var input = new float[3, 3]
+            var input = new double[3, 3]
             {
                 {0.1f, 0.2f, 0.3f},
                 {0.4f, 0.5f, 0.6f},
@@ -88,7 +88,7 @@ namespace Sobel.UI
                 LearningRate = 1f
             };
             
-            teacher.Run(input, new []{ 0.60f });
+            teacher.Run(input, new []{ 0.60d });
             
             var output2 = net.Compute(input);
             
@@ -423,12 +423,12 @@ namespace Sobel.UI
             Bitmap bitmap;
             int falseAnswerCount = 0;
             int trueAnswerCount = 0;
-            float[] output;
-            float error = 0;
+            double[] output;
+            double error = 0;
             int succeses = 0;
-            float totalTime = 0;
-            float totalError = 0;
-            var rotateImage = (float)textRotateNumeric.Value;
+            double totalTime = 0;
+            double totalError = 0;
+            var rotateImage = (double)textRotateNumeric.Value;
             (int V, int H) padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
             var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
 
@@ -436,7 +436,7 @@ namespace Sobel.UI
 
             var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
             {
-                LearningRate = (float)learningRateNumeric.Value
+                LearningRate = (double)learningRateNumeric.Value
             };
 
             var st = new Stopwatch();
@@ -445,7 +445,7 @@ namespace Sobel.UI
             {
                 if (_neadToStopLearning) break;
 
-                teacher.LearningRate = (float)learningRateNumeric.Value;
+                teacher.LearningRate = (double)learningRateNumeric.Value;
                 var fontSize = _random.Next(25, 50);
                 
 //                st.Start();
@@ -457,9 +457,9 @@ namespace Sobel.UI
                 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
                 {
-                    //teacher.LearningRate = (float)learningRateNumeric.Value / 2;
+                    //teacher.LearningRate = (double)learningRateNumeric.Value / 2;
                     bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
-                    output = new float[] { -1f };
+                    output = new double[] { -1f };
                     var computed = _networkNew.Compute(bitmap)[0];
 
                     st.Start();
@@ -473,7 +473,7 @@ namespace Sobel.UI
                     else
                     {
                         //if (succeses == 0)
-                        //totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed - teacher.LearningRate });
+                        //totalError += teacher.Run(bitmap.GetDoubleMatrix(), new double[] { computed - teacher.LearningRate });
                         succeses++;
                     }
 
@@ -484,10 +484,10 @@ namespace Sobel.UI
                 }
                 else
                 {
-                    //teacher.LearningRate = (float)learningRateNumeric.Value;
+                    //teacher.LearningRate = (double)learningRateNumeric.Value;
                     bitmap = bmp.DrawString(trueAnswerText.Text, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
-                    //output = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? new[] { -1f } : new float[] { 1 };
-                    output = new float[] { 1f };
+                    //output = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? new[] { -1f } : new double[] { 1 };
+                    output = new double[] { 1f };
                     var computed = _networkNew.Compute(bitmap)[0];
 
                     st.Start();
@@ -500,8 +500,8 @@ namespace Sobel.UI
                     else
                     {
                         //if (succeses == 0)
-                            //totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed + teacher.LearningRate });
-//                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), new float[] { computed + teacher.LearningRate });
+                            //totalError += teacher.Run(bitmap.GetDoubleMatrix(), new double[] { computed + teacher.LearningRate });
+//                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), new double[] { computed + teacher.LearningRate });
                         succeses++;
                     }
 
@@ -534,10 +534,10 @@ namespace Sobel.UI
             var iterations = (long)learnIterationsNumeric.Value;
             (string symble, int position) text;
             Bitmap bitmap;
-            float[] output;
+            double[] output;
             int succeses = 0;
-            float totalTime = 0;
-            var rotateImage = (float)textRotateNumeric.Value;
+            double totalTime = 0;
+            var rotateImage = (double)textRotateNumeric.Value;
             var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
             var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
 
@@ -545,7 +545,7 @@ namespace Sobel.UI
 
             var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
             {
-                LearningRate = (float)learningRateNumeric.Value
+                LearningRate = (double)learningRateNumeric.Value
             };
 
             var st = new Stopwatch();
@@ -578,7 +578,7 @@ namespace Sobel.UI
 
                 if (text.position != maxIter)
                 {
-                    output = new float[79];
+                    output = new double[79];
 
                     for (var j = 0; j < 79; j++)
                     {
@@ -680,7 +680,7 @@ namespace Sobel.UI
                 {
                     Bitmap bit = new Bitmap(open.FileName);
 
-                    var rotateImage = (float)textRotateNumeric.Value;
+                    var rotateImage = (double)textRotateNumeric.Value;
                     var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
                     var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
                     var averege = bit.GetAverBright();

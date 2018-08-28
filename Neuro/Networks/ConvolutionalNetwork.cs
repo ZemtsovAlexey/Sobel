@@ -82,7 +82,7 @@ namespace Neuro.Networks
             }
         }
         
-        public float[] Compute(float[,] input)
+        public double[] Compute(double[,] input)
         {
             var output = new[] {new Matrix(input)};
 
@@ -128,7 +128,7 @@ namespace Neuro.Networks
 
                     foreach (var neuron in fullyConnectedLayer.Neurons)
                     {
-                        var weights = new float[neuron.Weights.Length];
+                        var weights = new double[neuron.Weights.Length];
 
                         for (var i = 0; i < neuron.Weights.Length; i++)
                         {

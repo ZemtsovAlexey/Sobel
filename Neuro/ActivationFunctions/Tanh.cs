@@ -4,21 +4,21 @@ namespace Neuro.ActivationFunctions
 {
     public class Tanh : IActivationFunction
     {
-        public float Alpha { get; set; }
-        public float MinRange { get; set; } = -1;
-        public float MaxRange { get; set; } = 1;
+        public double Alpha { get; set; }
+        public double MinRange { get; set; } = -1;
+        public double MaxRange { get; set; } = 1;
         
-        public float Activation(float x)
+        public double Activation(double x)
         {
-            float e2x = (float)Math.Exp(2 * x);
+            double e2x = (double)Math.Exp(2 * x);
             return (e2x - 1f) / (e2x + 1f);
         }
 
-        public float Derivative(float x)
+        public double Derivative(double x)
         {
-            float
-                eminus2x = (float)Math.Exp(-x),
-                e2x = (float)Math.Exp(x),
+            double
+                eminus2x = (double)Math.Exp(-x),
+                e2x = (double)Math.Exp(x),
                 sum = eminus2x + e2x,
                 square = sum * sum,
                 div = 4 / square;

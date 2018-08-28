@@ -2,6 +2,6 @@
 {
     public interface ILearning
     {
-        float Run(float[] input, float[] output);
+        double Run(double[] input, double[] output);
     }
 }

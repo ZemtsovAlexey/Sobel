@@ -8,8 +8,8 @@ namespace Neuro.Neurons
 {
     public class FullyConnectedNeuron
     {
-        public float[] Weights { get; set; }
-        public float Output { get; private set; }
+        public double[] Weights { get; set; }
+        public double Output { get; private set; }
         public IActivationFunction Function { get; }
         
         private static readonly Random Random = new Random((int) DateTime.Now.Ticks);
@@ -17,7 +17,7 @@ namespace Neuro.Neurons
         public FullyConnectedNeuron(int inputsCount, IActivationFunction function)
         {
             inputsCount = Math.Max(1, inputsCount);
-            Weights = new float[inputsCount];
+            Weights = new double[inputsCount];
             Function = function;
         }
 
@@ -29,7 +29,7 @@ namespace Neuro.Neurons
             }
         }
 
-        public float Compute(IEnumerable<float> input)
+        public double Compute(IEnumerable<double> input)
         {
             var e = input.Select((xn, n) => Weights[n] * xn).Sum();
             var output = Function.Activation(e);
