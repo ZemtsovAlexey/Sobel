@@ -109,14 +109,13 @@ namespace Neuro.Learning
                     Parallel.For(0, prevLayer.NeuronsCount, n =>
                     //for (var n = 0; n < prevLayer.NeuronsCount; n++)
                     {
-                        // f'(u[l-1])
-                        var f = prevLayer is IConvolutionalLayer 
-                            ? prevLayer.Outputs[n] * (prevLayer as IConvolutionalLayer).Neurons[n].Function.Derivative
-                            : prevLayer.Outputs[n];
-
                         // b[l-1] = f'(u[l-1]) * sum(b[l]) * rot180(k)
-                        prevB[n] = f * Eb.BackСonvolution(layer.Neurons[n].Weights.Rot180());
-                        //prevB[n] = Eb.BackСonvolution(layer.Neurons[n].Weights.Rot180()) * f;
+                        prevB[n] = prevLayer.Outputs[n] * Eb.BackСonvolution(layer.Neurons[n].Weights.Rot180());
+                        
+                        if (prevLayer is IConvolutionalLayer)
+                        {
+                            prevB[n] *= (prevLayer as IConvolutionalLayer).Neurons[n].Function.Derivative;
+                        }
                     });
                 }
 
@@ -134,11 +133,6 @@ namespace Neuro.Learning
 
                         prevB[n] = new Matrix(new float[prevLayer.OutputHeight, prevLayer.OutputWidht]);
 
-                        // f'(u[l-1])
-                        var f = prevLayer is IConvolutionalLayer
-                            ? prevLayer.Outputs[n] * (prevLayer as IConvolutionalLayer).Neurons[n].Function.Derivative
-                            : prevLayer.Outputs[n];
-
                         // b[l-1] = upsample(b[l]) * f'(u[l-1])
                         for (var y = 0; y < prevLayer.OutputHeight; y++)
                         {
@@ -151,7 +145,12 @@ namespace Neuro.Learning
                             }
                         }
 
-                        prevB[n] *= f;
+                        prevB[n] *= prevLayer.Outputs[n];
+
+                        if (prevLayer is IConvolutionalLayer)
+                        {
+                            prevB[n] *= (prevLayer as IConvolutionalLayer).Neurons[n].Function.Derivative;
+                        }
                     });
                 }
             }
@@ -235,14 +234,14 @@ namespace Neuro.Learning
                 if (convLayers[l].Type == LayerType.Convolution)
                 {
                     var layer = (IConvolutionalLayer)convLayers[l];
-                    var inputs = l == 0 ? new Matrix(matrix) : convLayers[l - 1].Outputs.Sum() / convLayers[l - 1].Outputs.Length;
+                    var inputs = l == 0 ? new Matrix(matrix) : convLayers[l - 1].Outputs.Sum();// / convLayers[l - 1].Outputs.Length;
 
                     for (var e = 0; e < convNeuronErrors[l].Length; e++)
                     {
                         var error = convNeuronErrors[l][e];
                         var weights = layer.Neurons[e].Weights;
 
-                        layer.Neurons[e].Weights = weights + inputs.Сonvolution(error.Rot180() * LearningRate).Rot180() * layer.Neurons[e].Function.Derivative;
+                        layer.Neurons[e].Weights = weights + inputs.Сonvolution(error.Rot180() * LearningRate).Rot180();// * layer.Neurons[e].Function.Derivative;
                         layer.Neurons[e].Bias +=
                             layer.Neurons[e].Function is ActivationFunctions.BipolarSigmoid
                                 ? 0
