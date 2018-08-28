@@ -242,8 +242,8 @@ namespace Neuro.Learning
                         var weights = layer.Neurons[e].Weights;
 
                         //layer.Neurons[e].Weights = weights + (inputs.Сonvolution(error.Rot180() * LearningRate)).Rot180();
-                        layer.Neurons[e].Weights = weights + inputs.Сonvolution(error.Rot180() * LearningRate).Rot180() * layer.Neurons[e].Function.Derivative;
-                        //layer.Neurons[e].Bias += error.Sum();// * LearningRate;
+                        layer.Neurons[e].Weights = weights + inputs.Сonvolution(error.Rot180() * LearningRate).Rot180();// * layer.Neurons[e].Function.Derivative;
+                        layer.Neurons[e].Bias = error.Sum();// * LearningRate;
                     }
                 }
             }

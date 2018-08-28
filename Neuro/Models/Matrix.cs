@@ -182,9 +182,17 @@ namespace Neuro.Models
             var width = input.Value.GetLength(1);
             var result = new float[height, width];
 
-            for (var y = 0; y < height; y++)
-                for (var x = 0; x < height; x++)
-                    result[y, x] = input.Value[height - 1 - y, width - 1 - x];
+            //for (var y = 0; y < height; y++)
+            //    for (var x = 0; x < width; x++)
+            //        result[y, x] = input.Value[height - 1 - y, width - 1 - x];
+
+            unsafe
+            {
+                fixed (float* v = input.Value, r = result)
+                    for (var y = 0; y < height; y++)
+                        for (var x = 0; x < width; x++)
+                            r[y * width + x] = v[(height - 1 - y) * width + (width - 1 - x)];
+            }
 
             return new Matrix(result);
         }
@@ -251,14 +259,35 @@ namespace Neuro.Models
             var outputWidth = matrixWidth - kernelWidth + step;
 
             var output = new float[outputHeight, outputWidth];
+            var output2 = new float[outputHeight, outputWidth];
 
-            for (var y = 0; y < outputHeight; y++)
-                for (var x = 0; x < outputWidth; x++)
-                    for (var h = 0; h < kernelHeight; h++)
-                        for (var w = 0; w < kernelWidth; w++)
-                            output[y, x] += matrix.Value[y + h, x + w] * kernel.Value[h, w];
+            //for (var y = 0; y < outputHeight; y++)
+            //    for (var x = 0; x < outputWidth; x++)
+            //        for (var h = 0; h < kernelHeight; h++)
+            //            for (var w = 0; w < kernelWidth; w++)
+            //                output[y, x] += matrix.Value[y + h, x + w] * kernel.Value[h, w];
 
-            return new Matrix(output);
+            unsafe
+            {
+                fixed (float* oValue = matrix.Value, kValue = kernel.Value)
+                {
+                    for (var y = 0; y < outputHeight; y++)
+                    {
+                        for (var x = 0; x < outputWidth; x++)
+                        {
+                            for (var h = 0; h < kernelHeight; h++)
+                            {
+                                for (var w = 0; w < kernelWidth; w++)
+                                {
+                                    output2[y, x] += (oValue[((y + h) * matrixWidth + x + w)] * kValue[h * kernelWidth + w]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return new Matrix(output2);
         }
 
         public static Matrix BackСonvolution(this Matrix matrix, Matrix kernel, int step = 1)
