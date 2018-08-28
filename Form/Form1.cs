@@ -410,7 +410,8 @@ namespace Sobel
                         {
                             var r = networks[i].Value.Compute(matrix)[0];
 
-                            result[i] = (r, networks[i].Key, (Bitmap)bitmap.Clone());
+                            //result[i] = (r, networks[i].Key, (Bitmap)bitmap.Clone());
+                            result[i] = (r, networks[i].Key, null);
                             
                         });
 
@@ -441,40 +442,40 @@ namespace Sobel
 
             pictureBox1.Image = resultBitmap;
 
-            var k = 0;
-            foreach (var cord in results)
-            {
-                try
-                {
-                    var box = new PictureBox
-                    {
-                        Location = new System.Drawing.Point(10, 4 + (k * (pictureSize.y + 3))),
-                        Name = $"pictureBoxResult{k}",
-                        Size = new System.Drawing.Size(pictureSize.x, pictureSize.y),
-                        BackColor = Color.Black,
-                        Image = cord.bitmap,
-                        BorderStyle = BorderStyle.FixedSingle
-                    };
+            //var k = 0;
+            //foreach (var cord in results)
+            //{
+            //    try
+            //    {
+            //        var box = new PictureBox
+            //        {
+            //            Location = new System.Drawing.Point(10, 4 + (k * (pictureSize.y + 3))),
+            //            Name = $"pictureBoxResult{k}",
+            //            Size = new System.Drawing.Size(pictureSize.x, pictureSize.y),
+            //            BackColor = Color.Black,
+            //            Image = cord.bitmap,
+            //            BorderStyle = BorderStyle.FixedSingle
+            //        };
 
-                    var label = new Label
-                    {
-                        Location = new System.Drawing.Point(10 + pictureSize.x, 8 + (k * (pictureSize.y + 3))),
-                        Name = $"labelResult{k}",
-                        Size = new System.Drawing.Size(120, pictureSize.y),
-                        Text = cord.answerValue.ToString(),
-                        ForeColor = cord.answerValue > 0.5 ? Color.DarkGreen : Color.Black
-                    };
+            //        var label = new Label
+            //        {
+            //            Location = new System.Drawing.Point(10 + pictureSize.x, 8 + (k * (pictureSize.y + 3))),
+            //            Name = $"labelResult{k}",
+            //            Size = new System.Drawing.Size(120, pictureSize.y),
+            //            Text = cord.answerValue.ToString(),
+            //            ForeColor = cord.answerValue > 0.5 ? Color.DarkGreen : Color.Black
+            //        };
 
-                    panel2.Controls.Add(box);
-                    panel2.Controls.Add(label);
-                }
-                catch
-                {
-                    continue;
-                }
+            //        panel2.Controls.Add(box);
+            //        panel2.Controls.Add(label);
+            //    }
+            //    catch
+            //    {
+            //        continue;
+            //    }
 
-                k++;
-            }
+            //    k++;
+            //}
         }
 
         private void DrawSymbol(Bitmap mapBitmap, Cord cord, string symbol, Bitmap bitmap)

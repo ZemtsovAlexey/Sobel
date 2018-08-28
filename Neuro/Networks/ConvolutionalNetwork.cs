@@ -154,7 +154,8 @@ namespace Neuro.Networks
                         layerSaveData.ConvNeurons.Add(new ConvNeuronSaveData
                         {
                             KernelSize = neuron.Weights.GetLength(0),
-                            Weights = neuron.Weights.Value
+                            Weights = neuron.Weights.Value,
+                            Bias = neuron.Bias
                         });
                     }
                 }
@@ -223,6 +224,7 @@ namespace Neuro.Networks
                     for (var n = 0; n < layer.NeuronsCount; n++)
                     {
                         layer.Neurons[n].Weights = new Matrix(obj.Layers[l].ConvNeurons[n].Weights);
+                        layer.Neurons[n].Bias = obj.Layers[l].ConvNeurons[n].Bias;
                     }
                 }
                 

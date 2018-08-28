@@ -42,5 +42,7 @@ namespace Neuro.Neurons
         public int KernelSize { get; set; }
 
         public double[,] Weights { get; set; } 
+
+        public double Bias { get; set; }
     }
 }
