@@ -163,8 +163,11 @@ namespace ScannerNet.Extensions
         
         public static double[,] GetMapPart(this double[,] map, int x, int y, int width, int height)
         {
-            height = Math.Min(y + height, map.GetLength(0) - 1) - y;
-            width = Math.Min(x + width, map.GetLength(1) - 1) - x;
+            x = Math.Max(0, Math.Min(map.GetLength(1), x));
+            y = Math.Max(0, Math.Min(map.GetLength(0), y));
+            
+            height = Math.Max(0, Math.Min(y + height, map.GetLength(0) - 1) - y);
+            width = Math.Max(0, Math.Min(x + width, map.GetLength(1) - 1) - x);
 
             var result = new double[height, width];
 

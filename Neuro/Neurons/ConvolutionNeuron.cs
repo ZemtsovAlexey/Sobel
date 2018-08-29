@@ -5,12 +5,10 @@ using Neuro.Models;
 
 namespace Neuro.Neurons
 {
-    public class ConvolutionalNeuron //: Neuron
+    public class ConvolutionNeuron //: Neuron
     {
         private static readonly Random Random = new Random((int)DateTime.Now.Ticks);
         private readonly int _kernelSize;
-        private readonly int _inWidth;
-        private readonly int _inHeight;
 
         public IActivationFunction Function { get; set; }
         public Matrix Weights { get; set; }
@@ -18,10 +16,8 @@ namespace Neuro.Neurons
         public Matrix Output { get; set; }
         public int Padding { get; } = 1;
 
-        public ConvolutionalNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3)
+        public ConvolutionNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3)
         {
-            _inWidth = inWidth;
-            _inHeight = inHeight;
             _kernelSize = kernelSize;
             Weights = new Matrix(new double[kernelSize, kernelSize]);
             Output = new Matrix(new double[inHeight - kernelSize + Padding, inWidth - kernelSize + Padding]);
@@ -43,7 +39,7 @@ namespace Neuro.Neurons
         
         public Matrix Compute(Matrix[] input)
         {
-            var output = (input.Sum().Сonvolution(Weights, Padding) + Bias) * Function.Activation;
+            var output = (input.Sum().Convolution(Weights, Padding) + Bias) * Function.Activation;
 
             Output = output;
             

@@ -617,7 +617,7 @@
             // 
             // convolutionalLayerBindingSource
             // 
-            this.convolutionalLayerBindingSource.DataSource = typeof(Neuro.Layers.ConvolutionalLayer);
+            this.convolutionalLayerBindingSource.DataSource = typeof(Neuro.Layers.ConvolutionLayer);
             // 
             // BackPropoginationForm
             // 

@@ -52,38 +52,35 @@ namespace Sobel.UI
 
         private void Test()
         {
-            var net = new ConvolutionalNetwork();
+            var net = new Network();
             var activation = ActivationType.None;
 
             net.InitLayers(3, 3,
-                new ConvolutionalLayer(activation, 1, 2),//24
+                new ConvolutionLayer(activation, 1, 2),//24
                 new FullyConnectedLayer(1, activation)
             );
 
-            var convNeuron = (net.Layers[0] as ConvolutionalLayer).Neurons[0];
+            var convNeuron = (net.Layers[0] as ConvolutionLayer).Neurons[0];
 
-            convNeuron.Weights[0, 0] = 0.1f;
-            convNeuron.Weights[0, 1] = 0.2f;
-            convNeuron.Weights[1, 0] = 0.3f;
-            convNeuron.Weights[1, 1] = 0.4f;
+            convNeuron.Weights = new Matrix(new [,]{{0.1d, 0.2d}, {0.3d, 0.4d}});
 
             var firstFullConLayer = (net.Layers[1] as FullyConnectedLayer);
 
-            firstFullConLayer[0].Weights[0] = 0.1f;
-            firstFullConLayer[0].Weights[1] = 0.2f;
-            firstFullConLayer[0].Weights[2] = 0.3f;
-            firstFullConLayer[0].Weights[3] = 0.4f;
+            firstFullConLayer[0].Weights[0] = 0.1d;
+            firstFullConLayer[0].Weights[1] = 0.2d;
+            firstFullConLayer[0].Weights[2] = 0.3d;
+            firstFullConLayer[0].Weights[3] = 0.4d;
 
             var input = new double[3, 3]
             {
-                {0.1f, 0.2f, 0.3f},
-                {0.4f, 0.5f, 0.6f},
-                {0.7f, 0.8f, 0.9f}
+                {0.1d, 0.2d, 0.3d},
+                {0.4d, 0.5d, 0.6d},
+                {0.7d, 0.8d, 0.9d}
             };
             
             var output = net.Compute(input);
 
-            var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(net)
+            var teacher = new Neuro.Learning.BackPropagationLearning(net)
             {
                 LearningRate = 1f
             };
@@ -107,7 +104,7 @@ namespace Sobel.UI
             {
                 if (layer.Type == LayerType.Convolution)
                 {
-                    var convLayer = (IConvolutionalLayer)layer;
+                    var convLayer = (IConvolutionLayer)layer;
                     bindingSource1.Add(new NetworkSettings(layer.Type, convLayer.ActivationFunctionType, convLayer.NeuronsCount, convLayer.KernelSize));
                 }
                 
@@ -434,7 +431,7 @@ namespace Sobel.UI
 
             long i = 0;
 
-            var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
+            var teacher = new Neuro.Learning.BackPropagationLearning(_networkNew.Network)
             {
                 LearningRate = (double)learningRateNumeric.Value
             };
@@ -543,7 +540,7 @@ namespace Sobel.UI
 
             long i = 0;
 
-            var teacher = new Neuro.Learning.ConvolutionalBackPropagationLearning(_networkNew.Network)
+            var teacher = new Neuro.Learning.BackPropagationLearning(_networkNew.Network)
             {
                 LearningRate = (double)learningRateNumeric.Value
             };
@@ -649,13 +646,13 @@ namespace Sobel.UI
         {
             var data = bindingSource1.List.Cast<NetworkSettings>();
             var initData = new List<ILayer>();
-            _networkNew.Network = new Neuro.Networks.ConvolutionalNetwork();
+            _networkNew.Network = new Neuro.Networks.Network();
 
             foreach(var item in data)
             {
                 switch (item.Type) {
                     case LayerType.Convolution:
-                        initData.Add(new ConvolutionalLayer(item.Activation.Value, item.NeuronsCount.Value, item.KernelSize.Value));
+                        initData.Add(new ConvolutionLayer(item.Activation.Value, item.NeuronsCount.Value, item.KernelSize.Value));
                         break;
 
                     case LayerType.MaxPoolingLayer:

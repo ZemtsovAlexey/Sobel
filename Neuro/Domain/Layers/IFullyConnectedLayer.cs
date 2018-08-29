@@ -8,8 +8,6 @@ namespace Neuro.Domain.Layers
     {
         ActivationType ActivationFunctionType { get; }
         
-        int NeuronsCount { get; }
-        
         FullyConnectedNeuron[] Neurons { get; }
         
         double[] Outputs { get; }
@@ -19,7 +17,5 @@ namespace Neuro.Domain.Layers
         FullyConnectedNeuron this[int index] { get; }
 
         void Init(int inputsCount);
-        
-        double[] Compute(double[] inputs);
     }
 }

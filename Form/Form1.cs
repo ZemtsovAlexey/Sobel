@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Mono.Cecil.Cil;
 using Neuro.Models;
 using Neuro.Networks;
 using ScannerNet;
@@ -21,7 +22,7 @@ namespace Sobel
 {
     public partial class Form1 : Form
     {
-        public ConvolutionalNetwork Network = new ConvolutionalNetwork();
+        public Network Network = new Network();
         private int ImageWidth = 26;
         private int ImageHeight = 26;
         private string lastImgPath = null;
@@ -102,7 +103,7 @@ namespace Sobel
         
         private void nextVertPos_Click(object sender, EventArgs e)
         {
-            Y++;
+//            Y++;
             var result = Segmentation.ShowTextCordDebug(new Bitmap(workImage), Y, (byte)averageNum.Value);
 //            workImage = result.img;
             pictureBox1.Image = result.img; //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
@@ -370,13 +371,23 @@ namespace Sobel
         
         private void loadNetButton_Click(object sender, EventArgs e)
         {
-            OpenFileDialog open = new OpenFileDialog();
-            open.Filter = "Network Files(*.nw)|*.nw";
-
-            if (open.ShowDialog() == DialogResult.OK)
+            if (string.IsNullOrWhiteSpace(lastNetsPath))
             {
-                var setting = File.ReadAllBytes(open.FileName);
-                Network.Load(setting);
+                MessageBox.Show("Path is empty");
+                return;
+            }
+
+            var filesPaths = Directory.GetFiles(lastNetsPath, "*.nw");
+
+            foreach (var path in filesPaths)
+            {
+                var setting = File.ReadAllBytes(path);
+                var symbleMatch = Regex.Match(path, @"\\_?(?<symble>\w+)\.nw");
+                var symble = symbleMatch.Groups["symble"].Value;
+                var net = new Network();
+
+                net.Load(setting);
+                networks.Add((symble, net));
             }
         }
 
@@ -389,42 +400,31 @@ namespace Sobel
         {
             cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
             var results = new(Cord cord, string answerKey, double answerValue, Bitmap bitmap)[cords.Count];
-            Exception error = null;
-
             var imageMap = workImage.GetDoubleMatrix(invert: false);
 
-            Parallel.For(0, cords.Count, c =>
+            for (var c = 0; c < cords.Count; c++)
+//            Parallel.For(0, cords.Count, c =>
             {
-                try
-                {
                     if (cords[c].Right - cords[c].Left > 6 && cords[c].Bottom - cords[c].Top > 6)
                     {
                         var width = cords[c].Right - cords[c].Left + 4;
                         var height = cords[c].Bottom - cords[c].Top + 4;
-                        var mapPart = imageMap.GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height);
-                        var bitmap = mapPart.ToBitmap().ScaleImage(pictureSize.x, pictureSize.y);
-                        var matrix = bitmap.GetDoubleMatrix();
-                        var result = new (double answer, string result, Bitmap bitmap)[networks.Count];
+                        
+                        var matrix = 
+                            imageMap
+                                .GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height)
+                                .ToBitmap()
+                                .ScaleImage(pictureSize.x, pictureSize.y)
+                                .GetDoubleMatrix();
+                        
+                        var r = networks.AsParallel()
+                            .Select(n => new Result {answer = n.Value.Compute(matrix)[0], result = n.Key})
+                            .OrderByDescending(x => x.answer).First();
 
-                        Parallel.For(0, networks.Count, i => 
-                        {
-                            var r = networks[i].Value.Compute(matrix)[0];
-
-                            //result[i] = (r, networks[i].Key, (Bitmap)bitmap.Clone());
-                            result[i] = (r, networks[i].Key, null);
-                            
-                        });
-
-                        var b = result.OrderByDescending(x => x.answer).First();
-
-                        results[c] = (cords[c], b.result, b.answer, b.bitmap);
+                        results[c] = (cords[c], r.result, r.answer, null);
                     }
-                }
-                catch (Exception exception)
-                {
-                    error = exception;
-                }
-            });
+            }
+//            );
 
             var resultBitmap = new Bitmap(workImage.Width, workImage.Height, PixelFormat.Format32bppArgb);
 
@@ -437,7 +437,7 @@ namespace Sobel
             
             foreach (var result in results.Where(x => x.answerValue > 0))
             {
-                DrawSymbol(resultBitmap, result.cord, result.answerKey, result.bitmap);
+                DrawSymbol(resultBitmap, result.cord, result.answerKey, null);
             }
 
             pictureBox1.Image = resultBitmap;
@@ -496,27 +496,20 @@ namespace Sobel
 //            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
         }
 
-        private List<(string Key, ConvolutionalNetwork Value)> networks = new List<(string Key, ConvolutionalNetwork Value)>();
+        private List<(string Key, Network Value)> networks = new List<(string Key, Network Value)>();
+
+        private string lastNetsPath = "";
 
         private void loadNamedNetBtn_Click(object sender, EventArgs e)
         {
-            //OpenFileDialog open = new OpenFileDialog();
-            //open.Filter = "Network Files(*.nw)|*.nw";
-
-            //if (open.ShowDialog() == DialogResult.OK)
-            //{
-            //    var setting = File.ReadAllBytes(open.FileName);
-            //    var net = new ConvolutionalNetwork();
-            //    net.Load(setting);
-
-            //    networks.Add((netNameTb.Text, net));
-            //}
-
-            networks = new List<(string Key, ConvolutionalNetwork Value)>();
+            networks = new List<(string Key, Network Value)>();
             FolderBrowserDialog browserDialog = new FolderBrowserDialog();
+
+            browserDialog.SelectedPath = netsPathTextBox.Text;
 
             if (browserDialog.ShowDialog() == DialogResult.OK)
             {
+                lastNetsPath = browserDialog.SelectedPath;
                 var filesPaths = Directory.GetFiles(browserDialog.SelectedPath, "*.nw");
 
                 foreach (var path in filesPaths)
@@ -524,7 +517,7 @@ namespace Sobel
                     var setting = File.ReadAllBytes(path);
                     var symbleMatch = Regex.Match(path, @"\\_?(?<symble>\w+)\.nw");
                     var symble = symbleMatch.Groups["symble"].Value;
-                    var net = new ConvolutionalNetwork();
+                    var net = new Network();
 
                     net.Load(setting);
                     networks.Add((symble, net));
@@ -533,5 +526,18 @@ namespace Sobel
                 MessageBox.Show("All nets loaded");
             }
         }
+    }
+
+    public class Result
+    {
+        public double answer { get; set; }
+        public string result { get; set; }
+    }
+
+    public class ResultWithCords
+    {
+        public Cord cord { get; set; }
+        public string answerKey { get; set; }
+        public double answerValue { get; set; }
     }
 }

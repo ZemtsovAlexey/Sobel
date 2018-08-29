@@ -542,6 +542,8 @@ namespace ScannerNet
             //CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
 //            CvInvoke.Canny(gray, gray, 70, 130);
 
+            Y = Y == 0 ? bitmap.Height : Y;
+            
             var cordList = gray.ToBitmap().GetCordsDebug(Y, min);
             var resultImage = cordList.DrawCords(bitmap);
 

@@ -9,7 +9,7 @@ namespace Sobel.Neronet
 {
     public class BackPropoginationNew
     {
-        public ConvolutionalNetwork Network;
+        public Network Network;
 
         public int Iterations = 2000;
         public double LearningRate = 0.01f;
@@ -23,12 +23,12 @@ namespace Sobel.Neronet
             var activation = ActivationType.BipolarSigmoid;
             var relu = ActivationType.ReLu;
 
-            Network = new ConvolutionalNetwork();
+            Network = new Network();
 
             Network.InitLayers(26, 26,
-                new ConvolutionalLayer(relu, 5, 3),//24
+                new ConvolutionLayer(relu, 5, 3),//24
                 new MaxPoolingLayer(2),//12
-                new ConvolutionalLayer(relu, 10, 3),//10
+                new ConvolutionLayer(relu, 10, 3),//10
                 new MaxPoolingLayer(2),//5
                 //new FullyConnectedLayer(100, activation),
                 new FullyConnectedLayer(50, activation),
@@ -46,7 +46,7 @@ namespace Sobel.Neronet
 
         public void SearchSolution(Bitmap bmp, double[] outputs)
         {
-            var teacher = new ConvolutionalBackPropagationLearning(Network)
+            var teacher = new BackPropagationLearning(Network)
             {
                 LearningRate = LearningRate
             };
