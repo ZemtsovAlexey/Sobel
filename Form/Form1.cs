@@ -399,32 +399,39 @@ namespace Sobel
         private void ShowResult()
         {
             cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
-            var results = new(Cord cord, string answerKey, double answerValue, Bitmap bitmap)[cords.Count];
             var imageMap = workImage.GetDoubleMatrix(invert: false);
 
-            for (var c = 0; c < cords.Count; c++)
-//            Parallel.For(0, cords.Count, c =>
-            {
-                    if (cords[c].Right - cords[c].Left > 6 && cords[c].Bottom - cords[c].Top > 6)
-                    {
-                        var width = cords[c].Right - cords[c].Left + 4;
-                        var height = cords[c].Bottom - cords[c].Top + 4;
-                        
-                        var matrix = 
-                            imageMap
-                                .GetMapPart(cords[c].Left - 2, cords[c].Top - 2, width, height)
-                                .ToBitmap()
-                                .ScaleImage(pictureSize.x, pictureSize.y)
-                                .GetDoubleMatrix();
-                        
-                        var r = networks.AsParallel()
-                            .Select(n => new Result {answer = n.Value.Compute(matrix)[0], result = n.Key})
-                            .OrderByDescending(x => x.answer).First();
+            var matrixes = cords
+                .Where(c => c.Right - c.Left > 6 && c.Bottom - c.Top > 6)
+                .Select(cord => new MatrixWithCords
+                {
+                    cord = cord,
+                    matrix = imageMap
+                        .GetMapPart(cord.Left - 2, cord.Top - 2, cord.Right - cord.Left + 4, cord.Bottom - cord.Top + 4)
+                        .ToBitmap()
+                        .ScaleImage(pictureSize.x, pictureSize.y)
+                        .GetDoubleMatrix()
+                })
+                .ToList();
 
-                        results[c] = (cords[c], r.result, r.answer, null);
-                    }
-            }
-//            );
+            var res = matrixes
+                .AsParallel()
+                .Select(m => new
+                {
+                    m.cord,
+                    result = networks
+                        //.AsParallel()
+                        .Select(n => new Result {answer = n.Value.Compute(m.matrix)[0], result = n.Key})
+                        .OrderByDescending(x => x.answer).First()
+                })
+                .ToArray()
+                .Select(m => new Result
+                {
+                    cord = m.cord,
+                    result = m.result.result,
+                    answer = m.result.answer
+                })
+                .ToList();
 
             var resultBitmap = new Bitmap(workImage.Width, workImage.Height, PixelFormat.Format32bppArgb);
 
@@ -435,9 +442,9 @@ namespace Sobel
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.Flush();
             
-            foreach (var result in results.Where(x => x.answerValue > 0))
+            foreach (var result in res.Where(x => x.answer > 0))
             {
-                DrawSymbol(resultBitmap, result.cord, result.answerKey, null);
+                DrawSymbol(resultBitmap, result.cord, result.result, null);
             }
 
             pictureBox1.Image = resultBitmap;
@@ -530,14 +537,14 @@ namespace Sobel
 
     public class Result
     {
+        public Cord cord { get; set; }
         public double answer { get; set; }
         public string result { get; set; }
     }
 
-    public class ResultWithCords
+    public class MatrixWithCords
     {
         public Cord cord { get; set; }
-        public string answerKey { get; set; }
-        public double answerValue { get; set; }
+        public double[,] matrix { get; set; }
     }
 }

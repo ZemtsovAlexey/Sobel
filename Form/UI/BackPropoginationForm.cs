@@ -377,7 +377,7 @@ namespace Sobel.UI
             padding.Item1 = H;
             padding.Item2 = V;
 
-            var fontSize = 50;// _random.Next(15, 70);
+            var fontSize = _random.Next(16, 50);
             
             var bitmap = new Bitmap(b, textViewPicture.Width, textViewPicture.Height)
                 .DrawString(recognizedText.Text, fontSize, rotateImage, random: _random)
@@ -443,7 +443,7 @@ namespace Sobel.UI
                 if (_neadToStopLearning) break;
 
                 teacher.LearningRate = (double)learningRateNumeric.Value;
-                var fontSize = _random.Next(25, 50);
+                var fontSize = _random.Next(16, 50);
                 
 //                st.Start();
 
@@ -452,7 +452,7 @@ namespace Sobel.UI
                 padding.H = _random.Next((-((int)paddingHNumeric.Value)), ((int)paddingHNumeric.Value));
                 padding.V = _random.Next((-((int)paddingVNumeric.Value)), ((int)paddingVNumeric.Value));
                 
-                if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 1)
+                if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 2)
                 {
                     //teacher.LearningRate = (double)learningRateNumeric.Value / 2;
                     bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
@@ -482,7 +482,7 @@ namespace Sobel.UI
                 else
                 {
                     //teacher.LearningRate = (double)learningRateNumeric.Value;
-                    bitmap = bmp.DrawString(trueAnswerText.Text, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
+                    bitmap = bmp.DrawString(trueAnswerText.Text, fontSize, 0, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
                     //output = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? new[] { -1f } : new double[] { 1 };
                     output = new double[] { 1f };
                     var computed = _networkNew.Compute(bitmap)[0];

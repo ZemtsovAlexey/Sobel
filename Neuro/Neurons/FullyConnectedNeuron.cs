@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Neuro.ActivationFunctions;
 using Neuro.Extensions;
@@ -29,9 +30,16 @@ namespace Neuro.Neurons
             }
         }
 
-        public double Compute(IEnumerable<double> input)
+        public double Compute(double[] input)
         {
-            var e = input.Select((xn, n) => Weights[n] * xn).Sum();
+            double e = 0;
+            unsafe
+            {
+                fixed (double* w = Weights, i = input)
+                    for (var n = 0; n < input.Length; n++)
+                        e += w[n] * i[n];
+            }
+
             var output = Function.Activation(e);
 
             Output = output;

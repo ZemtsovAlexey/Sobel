@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Neuro.ActivationFunctions;
 using Neuro.Domain.Layers;
@@ -59,12 +60,7 @@ namespace Neuro.Layers
 
         public double[] Compute(double[] inputs)
         {
-            var outputs = new double[Outputs.Length];
-            
-            Parallel.For(0, Neurons.Length, i =>
-            {
-                outputs[i] = Neurons[i].Compute(inputs);
-            });
+            var outputs = Neurons.Select(n => n.Compute(inputs)).ToArray();
 
             Outputs = outputs;
             

@@ -93,7 +93,7 @@ namespace Neuro.Models
             return new Matrix(result);
         }
 
-        public static Matrix operator +(Matrix a, double value)
+        public static unsafe Matrix operator +(Matrix a, double value)
         {
             #if DEBUG
             
@@ -106,9 +106,10 @@ namespace Neuro.Models
             var width = a.Value.GetLength(1);
             var result = new double[height, width];
 
-            for (var y = 0; y < height; y++)
-                for (var x = 0; x < height; x++)
-                    result[y, x] = a.Value[y, x] + value;
+            fixed (double* v = a.Value, r = result)
+                for (var y = 0; y < height; y++)
+                for (var x = 0; x < width; x++)
+                    r[y * width + x] = v[y * width + x] + value;
 
             return new Matrix(result);
         }
@@ -139,7 +140,7 @@ namespace Neuro.Models
             return new Matrix(result);
         }
 
-        public static Matrix operator *(Matrix matrix, Func<double, double> func)
+        public static unsafe Matrix operator *(Matrix matrix, Func<double, double> func)
         {
             #if DEBUG
             
@@ -155,9 +156,10 @@ namespace Neuro.Models
             var matrixWidth = matrix.Value.GetLength(1);
             var output = new double[matrixHeight, matrixWidth];
 
-            for (var y = 0; y < matrixHeight; y++)
+            fixed (double* v = output, m = matrix.Value)
+                for (var y = 0; y < matrixHeight; y++)
                 for (var x = 0; x < matrixWidth; x++)
-                    output[y, x] = func.Invoke(matrix.Value[y, x]);
+                    v[y * matrixWidth + x] = func.Invoke(m[y * matrixWidth + x]);
 
             return new Matrix(output);
         }
@@ -205,7 +207,7 @@ namespace Neuro.Models
 
     internal static class MatrixExtensions
     {
-        public static Matrix Rot180(this Matrix input)
+        public static unsafe Matrix Rot180(this Matrix input)
         {
             if (input.Value == null || input.Value.Length == 0)
                 return input;
@@ -214,18 +216,15 @@ namespace Neuro.Models
             var width = input.Value.GetLength(1);
             var result = new double[height, width];
 
-            unsafe
-            {
-                fixed (double* v = input.Value, r = result)
-                    for (var y = 0; y < height; y++)
-                        for (var x = 0; x < width; x++)
-                            r[y * width + x] = v[(height - 1 - y) * width + (width - 1 - x)];
-            }
+            fixed (double* v = input.Value, r = result)
+                for (var y = 0; y < height; y++)
+                for (var x = 0; x < width; x++)
+                    r[y * width + x] = v[(height - 1 - y) * width + (width - 1 - x)];
 
             return new Matrix(result);
         }
 
-        public static Matrix Sum(this Matrix[] matrixes)
+        public static unsafe Matrix Sum(this Matrix[] matrixes)
         {
             #if DEBUG
             
@@ -238,19 +237,16 @@ namespace Neuro.Models
             var width = matrixes[0].Value.GetLength(1);
             var sum = new double[height, width];
 
-            unsafe
-            {
-                foreach (var matrix in matrixes)
-                    fixed (double* v = matrix.Value, r = sum)
-                        for (var y = 0; y < height; y++)
-                            for (var x = 0; x < width; x++)
-                                r[y * width + x] += v[y * width + x];
-            }
-            
+            foreach (var matrix in matrixes)
+                fixed (double* v = matrix.Value, r = sum)
+                    for (var y = 0; y < height; y++)
+                    for (var x = 0; x < width; x++)
+                        r[y * width + x] += v[y * width + x];
+
             return new Matrix(sum);
         }
 
-        public static double Sum(this Matrix matrix)
+        public static unsafe double Sum(this Matrix matrix)
         {
             #if DEBUG
             
@@ -263,18 +259,15 @@ namespace Neuro.Models
             var width = matrix.Value.GetLength(1);
             var sum = 0d;
 
-            unsafe
-            {
-                fixed (double* v = matrix.Value)
-                    for (var y = 0; y < height; y++)
-                        for (var x = 0; x < width; x++)
-                            sum += v[y * width + x];
-            }
+            fixed (double* v = matrix.Value)
+                for (var y = 0; y < height; y++)
+                for (var x = 0; x < width; x++)
+                    sum += v[y * width + x];
 
             return sum;
         }
 
-        public static Matrix Convolution(this Matrix matrix, Matrix kernel, int step = 1)
+        public static unsafe Matrix Convolution(this Matrix matrix, Matrix kernel, int step = 1)
         {
             #if DEBUG
             
@@ -298,15 +291,12 @@ namespace Neuro.Models
 
             var output = new double[outputHeight, outputWidth];
 
-            unsafe
-            {
-                fixed (double* oValue = matrix.Value, kValue = kernel.Value)
-                    for (var y = 0; y < outputHeight; y++)
-                        for (var x = 0; x < outputWidth; x++)
-                            for (var h = 0; h < kernelHeight; h++)
-                                for (var w = 0; w < kernelWidth; w++)
-                                    output[y, x] += (oValue[((y + h) * matrixWidth + x + w)] * kValue[h * kernelWidth + w]);
-            }
+            fixed (double* m = matrix.Value, k = kernel.Value, o = output)
+                for (var y = 0; y < outputHeight; y++)
+                for (var x = 0; x < outputWidth; x++)
+                for (var h = 0; h < kernelHeight; h++)
+                for (var w = 0; w < kernelWidth; w++)
+                    o[y * outputWidth + x] += (m[((y + h) * matrixWidth + x + w)] * k[h * kernelWidth + w]);
 
             return new Matrix(output);
         }
@@ -347,16 +337,18 @@ namespace Neuro.Models
             return new Matrix(output);
         }
 
-        public static double[] To1DArray(this Matrix[] outputs)
+        public static unsafe double[] To1DArray(this Matrix[] outputs)
         {
             var imageHeight = outputs[0].GetLength(0);
             var imageWidth = outputs[0].GetLength(1);
             var result = new double[outputs.Length * imageHeight * imageWidth];
 
-            for (var i = 0; i < outputs.Length; i++)
-                for (var h = 0; h < imageHeight; h++)
-                    for (var w = 0; w < imageWidth; w++)
-                        result[(i * (imageWidth * imageHeight)) + (h * imageWidth + w)] = outputs[i][h, w];
+            fixed (double* r = result)
+                for (var i = 0; i < outputs.Length; i++)
+                    fixed (double* oValue = outputs[i].Value)
+                        for (var h = 0; h < imageHeight; h++)
+                        for (var w = 0; w < imageWidth; w++)
+                            r[(i * (imageWidth * imageHeight)) + (h * imageWidth + w)] = oValue[h * imageWidth + w];
 
             return result;
         }

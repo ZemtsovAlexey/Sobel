@@ -150,7 +150,7 @@
             this.scaleToNum.Size = new System.Drawing.Size(36, 20);
             this.scaleToNum.TabIndex = 51;
             this.scaleToNum.Value = new decimal(new int[] {
-            6,
+            3,
             0,
             0,
             0});
@@ -166,11 +166,6 @@
             this.scaleFromNum.Name = "scaleFromNum";
             this.scaleFromNum.Size = new System.Drawing.Size(36, 20);
             this.scaleFromNum.TabIndex = 50;
-            this.scaleFromNum.Value = new decimal(new int[] {
-            6,
-            0,
-            0,
-            0});
             // 
             // randomScaleCheckBox
             // 
@@ -419,7 +414,7 @@
             this.learningRateNumeric.Size = new System.Drawing.Size(115, 32);
             this.learningRateNumeric.TabIndex = 11;
             this.learningRateNumeric.Value = new decimal(new int[] {
-            1,
+            2,
             0,
             0,
             131072});

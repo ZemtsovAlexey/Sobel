@@ -554,7 +554,7 @@ namespace Sobel
         {
 //            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 //            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var chars = " ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮ0123456789ёйцукенгшщзхъфывапролджэячсмитьбю/.,";
+            var chars = " ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮ0123456789ёйцукенгшщзхъфывапролджэячсмитьбю/.,\"";
 //            var chars = "аоеиы";
             var number = random.Next(chars.Length);
             var finalString = new String(new[] { chars[number] });

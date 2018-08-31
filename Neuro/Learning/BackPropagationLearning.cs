@@ -59,6 +59,36 @@ namespace Neuro.Learning
                 errors[i] = (desiredOutput[i] - output[i]) * layer[i].Function.Derivative(layer[i].Output);
 
             //расчитываем ошибку на скрытых слоях
+            unsafe
+            {
+                for (var j = fullyConnectedLayers.Length - 2; j >= 0; j--)
+                {
+                    layer = fullyConnectedLayers[j];
+                    errors = fullyConnectedNeuronErrors[j];
+
+                    var layerNext = fullyConnectedLayers[j + 1];
+                    var errorsNext = fullyConnectedNeuronErrors[j + 1];
+
+                    Parallel.For(0, layer.NeuronsCount, i =>
+                    {
+                        //double sum = 0;
+
+                        //fixed (double* e = errors, en = errorsNext)
+                        //{
+                        //    for (var n = 0; n < layerNext.NeuronsCount; n++)
+                        //    {
+                        //        sum += layer.Neurons[n].Weights[i] * en[n];
+                        //    }
+
+                        //    e[i] = layer[i].Function.Derivative(layer[i].Output) * sum;
+                        //}
+
+                        var sum = layerNext.Neurons.Select((neuron, nIndex) => new { neuron, nIndex }).Sum(x => x.neuron.Weights[i] * errorsNext[x.nIndex]);
+                        errors[i] = layer[i].Function.Derivative(layer[i].Output) * sum;
+                    });
+                }
+            }
+            
             for (var j = fullyConnectedLayers.Length - 2; j >= 0; j--)
             {
                 layer = fullyConnectedLayers[j];
@@ -251,20 +281,22 @@ namespace Neuro.Learning
 
             Parallel.For(0, layersCount, l =>
             {
-                var outputs = l == 0 ? input : fullyConnectedLayers[l - 1].Neurons.Select(x => x.Output).ToArray();
                 var layer = fullyConnectedLayers[l];
+                var inputs = l == 0 ? input : fullyConnectedLayers[l - 1].Neurons.Select(x => x.Output).ToArray();
 
-                Parallel.For(0, layer.NeuronsCount, n =>
+                unsafe
                 {
-                    var neuron = layer.Neurons[n];
-                    var weightsLength = neuron.Weights.Length;
-                    var error = fullyConnectedNeuronErrors[l][n];
-
-                    for (var wIndex = 0; wIndex < weightsLength; wIndex++)
+                    Parallel.For(0, layer.NeuronsCount, n =>
                     {
-                        neuron.Weights[wIndex] +=LearningRate * error * outputs[wIndex];
-                    }
-                });
+                        var neuron = layer.Neurons[n];
+                        var weightsLength = neuron.Weights.Length;
+                        var error = fullyConnectedNeuronErrors[l][n];
+
+                        fixed (double* weights = neuron.Weights, x = inputs)
+                            for (var i = 0; i < weightsLength; i++)
+                                weights[i] += LearningRate * error * x[i];
+                    });
+                }
             });
         }
     }
