@@ -30,7 +30,7 @@ namespace Sobel.UI
         private Series _seriesSuccess;
         private int _succeses = 0;
         private bool _neadToStopLearning;
-        private (int x, int y) pictureSize = (26, 26);
+        private (int x, int y) pictureSize = (16, 16);
         private BindingSource bindingSource1 = new BindingSource();
         private Rectangle dragBoxFromMouseDown;
         private int rowIndexFromMouseDown;
@@ -310,7 +310,7 @@ namespace Sobel.UI
                 IsVisibleInLegend = false,
                 IsXValueIndexed = true,
                 ChartType = SeriesChartType.Spline,
-                BorderWidth = 1
+                BorderWidth = 1, 
             };
 
             this.chart1.Series.Add(_seriesStop);
@@ -327,8 +327,11 @@ namespace Sobel.UI
                         ? _succeses - 3
                         : _succeses;
 
-            if (_seriesStop.Points.Count > 60)
+            _succeses = Math.Max(0, _succeses);
+            
+            if (_seriesSuccess.Points.Count > 200)
             {
+//                _seriesSuccess.Points.Clear();
                 _seriesStop.Points.Remove(_seriesStop.Points.First());
                 _seriesSuccess.Points.Remove(_seriesSuccess.Points.First());
             }
@@ -354,7 +357,7 @@ namespace Sobel.UI
             InitLerningChart();
 
             //Learn();
-            await Task.Run(() => Learn());
+            await Task.Run(() => LearnAnyNeurons());
         }
 
         private void stopLearnButton_Click(object sender, EventArgs e)
@@ -388,7 +391,7 @@ namespace Sobel.UI
             var st = new Stopwatch();
             st.Start();
 
-            var result = _networkNew.Compute(bitmap);
+            var result = _networkNew.Compute(new Matrix(bitmap.GetDoubleMatrix()));
 
             var time = st.ElapsedMilliseconds;
             
@@ -407,7 +410,7 @@ namespace Sobel.UI
                 k++;
             }
 
-            realAnswerText.Text = $@"{maxIter} - {string.Join(" | ", result)}";
+            realAnswerText.Text = $@"{maxIter} - {result[maxIter]}";
         }
 
         private void Learn()
@@ -451,68 +454,40 @@ namespace Sobel.UI
 
                 padding.H = _random.Next((-((int)paddingHNumeric.Value)), ((int)paddingHNumeric.Value));
                 padding.V = _random.Next((-((int)paddingVNumeric.Value)), ((int)paddingVNumeric.Value));
+
+                Matrix matrix;
                 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 2)
                 {
-                    //teacher.LearningRate = (double)learningRateNumeric.Value / 2;
-                    bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
+                    matrix = new Matrix(bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y).GetDoubleMatrix());
+                    var computed = _networkNew.Compute(matrix)[0];
                     output = new double[] { -1f };
-                    var computed = _networkNew.Compute(bitmap)[0];
 
                     st.Start();
+                    
+                    succeses = computed < -0.1d ? succeses + 1 : 0;
 
-                    if (computed >= 0f)
-                    {
-                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
-                        
-                        succeses = 0;
-                    }
-                    else
-                    {
-                        //if (succeses == 0)
-                        //totalError += teacher.Run(bitmap.GetDoubleMatrix(), new double[] { computed - teacher.LearningRate });
-                        succeses++;
-                    }
-
-                    st.Stop();
-                    totalTime += st.ElapsedMilliseconds;
                     falseAnswerCount++;
                     trueAnswerCount = 0;
                 }
                 else
                 {
-                    //teacher.LearningRate = (double)learningRateNumeric.Value;
-                    bitmap = bmp.DrawString(trueAnswerText.Text, fontSize, 0, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
-                    //output = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? new[] { -1f } : new double[] { 1 };
+                    matrix = new Matrix(bmp.DrawString(trueAnswerText.Text, fontSize, 0, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y).GetDoubleMatrix());
+                    var computed = _networkNew.Compute(matrix)[0];
                     output = new double[] { 1f };
-                    var computed = _networkNew.Compute(bitmap)[0];
 
                     st.Start();
 
-                    if (/*!(Math.Abs(padding.H) > 0 || Math.Abs(padding.V) > 0) && */computed < 0.3f)
-                    {
-                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
-                        succeses = 0;
-                    }
-                    else
-                    {
-                        //if (succeses == 0)
-                            //totalError += teacher.Run(bitmap.GetDoubleMatrix(), new double[] { computed + teacher.LearningRate });
-//                        totalError += teacher.Run(bitmap.GetDoubleMatrix(), new double[] { computed + teacher.LearningRate });
-                        succeses++;
-                    }
+                    succeses = computed > 0.9d ? succeses + 1 : 0;
 
-                    st.Stop();
-                    totalTime += st.ElapsedMilliseconds;
-                    //falseAnswerCount = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? falseAnswerCount + 1 : 0;
-                    //trueAnswerCount = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? 0 : trueAnswerCount + 1;
                     falseAnswerCount=0;
                     trueAnswerCount++;
                 }
                 
-//                st.Stop();
-//                totalTime += st.ElapsedMilliseconds;
-//                var delimiter = Math.Min(999, i);
+                totalError += teacher.Run(matrix.Value, output);
+                
+                st.Stop();
+                totalTime += st.ElapsedMilliseconds;
 
                 BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses, totalTime / (i + 1), totalError / (i + 1)));
 
@@ -531,14 +506,17 @@ namespace Sobel.UI
             var iterations = (long)learnIterationsNumeric.Value;
             (string symble, int position) text;
             Bitmap bitmap;
-            double[] output;
             int succeses = 0;
             double totalTime = 0;
+            double totalError = 0;
             var rotateImage = (double)textRotateNumeric.Value;
-            var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
+            (int V, int H) padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
             var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
-
-            long i = 0;
+            var outputs = _networkNew.Network.Layers.Last().NeuronsCount;
+            double[] output = new double[outputs];
+            var badResults = " /.,\"DFGIJLQRSUVWYZbdfghijklqrstuvwyz";
+//            var trueResults = "0123456789ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮёйцукенгшщзхъфывапролджэячсмитьбю";
+            var trueResults = "0123456789ёйцукенгшщзхъфывапролджэячсмитьбю";
 
             var teacher = new Neuro.Learning.BackPropagationLearning(_networkNew.Network)
             {
@@ -546,66 +524,76 @@ namespace Sobel.UI
             };
 
             var st = new Stopwatch();
-            
+            var teachedList = new List<int>();
+            long i = 0;
+            var trueAnswerCount = 0;
+
             while ((iterations == 0 ||i < iterations))
             {
                 if (_neadToStopLearning) break;
                 
                 st.Start();
-
-                text = _random.RandomSymble();
                 
-                int maxIter = 0;
-                double maxRes = 0;
-                var k = 0;
-
-                bitmap = bmp.DrawString(text.symble, 50, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
-                var result = _networkNew.Compute(bitmap);
+                teacher.LearningRate = (double)learningRateNumeric.Value;
+                padding.H = _random.Next((-((int)paddingHNumeric.Value)), ((int)paddingHNumeric.Value));
+                padding.V = _random.Next((-((int)paddingVNumeric.Value)), ((int)paddingVNumeric.Value));
+                output = new double[outputs];
                 
-                foreach (var neuron in result)
+                var fontSize = _random.Next(16, 50);
+
+                if (trueAnswerCount < trueResults.Length)
                 {
-                    if (maxRes < neuron)
-                    {
-                        maxRes = neuron;
-                        maxIter = k;
-                    }
+                    if (teachedList.Count == outputs)
+                        teachedList.Clear();
 
-                    k++;
-                }
-
-                if (text.position != maxIter)
-                {
-                    output = new double[79];
-
-                    for (var j = 0; j < 79; j++)
-                    {
-                        output[j] = j == text.position ? 1f : 0f;
-                    }
+                    text = _random.RandomSymble(trueResults);
+                
+                    if (teachedList.Any(x => x == text.position))
+                        continue;
+                
+                    if (text.position < outputs)
+                        teachedList.Add(text.position);
                     
-                    teacher.Run(bitmap.GetDoubleMatrix(), output);
-                    succeses = 0;
+                    bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
+                    
+                    var result = _networkNew.Compute(new Matrix(bitmap.GetDoubleMatrix()));
+                    
+                    int maxIter = 0;
+                    double maxRes = 0;
+                    var k = 0;
+                
+                    foreach (var neuron in result)
+                    {
+                        if (maxRes < neuron)
+                        {
+                            maxRes = neuron;
+                            maxIter = k;
+                        }
+
+                        k++;
+                    }
+
+                    output[text.position] = 1f;
+                    succeses = text.position != maxIter || result[maxIter] < 0.2d ? 0 : succeses + 1;
+                    trueAnswerCount++;
                 }
-//                else if (text.position == maxIter && maxRes < 0.7)
-//                {
-//                    output = new double[5];
-//
-//                    for (var j = 0; j < 5; j++)
-//                    {
-//                        output[j] = j == text.position ? 0.75 : 0.1;
-//                    }
-//                    
-//                    teacher.Run(bitmap.GetDoubleMatrix(), output);
-//                    succeses = 0;
-//                }
                 else
                 {
-                    succeses++;
+                    text = _random.RandomSymble(badResults);
+                    bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
+                    
+                    var result = _networkNew.Compute(new Matrix(bitmap.GetDoubleMatrix()));
+
+                    succeses = result.Any(x => x >= 0.2d) ? 0 : succeses + 1;
+                    trueAnswerCount = 0;
                 }
+
+                totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
                 
                 st.Stop();
                 totalTime += st.ElapsedMilliseconds;
 
-                BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses, totalTime / (i + 1), 0));
+                BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses, totalTime / (i + 1), totalError / (i + 1)));
 
                 st.Reset();
                 i++;
@@ -652,7 +640,7 @@ namespace Sobel.UI
             {
                 switch (item.Type) {
                     case LayerType.Convolution:
-                        initData.Add(new ConvolutionLayer(item.Activation.Value, item.NeuronsCount.Value, item.KernelSize.Value));
+                        initData.Add(new ConvolutionLayer(item.Activation.Value, item.NeuronsCount.Value, item.KernelSize.Value, true));
                         break;
 
                     case LayerType.MaxPoolingLayer:
@@ -689,7 +677,7 @@ namespace Sobel.UI
                     
                     textViewPicture.Image = bitmap;
                     
-                    var result = _networkNew.Compute(bitmap);
+                    var result = _networkNew.Compute(new Matrix(bitmap.GetDoubleMatrix()));
 
                     int maxIter = 0;
                     double maxRes = 0;

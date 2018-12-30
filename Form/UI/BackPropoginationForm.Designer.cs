@@ -77,6 +77,7 @@
             this.weightsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.neuronsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.convolutionalLayerBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.scaleToNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.scaleFromNum)).BeginInit();
@@ -96,6 +97,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.weightsBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.neuronsBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.convolutionalLayerBindingSource)).BeginInit();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -370,9 +372,10 @@
             this.groupBox2.Controls.Add(this.learnIterationsNumeric);
             this.groupBox2.Controls.Add(this.stopLearnButton);
             this.groupBox2.Controls.Add(this.startLearnButton);
-            this.groupBox2.Location = new System.Drawing.Point(6, 19);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.groupBox2.Location = new System.Drawing.Point(3, 16);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(200, 281);
+            this.groupBox2.Size = new System.Drawing.Size(210, 304);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Net settings";
@@ -527,9 +530,10 @@
             // 
             this.groupBox3.Controls.Add(this.chart1);
             this.groupBox3.Controls.Add(this.groupBox2);
-            this.groupBox3.Location = new System.Drawing.Point(12, 325);
+            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox3.Location = new System.Drawing.Point(3, 331);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(1020, 306);
+            this.groupBox3.Size = new System.Drawing.Size(1041, 323);
             this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Learning";
@@ -538,16 +542,17 @@
             // 
             chartArea1.Name = "ChartArea1";
             this.chart1.ChartAreas.Add(chartArea1);
+            this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
             legend1.Name = "Legend1";
             this.chart1.Legends.Add(legend1);
-            this.chart1.Location = new System.Drawing.Point(219, 19);
+            this.chart1.Location = new System.Drawing.Point(213, 16);
             this.chart1.Margin = new System.Windows.Forms.Padding(2);
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(795, 272);
+            this.chart1.Size = new System.Drawing.Size(825, 304);
             this.chart1.TabIndex = 5;
             this.chart1.Text = "chart1";
             // 
@@ -614,15 +619,29 @@
             // 
             this.convolutionalLayerBindingSource.DataSource = typeof(Neuro.Layers.ConvolutionLayer);
             // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Controls.Add(this.groupBox3, 0, 1);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1047, 657);
+            this.tableLayoutPanel1.TabIndex = 53;
+            // 
             // BackPropoginationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1046, 548);
+            this.ClientSize = new System.Drawing.Size(1047, 657);
             this.Controls.Add(this.groupBox4);
-            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "BackPropoginationForm";
             this.Text = "6";
             this.groupBox1.ResumeLayout(false);
@@ -646,6 +665,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.weightsBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.neuronsBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.convolutionalLayerBindingSource)).EndInit();
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -697,5 +717,6 @@
         private System.Windows.Forms.Button netSettingsApplyButton;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button LoadTestImgButton;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
     }
 }

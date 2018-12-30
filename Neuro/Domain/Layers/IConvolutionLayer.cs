@@ -8,8 +8,9 @@ namespace Neuro.Domain.Layers
         ActivationType ActivationFunctionType { get; }
         int KernelSize { get; }
         ConvolutionNeuron[] Neurons { get; set; }
+        bool UseReferences { get; }
         ConvolutionNeuron this[int index] { get; }
 
-        void Init(int inputWidth, int inputHeight);
+        void Init(int inputWidth, int inputHeight, int? outsPerNeuron);
     }
 }

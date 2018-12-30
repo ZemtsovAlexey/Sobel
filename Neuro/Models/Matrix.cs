@@ -223,6 +223,25 @@ namespace Neuro.Models
 
             return new Matrix(result);
         }
+        
+        public static unsafe Matrix Rot90(this Matrix input)
+        {
+            if (input.Value == null || input.Value.Length == 0)
+                return input;
+
+            var height = input.Value.GetLength(0);
+            var width = input.Value.GetLength(1);
+            var result = new double[width, height];
+            var resultHeight = input.Value.GetLength(0);
+            var resultWidth = input.Value.GetLength(1);
+
+            fixed (double* v = input.Value, r = result)
+                for (var y = 0; y < resultHeight; y++)
+                for (var x = 0; x < resultWidth; x++)
+                    r[y * resultWidth + x] = v[(height - 1 - x) * width + (y)];
+
+            return new Matrix(result);
+        }
 
         public static unsafe Matrix Sum(this Matrix[] matrixes)
         {

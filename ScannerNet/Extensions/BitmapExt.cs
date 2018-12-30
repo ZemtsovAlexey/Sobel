@@ -401,7 +401,6 @@ namespace ScannerNet.Extensions
 
             unsafe
             {
-                
                 for (var y = 0; y < height; y++)
                 {
                     byte c = 255;
@@ -413,17 +412,73 @@ namespace ScannerNet.Extensions
                     
                     for (int x = 0; x < width; ++x)
                     {
-                            var rowPix = GetPixelBright(row, step, columnOffset);
+                        var rowPix = GetPixelBright(row, step, columnOffset);
 
-                            c = rowPix < averege ? (byte)0 : (byte)255;
+                        c = rowPix < averege ? byte.MinValue : byte.MaxValue;
 
-                            SetPixelBright(newRow, step, columnOffset, c);
+                        SetPixelBright(newRow, step, columnOffset, c);
                         
                         columnOffset += step;
                     }
                 }
             }
             
+            newBitmap.UnlockBits(newBitmapData);
+
+            return newBitmap;
+        }
+
+        public unsafe static Bitmap To1bpp(this Bitmap bitmap, int kernel = 5, double diff = 0.1d)
+        {
+            var newBitmap = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+            var height = newBitmap.Height;
+            var width = newBitmap.Width;
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+            var newBitmapData = newBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, newBitmap.PixelFormat);
+            var step = newBitmap.GetStep();
+
+            for (var y = 0; y < height; y++)
+            {
+                byte c = 255;
+
+                var row = (byte*)bitmapData.Scan0 + (y * bitmapData.Stride);
+                var newRow = (byte*)newBitmapData.Scan0 + (y * newBitmapData.Stride);
+
+                int columnOffset = 0;
+
+                var kYStart = Math.Max(0, y - ((kernel - 1) / 2));
+                var kH = Math.Min(height - 1, y + ((kernel - 1) / 2) + 1);
+
+                for (int x = 0; x < width; ++x)
+                {
+                    var kXStart = Math.Max(0, x - ((kernel - 1) / 2));
+                    var kW = Math.Min(width - 1, x + ((kernel - 1) / 2) + 1);
+
+                    var averege = 0d;
+
+                    for (var kY = kYStart; kY < kH; kY++)
+                    {
+                        var kRow = (byte*)bitmapData.Scan0 + (kY * bitmapData.Stride);
+
+                        for (var kX = kXStart; kX < kW; kX++)
+                        {
+                            averege += GetPixelBright(kRow, step, kX);
+                        }
+                    }
+
+                    averege /= ((kW - kXStart) * (kH - kYStart));
+                    averege *= diff;
+
+                    var rowPix = GetPixelBright(row, step, columnOffset);
+
+                    c = rowPix < averege ? byte.MinValue : byte.MaxValue;
+
+                    SetPixelBright(newRow, step, columnOffset, c);
+
+                    columnOffset += step;
+                }
+            }
+
             newBitmap.UnlockBits(newBitmapData);
 
             return newBitmap;

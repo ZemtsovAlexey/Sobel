@@ -5,7 +5,7 @@ using Neuro.Models;
 
 namespace Neuro.Neurons
 {
-    public class ConvolutionNeuron //: Neuron
+    public class ConvolutionNeuron
     {
         private static readonly Random Random = new Random((int)DateTime.Now.Ticks);
         private readonly int _kernelSize;
@@ -15,13 +15,15 @@ namespace Neuro.Neurons
         public double Bias { get; set; } = 0;
         public Matrix Output { get; set; }
         public int Padding { get; } = 1;
+        public int? ParentId { get; }
 
-        public ConvolutionNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3)
+        public ConvolutionNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3, int? parentId = null)
         {
             _kernelSize = kernelSize;
             Weights = new Matrix(new double[kernelSize, kernelSize]);
             Output = new Matrix(new double[inHeight - kernelSize + Padding, inWidth - kernelSize + Padding]);
             Function = function;
+            ParentId = parentId;
         }
 
         public void Randomize()
@@ -37,9 +39,10 @@ namespace Neuro.Neurons
             }
         }
         
-        public Matrix Compute(Matrix[] input)
+        public Matrix Compute(Matrix[] inputs)
         {
-            var output = (input.Sum().Convolution(Weights, Padding) + Bias) * Function.Activation;
+            var input = ParentId.HasValue ? inputs[ParentId.Value] : inputs.Sum();
+            var output = (input.Convolution(Weights, Padding) + Bias) * Function.Activation;
 
             Output = output;
             

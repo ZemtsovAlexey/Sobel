@@ -388,7 +388,7 @@ namespace Sobel
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             
-            var family = new List<string>{ "Calibri", "Arial", "Times New Roman" };
+            var family = new List<string>{ "Calibri", "Arial", "Times New Roman", "Bahnschrift" };
 //            var family = new List<string>{ "Times New Roman" };
             var fontFamily = family[random.Next(family.Count)];
             
@@ -550,11 +550,13 @@ namespace Sobel
             return bitmap;
         }
 
-        public static (string symble, int position) RandomSymble(this Random random)
+        public static (string symble, int position) RandomSymble(this Random random, string chars = null)
         {
 //            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 //            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var chars = " ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮ0123456789ёйцукенгшщзхъфывапролджэячсмитьбю/.,\"";
+//            var chars = " ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮ0123456789ёйцукенгшщзхъфывапролджэячсмитьбю/.,\"";
+            chars = string.IsNullOrEmpty(chars) ? "0123456789ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮёйцукенгшщзхъфывапролджэячсмитьбю" : chars;
+//            var chars = "0123456789 ёйцукенгшщзхъфывапролджэячсмитьбю/.,\"";
 //            var chars = "аоеиы";
             var number = random.Next(chars.Length);
             var finalString = new String(new[] { chars[number] });

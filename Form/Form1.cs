@@ -23,10 +23,10 @@ namespace Sobel
     public partial class Form1 : Form
     {
         public Network Network = new Network();
-        private int ImageWidth = 26;
-        private int ImageHeight = 26;
+        private int ImageWidth = 16;
+        private int ImageHeight = 16;
         private string lastImgPath = null;
-        private (int x, int y) pictureSize = (26, 26);
+        private (int x, int y) pictureSize = (16, 16);
         private Bitmap workImage;
         
         public Form1()
@@ -64,13 +64,15 @@ namespace Sobel
 
         private void sobelFilterButton_Click(object sender, EventArgs e)
         {
-            if (averageNum.Value == 0)
-            {
-                averageNum.Value = (decimal)workImage.GetAverBright();
-            }
+            //if (averageNum.Value == 0)
+            //{
+            //    averageNum.Value = (decimal)workImage.GetAverBright();
+            //}
 
+            var kernel = (int)findMinNumeric.Value;
             var averege = (double)averageNum.Value;
             workImage = ((Bitmap) workImage.Clone()).ToBlackWite(averege);
+//            workImage = ((Bitmap) workImage.Clone()).To1bpp(kernel, averege);
             pictureBox1.Image = workImage;
         }
 
@@ -246,7 +248,7 @@ namespace Sobel
         private void recognizeButton_Click(object sender, EventArgs e)
         {
             //searchText();
-            ShowResult();
+            ShowResult2();
             return;
 
             panel2.Controls.Clear();
@@ -384,6 +386,12 @@ namespace Sobel
                 var setting = File.ReadAllBytes(path);
                 var symbleMatch = Regex.Match(path, @"\\_?(?<symble>\w+)\.nw");
                 var symble = symbleMatch.Groups["symble"].Value;
+
+                if (symble.Equals("point"))
+                {
+                    symble = ".";
+                }
+
                 var net = new Network();
 
                 net.Load(setting);
@@ -442,7 +450,7 @@ namespace Sobel
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.Flush();
             
-            foreach (var result in res.Where(x => x.answer > 0))
+            foreach (var result in res.Where(x => x.answer > 0.9d))
             {
                 DrawSymbol(resultBitmap, result.cord, result.result, null);
             }
@@ -484,7 +492,67 @@ namespace Sobel
             //    k++;
             //}
         }
+        
+        private void ShowResult2()
+        {
+            cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
+            var imageMap = workImage.GetDoubleMatrix(invert: false);
 
+            var matrixes = cords
+                .Where(c => c.Right - c.Left > 6 && c.Bottom - c.Top > 6)
+                .Select(cord => new MatrixWithCords
+                {
+                    cord = cord,
+                    matrix = imageMap
+                        .GetMapPart(cord.Left - 2, cord.Top - 2, cord.Right - cord.Left + 4, cord.Bottom - cord.Top + 4)
+                        .ToBitmap()
+                        .ScaleImage(pictureSize.x, pictureSize.y)
+                        .GetDoubleMatrix()
+                })
+                .ToList();
+
+//            var chars = "ёйцукенгшщзхъфывапролджэячсмитьбю";
+            var chars = "0123456789ёйцукенгшщзхъфывапролджэячсмитьбю";
+            var network = networks.FirstOrDefault();
+            var matrixesCount = matrixes.Count;
+            var res = new List<Result>();
+
+            Parallel.For(0, matrixesCount, i =>
+            {
+                var m = matrixes[i];
+                var computed = network.Value.Compute(m.matrix);
+                var maxResult = GetMaxNeuron(computed);
+                
+                res.Add(new Result
+                {
+                    cord = m.cord,
+                    result = chars[maxResult.index].ToString(),
+                    answer = maxResult.value
+                });
+            });
+
+            var resultBitmap = new Bitmap(workImage.Width, workImage.Height, PixelFormat.Format32bppArgb);
+
+            Graphics g = Graphics.FromImage(resultBitmap);
+            g.FillRectangle(Brushes.White, 0, 0, resultBitmap.Width, resultBitmap.Height);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.Flush();
+            
+            foreach (var result in res.Where(x => x.answer > 0.7d))
+            {
+                DrawSymbol(resultBitmap, result.cord, result.result, null);
+            }
+
+            pictureBox1.Image = resultBitmap;
+        }
+
+        private (int index, double value) GetMaxNeuron(double[] neurons)
+        {
+            return neurons.Select((r, i) => (i, r)).OrderByDescending(x => x.r).First();
+        }
+        
         private void DrawSymbol(Bitmap mapBitmap, Cord cord, string symbol, Bitmap bitmap)
         {
             using (var g = Graphics.FromImage(mapBitmap))
@@ -525,6 +593,11 @@ namespace Sobel
                     var symbleMatch = Regex.Match(path, @"\\_?(?<symble>\w+)\.nw");
                     var symble = symbleMatch.Groups["symble"].Value;
                     var net = new Network();
+
+                    if (symble.Equals("point"))
+                    {
+                        symble = ".";
+                    }
 
                     net.Load(setting);
                     networks.Add((symble, net));

@@ -388,7 +388,7 @@ namespace ScannerNet
         public static Bitmap Canny(this Bitmap bitmap, double threshold1 = 70, double threshold2 = 130, int aperture = 3)
         {
             Image<Gray, byte> gray = new Image<Gray, byte>(bitmap);
-            CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
+            //CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
             CvInvoke.Canny(gray, gray, threshold1, threshold2, aperture);
 
             var grayMap = gray.ToBitmap();

@@ -13,13 +13,13 @@ namespace Neuro.Networks
     public class Network
     {
         public ILayer[] Layers;
-        private int inputWidth;
-        private int inputHeight;
+        public int InputWidth { get; private set; }
+        public int InputHeight { get; private set; }
 
         public void InitLayers(int shapeX, int shapeY, params ILayer[] layers)
         {
-            inputWidth = shapeX;
-            inputHeight = shapeY;
+            InputWidth = shapeX;
+            InputHeight = shapeY;
             var neuronsCount = 0;
             Layers = new ILayer[layers.Length];
 
@@ -40,8 +40,11 @@ namespace Neuro.Networks
                 if (layers[i].Type == LayerType.Convolution)
                 {
                     var layer = (IConvolutionLayer) layers[i];
+                    var outsPerNeuron = neuronsCount > 0 ? layer.NeuronsCount / neuronsCount : (int?)0;
+
+                    outsPerNeuron = neuronsCount > 0 && outsPerNeuron > 0 && layer.NeuronsCount % neuronsCount > 0 ? outsPerNeuron + 1 : outsPerNeuron;
                     
-                    layer.Init(shapeX, shapeY);
+                    layer.Init(shapeX, shapeY, outsPerNeuron);
                     
                     inputLength = layer.OutputHeight * layer.OutputWidht * layer.NeuronsCount;
                     shapeX = layer.OutputWidht;
@@ -101,8 +104,8 @@ namespace Neuro.Networks
         {
             var data = new SaveNetworkModel
             {
-                InputWidth = inputWidth,
-                InputHeight = inputHeight,
+                InputWidth = InputWidth,
+                InputHeight = InputHeight,
                 Layers = new List<LayerSaveData>()
             };
 
@@ -135,7 +138,8 @@ namespace Neuro.Networks
                     
                             layerSaveData.FullyConnectedNeurons.Add(new FullyConnectedNeuronSaveData
                             {
-                                Weights = weights
+                                Weights = weights,
+                                Bias = neuron.Bias
                             });
                         }
 
@@ -204,7 +208,7 @@ namespace Neuro.Networks
                 switch (layer.Type)
                 {
                     case LayerType.Convolution:
-                        layers.Add(new ConvolutionLayer(layer.ActivationType, layer.OutputLength, layer.KernelSize));
+                        layers.Add(new ConvolutionLayer(layer.ActivationType, layer.OutputLength, layer.KernelSize, true));
                         break;
                     case LayerType.MaxPoolingLayer:
                         layers.Add(new MaxPoolingLayer(layer.KernelSize));
@@ -242,6 +246,7 @@ namespace Neuro.Networks
                         for (var n = 0; n < layer.NeuronsCount; n++)
                         {
                             layer.Neurons[n].Weights = obj.Layers[l].FullyConnectedNeurons[n].Weights;
+                            layer.Neurons[n].Bias = obj.Layers[l].FullyConnectedNeurons[n].Bias;
                         }
                         
                         break;
