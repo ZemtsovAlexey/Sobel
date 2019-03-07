@@ -348,9 +348,21 @@ namespace Sobel.UI
 
         private void ShowLogs(object sender, LogEventArgs e)
         {
-            ShowGraffic(e.I, e.Success);
+//            ShowGraffic(e.I, e.Success);
             totalTimeText.Text = e.Time.ToString();
             resultErrorText.Text = e.Error.ToString();
+            
+            _succeses = e.Success > _succeses
+                ? e.Success
+                : _succeses <= 0
+                    ? 0
+                    : e.Success == 0
+                        ? _succeses - 3
+                        : _succeses;
+
+            _succeses = Math.Max(0, _succeses);
+
+            textBoxAnswResult.Text = _succeses.ToString();
         }
 
         private async void startLearnButton_Click(object sender, EventArgs e)
@@ -467,7 +479,7 @@ namespace Sobel.UI
                 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 2)
                 {
-                    matrix = new Matrix(bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y).GetDoubleMatrix());
+                    matrix = new Matrix(bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y).GetDoubleMatrix(1));
                     var computed = _networkNew.Compute(matrix)[0];
                     output = new double[] { -1f };
 
@@ -480,7 +492,7 @@ namespace Sobel.UI
                 }
                 else
                 {
-                    matrix = new Matrix(bmp.DrawString(trueAnswerText.Text, fontSize, 0, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y).GetDoubleMatrix());
+                    matrix = new Matrix(bmp.DrawString(trueAnswerText.Text, fontSize, 0, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y).GetDoubleMatrix(1));
                     var computed = _networkNew.Compute(matrix)[0];
                     output = new double[] { 1f };
 
@@ -548,8 +560,9 @@ namespace Sobel.UI
                 output = new double[outputs];
                 
                 var fontSize = _random.Next(16, 50);
+//                var fontSize = 50;
 
-                if (trueAnswerCount < trueResults.Length)
+                if (trueAnswerCount < 5)
                 {
                     if (teachedList.Count == outputs)
                         teachedList.Clear();
@@ -563,6 +576,8 @@ namespace Sobel.UI
                         teachedList.Add(text.position);
                     
                     bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
+//                    var averBright = bitmap.GetAverBright();
+//                    bitmap = bitmap.ToBlackWite(averBright);
                     
                     var result = _networkNew.Compute(new Matrix(bitmap.GetDoubleMatrix()));
                     
@@ -592,7 +607,7 @@ namespace Sobel.UI
                     
                     var result = _networkNew.Compute(new Matrix(bitmap.GetDoubleMatrix()));
 
-                    succeses = result.Any(x => x >= 0.2d) ? 0 : succeses + 1;
+                    succeses = result.Any(x => x >= 0.5d) ? 0 : succeses + 1;
                     trueAnswerCount = 0;
                 }
 

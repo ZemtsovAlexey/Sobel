@@ -524,13 +524,13 @@ namespace ScannerNet
             return newBitmap;
         }
         
-        public static (Bitmap img, List<Cord> cords) ShowTextCord2(Bitmap bitmap, byte min = 5)
+        public static (Bitmap img, List<Cord> cords) ShowTextCord2(Bitmap bitmap, int bottomStep = 5, int leftRightStep = 1)
         {
             Image<Gray, byte> gray = new Image<Gray, byte>(bitmap);
 //            CvInvoke.GaussianBlur(gray, gray, new Size(3, 3), 1, 1, BorderType.Default);
             //CvInvoke.Canny(gray, gray, 70, 130);
 
-            var cordList = gray.ToBitmap().GetCords();
+            var cordList = gray.ToBitmap().GetCords(130, bottomStep, leftRightStep);
 //            var resultImage = cordList.DrawCords(bitmap);
 
             return (bitmap/*gray.ToBitmap()*/, cordList);
@@ -1090,7 +1090,229 @@ namespace ScannerNet
             return (byte)Math.Max(0, Math.Min(255, res));
         }
 
-        private static List<Cord> GetCords(this Bitmap bitmap, int min = 130)
+        public static List<Cord> FindQRCornersCords(this Bitmap bitmap, int min = 130, int bottomStep = 5, int leftRightStep = 1)
+        {
+            var map = bitmap.GetGrayMap();
+            var cords = new List<Cord>();
+
+            for (var y = 0; y < bitmap.Height; y++)
+            {
+                int? leftCord = null;
+                int? blackLeftLine = null;
+                int? whiteLeftLine = null;
+                int? centerLine = null;
+                int? whiteRigthLine = null;
+                int? blackRigthLine = null;
+
+                for (var x = 0; x < bitmap.Width; x++)
+                {
+                    var point = map[y, x];
+
+                    if (blackLeftLine == null && point < min)
+                    {
+                        blackLeftLine = x;
+                        continue;
+                    }
+                    else if (blackLeftLine != null && whiteLeftLine == null && point > min)
+                    {
+                        whiteLeftLine = x;
+                        continue;
+                    }
+                    else if (centerLine == null && blackLeftLine != null && whiteLeftLine != null && point < min)
+                    {
+                        var blackLeftLineLength = whiteLeftLine - blackLeftLine;
+                        var whiteLeftLineLength = x - whiteLeftLine;
+
+                        if (blackLeftLineLength >= whiteLeftLineLength * -2.5 &&
+                            blackLeftLineLength <= whiteLeftLineLength * 2.5)
+                        {
+                            centerLine = x;
+                            continue;
+                        }
+
+                        blackLeftLine = x;
+                        whiteLeftLine = null;
+                        continue;
+                    }
+                    else if (whiteRigthLine == null && centerLine != null && blackLeftLine != null && whiteLeftLine != null && point > min)
+                    {
+                        var centerLineLength = x - centerLine;
+                        var whiteLeftLineLength = centerLine - whiteLeftLine;
+
+                        if (centerLineLength >= whiteLeftLineLength * 1 &&
+                            centerLineLength <= whiteLeftLineLength * 4)
+                        {
+                            whiteRigthLine = x;
+                            continue;
+                        }
+
+                        blackLeftLine = null;
+                        whiteLeftLine = null;
+                        centerLine = null;
+                        whiteRigthLine = null;
+                        continue;
+                    }
+                    else if (blackRigthLine == null && whiteRigthLine != null && centerLine != null && blackLeftLine != null &&
+                             whiteLeftLine != null && point < min)
+                    {
+                        var whiteLeftLineLength = centerLine - whiteLeftLine;
+                        var whiteRightLintLength = x - whiteRigthLine;
+
+                        if (whiteRightLintLength >= whiteLeftLineLength * -2.5 &&
+                            whiteRightLintLength <= whiteLeftLineLength * 2.5)
+                        {
+                            blackRigthLine = x;
+                            continue;
+                        }
+                        
+                        blackLeftLine = null;
+                        whiteLeftLine = null;
+                        centerLine = null;
+                        whiteRigthLine = null;
+                        blackRigthLine = null;
+                        
+                        continue;
+                    }
+                    else if (blackRigthLine != null && whiteRigthLine != null && centerLine != null && blackLeftLine != null &&
+                             whiteLeftLine != null && point > min)
+//                    else
+                    {
+                        var blackRightLintLength = x - blackRigthLine;
+                        var whiteRightLintLength = blackRigthLine - whiteRigthLine;
+
+                        if (whiteRightLintLength >= blackRightLintLength * -2.5 &&
+                            whiteRightLintLength <= blackRightLintLength * 2.5)
+                        {
+                            cords.Add(new Cord(y, y, blackLeftLine.Value, x));
+//                            continue;
+                        }
+                        
+                        blackLeftLine = null;
+                        whiteLeftLine = null;
+                        centerLine = null;
+                        whiteRigthLine = null;
+                        blackRigthLine = null;
+                        
+                        continue;
+                    }
+                }
+            }
+
+            return cords;
+        }
+        
+        public static List<Cord> FindQRCornersCordsY(this Bitmap bitmap, int min = 130, int bottomStep = 5, int leftRightStep = 1)
+        {
+            var map = bitmap.GetGrayMap();
+            var cords = new List<Cord>();
+
+            for (var x = 0; x < bitmap.Width; x++)
+            {
+                int? leftCord = null;
+                int? blackLeftLine = null;
+                int? whiteLeftLine = null;
+                int? centerLine = null;
+                int? whiteRigthLine = null;
+                int? blackRigthLine = null;
+
+                for (var y = 0; y < bitmap.Height; y++)
+                {
+                    var point = map[y, x];
+
+                    if (blackLeftLine == null && point < min)
+                    {
+                        blackLeftLine = y;
+                        continue;
+                    }
+                    else if (blackLeftLine != null && whiteLeftLine == null && point > min)
+                    {
+                        whiteLeftLine = y;
+                        continue;
+                    }
+                    else if (centerLine == null && blackLeftLine != null && whiteLeftLine != null && point < min)
+                    {
+                        var blackLeftLineLength = whiteLeftLine - blackLeftLine;
+                        var whiteLeftLineLength = y - whiteLeftLine;
+
+                        if (blackLeftLineLength >= whiteLeftLineLength * -2.5 &&
+                            blackLeftLineLength <= whiteLeftLineLength * 2.5)
+                        {
+                            centerLine = y;
+                            continue;
+                        }
+
+                        blackLeftLine = y;
+                        whiteLeftLine = null;
+                        continue;
+                    }
+                    else if (whiteRigthLine == null && centerLine != null && blackLeftLine != null && whiteLeftLine != null && point > min)
+                    {
+                        var centerLineLength = y - centerLine;
+                        var whiteLeftLineLength = centerLine - whiteLeftLine;
+
+                        if (centerLineLength >= whiteLeftLineLength * 1 &&
+                            centerLineLength <= whiteLeftLineLength * 4)
+                        {
+                            whiteRigthLine = y;
+                            continue;
+                        }
+
+                        blackLeftLine = null;
+                        whiteLeftLine = null;
+                        centerLine = null;
+                        whiteRigthLine = null;
+                        continue;
+                    }
+                    else if (blackRigthLine == null && whiteRigthLine != null && centerLine != null && blackLeftLine != null &&
+                             whiteLeftLine != null && point < min)
+                    {
+                        var whiteLeftLineLength = centerLine - whiteLeftLine;
+                        var whiteRightLintLength = y - whiteRigthLine;
+
+                        if (whiteRightLintLength >= whiteLeftLineLength * -2.5 &&
+                            whiteRightLintLength <= whiteLeftLineLength * 2.5)
+                        {
+                            blackRigthLine = y;
+                            continue;
+                        }
+                        
+                        blackLeftLine = null;
+                        whiteLeftLine = null;
+                        centerLine = null;
+                        whiteRigthLine = null;
+                        blackRigthLine = null;
+                        
+                        continue;
+                    }
+                    else if (blackRigthLine != null && whiteRigthLine != null && centerLine != null && blackLeftLine != null &&
+                             whiteLeftLine != null && point > min)
+//                    else
+                    {
+                        var blackRightLintLength = y - blackRigthLine;
+                        var whiteRightLintLength = blackRigthLine - whiteRigthLine;
+
+                        if (whiteRightLintLength >= blackRightLintLength * -2.5 &&
+                            whiteRightLintLength <= blackRightLintLength * 2.5)
+                        {
+                            cords.Add(new Cord(blackLeftLine.Value, y, x, x));
+//                            continue;
+                        }
+                        
+                        blackLeftLine = null;
+                        whiteLeftLine = null;
+                        centerLine = null;
+                        whiteRigthLine = null;
+                        blackRigthLine = null;
+                        
+                        continue;
+                    }
+                }
+            }
+
+            return cords;
+        }
+        
+        private static List<Cord> GetCords(this Bitmap bitmap, int min = 130, int bottomStep = 5, int leftRightStep = 1)
         {
             var map = bitmap.GetGrayMap();
             var cords = new List<Cord>();
@@ -1112,7 +1334,7 @@ namespace ScannerNet
                         var hasSplit = true;//cords.Any(c => c.Bottom <= y && c.Bottom > y - 2 && leftCord <= c.Right + 1 && x >= c.Left - 1 && c.Top > y - 2);
 
                         List<Cord> prevCords = hasSplit 
-                            ? cords.Where(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1).ToList() 
+                            ? cords.Where(c => c.Bottom < y && c.Bottom > y - bottomStep && leftCord <= c.Right + leftRightStep && x >= c.Left - leftRightStep).ToList() 
                             : new List<Cord>();
 
                         if (!prevCords.Any())
@@ -1129,7 +1351,7 @@ namespace ScannerNet
                                 Right = Math.Max(x, prevCords.Max(c => c.Right)),
                             };
 
-                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - 5 && leftCord <= c.Right + 1 && x >= c.Left - 1);
+                            cords.RemoveAll(c => c.Bottom < y && c.Bottom > y - bottomStep && leftCord <= c.Right + leftRightStep && x >= c.Left - leftRightStep);
 
                             cords.Add(newCord);
                         }
