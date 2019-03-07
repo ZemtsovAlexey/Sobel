@@ -64,10 +64,10 @@ namespace Sobel
 
         private void sobelFilterButton_Click(object sender, EventArgs e)
         {
-            //if (averageNum.Value == 0)
-            //{
-            //    averageNum.Value = (decimal)workImage.GetAverBright();
-            //}
+            if (averageNum.Value == 0)
+            {
+                averageNum.Value = (decimal)workImage.GetAverBright();
+            }
 
             var kernel = (int)findMinNumeric.Value;
             var averege = (double)averageNum.Value;
@@ -79,7 +79,15 @@ namespace Sobel
         private void findTextButton_Click(object sender, EventArgs e)
         {
             byte difMin = (byte)findMinNumeric.Value;
-            var result = Segmentation.ShowTextCord2(new Bitmap(workImage), difMin);
+//            var bitmap = workImage.ScaleImage(1000, 1000);
+            /*var cords = Segmentation.FindQRCornersCords(new Bitmap(workImage));
+            pictureBox1.Image = cords.DrawCords(workImage, Color.Red);
+            
+            cords = Segmentation.FindQRCornersCordsY(new Bitmap(workImage));
+            pictureBox1.Image = cords.DrawCords(new Bitmap(pictureBox1.Image), Color.Blue);*/
+            
+
+            var result = Segmentation.ShowTextCord2(new Bitmap(workImage), difMin, difMin);
             workImage = result.img;
             pictureBox1.Image = result.cords.DrawCords(workImage); //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
             cords = result.cords;
@@ -200,9 +208,16 @@ namespace Sobel
 //            var c = new Canny(new Bitmap(lastImgPath), 80F, 35F, 5, 1);
 //            pictureBox1.Image = c.DisplayImage(c.EdgeMap);
 //            pictureBox1.BackgroundImage = new Bitmap(pictureBox1.BackgroundImage).GetGrayMap().ToBitmap();
-            var result = Segmentation.Test(new Bitmap(workImage));
-            workImage = result.img;
-            cords = result.cords;
+            
+//            var result = Segmentation.Test(new Bitmap(workImage));
+//            workImage = result.img;
+//            cords = result.cords;
+//            pictureBox1.Image = workImage;
+            
+            var kernel = (int)findMinNumeric.Value;
+            var averege = (double)averageNum.Value;
+//            workImage = ((Bitmap) workImage.Clone()).ToBlackWite(averege);
+            workImage = ((Bitmap) workImage.Clone()).To1bpp2(kernel, averege);
             pictureBox1.Image = workImage;
         }
 
@@ -496,7 +511,7 @@ namespace Sobel
         private void ShowResult2()
         {
             cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
-            var imageMap = workImage.GetDoubleMatrix(invert: false);
+            var imageMap = workImage.GetDoubleMatrix(invert: false, optimize: false);
 
             var matrixes = cords
                 .Where(c => c.Right - c.Left > 6 && c.Bottom - c.Top > 6)
@@ -507,12 +522,14 @@ namespace Sobel
                         .GetMapPart(cord.Left - 2, cord.Top - 2, cord.Right - cord.Left + 4, cord.Bottom - cord.Top + 4)
                         .ToBitmap()
                         .ScaleImage(pictureSize.x, pictureSize.y)
+//                        .ToBlackWite()
                         .GetDoubleMatrix()
                 })
                 .ToList();
 
+            var chars = "ёйцукенгшщзхъфывапролджэячсмитьбюЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮ0123456789";
 //            var chars = "ёйцукенгшщзхъфывапролджэячсмитьбю";
-            var chars = "0123456789ёйцукенгшщзхъфывапролджэячсмитьбю";
+//            var chars = "0123456789";
             var network = networks.FirstOrDefault();
             var matrixesCount = matrixes.Count;
             var res = new List<Result>();
@@ -540,9 +557,17 @@ namespace Sobel
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.Flush();
             
-            foreach (var result in res.Where(x => x.answer > 0.7d))
+            foreach (var result in res.Where(x => x.answer > 0.1d))
             {
-                DrawSymbol(resultBitmap, result.cord, result.result, null);
+                var color = result.answer > 0.85d 
+                    ? Color.Green 
+                    : result.answer > 0.65d
+                        ? Color.Yellow
+                        : result.answer > 0.4d
+                            ? Color.Red
+                            : Color.SaddleBrown;
+                
+                DrawSymbol(resultBitmap, result.cord, result.result, null, color);
             }
 
             pictureBox1.Image = resultBitmap;
@@ -553,13 +578,15 @@ namespace Sobel
             return neurons.Select((r, i) => (i, r)).OrderByDescending(x => x.r).First();
         }
         
-        private void DrawSymbol(Bitmap mapBitmap, Cord cord, string symbol, Bitmap bitmap)
+        private void DrawSymbol(Bitmap mapBitmap, Cord cord, string symbol, Bitmap bitmap, Color? color = null)
         {
+            color = color ?? Color.Black;
+            
             using (var g = Graphics.FromImage(mapBitmap))
             {
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 //                g.DrawImage(bitmap, new Point(cord.Left, cord.Top));
-                TextRenderer.DrawText(g, symbol, new Font("Calibri", cord.Bottom - cord.Top), new Point(cord.Left, cord.Top), Color.Black);
+                TextRenderer.DrawText(g, symbol, new Font("Calibri", cord.Bottom - cord.Top), new Point(cord.Left, cord.Top), color.Value);
             }
             
 //            TextRenderer.DrawText(g, symbol, new Font("Calibri", cord.Bottom - cord.Top), new Point(cord.Left, cord.Top), Color.Black);
@@ -605,6 +632,12 @@ namespace Sobel
 
                 MessageBox.Show("All nets loaded");
             }
+        }
+
+        private void openRestoreNetFormButton_Click(object sender, EventArgs e)
+        {
+            var form = new RestoreNetForm();
+            form.Show();
         }
     }
 

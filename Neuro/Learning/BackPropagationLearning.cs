@@ -261,7 +261,7 @@ namespace Neuro.Learning
                     var weights = layer.Neurons[e].Weights;
 
                     layer.Neurons[e].Weights = weights + inputs.Convolution(error.Rot180());
-//                    layer.Neurons[e].Bias += error.Sum();
+//                    layer.Neurons[e].Bias -= error.Sum();
                 }
             });
 
@@ -282,7 +282,7 @@ namespace Neuro.Learning
                         var weightsLength = neuron.Weights.Length;
                         var error = fullyConnectedNeuronErrors[l][n];
 
-//                        neuron.Bias += bias;
+//                        neuron.Bias -= bias;
 
                         fixed (double* weights = neuron.Weights, x = inputs)
                             for (var i = 0; i < weightsLength; i++)

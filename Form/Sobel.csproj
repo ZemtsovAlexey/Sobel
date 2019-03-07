@@ -112,6 +112,13 @@
       <DependentUpon>BackPropoginationForm.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\LogEventArgs.cs" />
+    <Compile Include="UI\RestoredNet.cs" />
+    <Compile Include="UI\RestoreNetForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\RestoreNetForm.Designer.cs">
+      <DependentUpon>RestoreNetForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utils.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -127,6 +134,9 @@
     </Compile>
     <EmbeddedResource Include="UI\BackPropoginationForm.resx">
       <DependentUpon>BackPropoginationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\RestoreNetForm.resx">
+      <DependentUpon>RestoreNetForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

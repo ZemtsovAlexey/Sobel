@@ -388,16 +388,16 @@ namespace Sobel
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             
-            var family = new List<string>{ "Calibri", "Arial", "Times New Roman", "Bahnschrift" };
-//            var family = new List<string>{ "Times New Roman" };
+//            var family = new List<string>{ "Calibri", "Arial", "Times New Roman", "MS Gothic", "Bahnschrift SemiLight SemiConde", "Mercury114" };
+            var family = new List<string>{ "ShtrixFR", "Mercury114" };
             var fontFamily = family[random.Next(family.Count)];
             
             var font = new Font(fontFamily, fontSize);
 
-            if (random.Next(2) == 1)
+            /*if (random.Next(2) == 1)
             {
                 font = new Font(fontFamily, fontSize, FontStyle.Bold);   
-            }
+            }*/
 
             TextRenderer.DrawText(g, text, font, new Point(20, 20), Color.Black);
 
