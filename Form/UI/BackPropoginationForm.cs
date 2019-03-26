@@ -457,9 +457,10 @@ namespace Sobel.UI
                     //teacher.LearningRate = (double)learningRateNumeric.Value / 2;
                     bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
                     output = new double[] { -1f };
+                    st.Start();
+
                     var computed = _networkNew.Compute(bitmap)[0];
 
-                    st.Start();
 
                     if (computed >= 0f)
                     {
@@ -485,9 +486,10 @@ namespace Sobel.UI
                     bitmap = bmp.DrawString(trueAnswerText.Text, fontSize, 0, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
                     //output = (Math.Abs(padding.H) > 2 || Math.Abs(padding.V) > 2) ? new[] { -1f } : new double[] { 1 };
                     output = new double[] { 1f };
+                    st.Start();
+
                     var computed = _networkNew.Compute(bitmap)[0];
 
-                    st.Start();
 
                     if (/*!(Math.Abs(padding.H) > 0 || Math.Abs(padding.V) > 0) && */computed < 0.3f)
                     {

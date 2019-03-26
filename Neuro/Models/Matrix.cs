@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Neuro.Models
 {
@@ -207,10 +208,15 @@ namespace Neuro.Models
 
     internal static class MatrixExtensions
     {
+        [DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
+        public extern static void Rot180GPU(double[] output, double[,] iniput, int width, int length);
+
         public static unsafe Matrix Rot180(this Matrix input)
         {
             if (input.Value == null || input.Value.Length == 0)
                 return input;
+
+            //return Rot180GPU(input);
 
             var height = input.Value.GetLength(0);
             var width = input.Value.GetLength(1);
@@ -365,6 +371,57 @@ namespace Neuro.Models
                 {
                     result[h * imageWidth + w] = outputs[h, w];
                 }
+            }
+
+            return result;
+        }
+
+        public static Matrix Rot180GPU(this Matrix matrix)
+        {
+            int y = matrix.Value.GetLength(0);
+            int x = matrix.Value.GetLength(1);
+
+            var result = new double[y * x];
+            //var input = (new Matrix[] { matrix }).To1DArray();
+            //var input = ToLinearArray(matrix.Value);
+
+            Rot180GPU(result, matrix.Value, x, matrix.Length);
+
+            return new Matrix(ToMultyArray(result, x));
+        }
+
+        static unsafe double[] ToLinearArray(double[,] input)
+        {
+            int dimX = input.GetLength(0);
+            int dimY = input.GetLength(1);
+            double[] result = new double[dimX * dimY];
+
+            fixed (double* oValue = input, r = result)
+            {
+                for (var y = 0; y < dimY; y++)
+                    for (var x = 0; x < dimX; x++)
+                        r[y * dimX + x] = oValue[y * dimX + x];
+            }
+
+            //for (int y = 0; y < dimY; y++)
+            //{
+            //    for (int x = 0; x < dimX; x++)
+            //    {
+            //        result[y * dimX + x] = input[y, x];
+            //    }
+            //}
+
+            return result;
+        }
+
+        static double[,] ToMultyArray(double[] array, int stride)
+        {
+            var arrayLegth = array.Length;
+            var result = new double[(array.Length / stride), stride];
+
+            for (var i = 0; i < arrayLegth; i++)
+            {
+                result[i / stride, i % stride] = array[i];
             }
 
             return result;

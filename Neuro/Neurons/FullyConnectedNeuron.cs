@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Neuro.ActivationFunctions;
 using Neuro.Extensions;
 
@@ -10,10 +11,13 @@ namespace Neuro.Neurons
     public class FullyConnectedNeuron
     {
         public double[] Weights { get; set; }
-        public double Output { get; private set; }
+        public double Output { get; set; }
         public IActivationFunction Function { get; }
         
         private static readonly Random Random = new Random((int) DateTime.Now.Ticks);
+
+        [DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
+        public extern static void MultiplyGPU(double[] output, double[] input, double[] weights, int len);
 
         public FullyConnectedNeuron(int inputsCount, IActivationFunction function)
         {
@@ -32,12 +36,35 @@ namespace Neuro.Neurons
 
         public double Compute(double[] input)
         {
+            //return ComputeGPU(input);
+
             double e = 0;
             unsafe
             {
                 fixed (double* w = Weights, i = input)
                     for (var n = 0; n < input.Length; n++)
                         e += w[n] * i[n];
+            }
+
+            var output = Function.Activation(e);
+
+            Output = output;
+
+            return output;
+        }
+
+        private double ComputeGPU(double[] input)
+        {
+            double e = 0;
+            var result = new double[Weights.Length];
+
+            MultiplyGPU(result, input, Weights, Weights.Length);
+
+            unsafe
+            {
+                fixed (double* r = result)
+                    for (var n = 0; n < input.Length; n++)
+                        e += r[n];
             }
 
             var output = Function.Activation(e);

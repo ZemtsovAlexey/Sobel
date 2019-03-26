@@ -26,13 +26,13 @@ namespace Sobel.Neronet
             Network = new Network();
 
             Network.InitLayers(26, 26,
-                new ConvolutionLayer(relu, 8, 3),//24
-                new MaxPoolingLayer(2),//12
-                new ConvolutionLayer(relu, 16, 3),//10
-                new MaxPoolingLayer(2),//5
+                //new ConvolutionLayer(relu, 8, 3),//24
+                //new MaxPoolingLayer(2),//12
+                //new ConvolutionLayer(relu, 16, 3),//10
+                //new MaxPoolingLayer(2),//5
                 //new FullyConnectedLayer(100, activation),
-                new FullyConnectedLayer(50, activation),
-                new FullyConnectedLayer(50, activation),
+                new FullyConnectedLayer(500, activation),
+                new FullyConnectedLayer(500, activation),
                 new FullyConnectedLayer(1, activation)
                 );
             

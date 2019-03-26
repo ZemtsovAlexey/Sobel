@@ -28,7 +28,19 @@ namespace ConsoleApp1
         [DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
         public extern static void matrixSum(double[] b, double[] a, int x, int y, int z);
 
-        static double[] MatrixSum(double[][,] matrix)
+        //[DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
+        //unsafe public extern static void transpose(double* b, double* a, int n);
+
+        [DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
+        public extern static void Rot90(double[] output, double[] iniput, int width, int length);
+
+        [DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
+        public extern static void ConvolutionGPU(double[] output, double[] iniput, double[] kernel, int inputWidth, int inputHeight, int kernelWidth, int kernelHeight, int outWidth, int outHeight);
+
+        //[DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
+        //public extern static void Rot180(double[] output, double[] iniput, int width, int length);
+
+        double[] MatrixSum(double[][,] matrix)
         {
             int z = matrix.Length;
             int y = matrix[0].GetLength(0);
@@ -41,6 +53,67 @@ namespace ConsoleApp1
 
             return result;
         }
+
+        static double[] Rot90Wrapper(double[,] matrix)
+        {
+            int y = matrix.GetLength(0);
+            int x = matrix.GetLength(1);
+
+            var result = new double[y * x];
+            var input = ToLinearArray(matrix);
+
+            Rot90(result, input, x, matrix.Length);
+
+            return result;
+        }
+
+        static double[,] Convolution(double[,] input, double[,] kernel, int step = 1)
+        {
+            int inputWidth = input.GetLength(1);
+            int inputHeight = input.GetLength(0);
+            int kernelWidth = kernel.GetLength(1);
+            int kernelHeight = kernel.GetLength(0);
+            var outHeight = inputHeight - kernelHeight + step;
+            var outWidth = inputWidth - kernelWidth + step;
+
+            var output = new double[outHeight * outWidth];
+            var input2 = ToLinearArray(input);
+            var kernel2 = ToLinearArray(kernel);
+
+            ConvolutionGPU(output, input2, kernel2, inputWidth, inputHeight, kernelWidth, kernelHeight, outWidth, outHeight);
+
+            return ToMultyArray(output, outWidth);
+        }
+
+        //static double[] Rot180Wrapper(double[,] matrix)
+        //{
+        //    int y = matrix.GetLength(0);
+        //    int x = matrix.GetLength(1);
+
+        //    var result = new double[y * x];
+        //    var input = ToLinearArray(matrix);
+
+        //    Rot180(result, input, x, matrix.Length);
+
+        //    return result;
+        //}
+
+        //unsafe static double[] Transpose(double[,] matrix)
+        //{
+        //    int y = matrix.GetLength(0);
+        //    int x = matrix.GetLength(1);
+
+        //    var result = new double[y * x];
+        //    var input = ToLinearArray(matrix);
+
+        //    fixed (double* host_a = input, host_b = result)
+        //    {
+        //        transpose(host_b, host_a, x);
+        //        Marshal.Copy((IntPtr)host_b, result, 0, y * x);
+        //    }
+
+        //    return result;
+        //}
 
         static int[] TestPinvoke(int[] a, int[] b)
         {
@@ -104,10 +177,31 @@ namespace ConsoleApp1
         static void Main(string[] args)
         {
             //InitKernels();
-            const int size = 2;
-            const int deep = 2;
+            Run(args);
+        }
+
+        static void Run(string[] args)
+        {
+            const int size = 3;
+            const int deep = 1;
+
+            //var kernel = new double[,] {
+            //    { 2d, 2d, 2d, 2d, 2d, 2d, 2d },
+            //    { 2d, 2d, 2d, 2d, 2d, 2d, 2d },
+            //    { 2d, 2d, 2d, 2d, 2d, 2d, 2d },
+            //    { 2d, 2d, 2d, 2d, 2d, 2d, 2d },
+            //    { 2d, 2d, 2d, 2d, 2d, 2d, 2d },
+            //    { 2d, 2d, 2d, 2d, 2d, 2d, 2d },
+            //    { 2d, 2d, 2d, 2d, 2d, 2d, 2d }
+            //};
+
+            var kernel = new double[,] {
+                { 2d, 2d },
+                { 2d, 2d },
+            };
 
             var c = GetMatrixes(deep, size);
+            //var kernel = GetMatrixes(1, 2)[0];
 
             Console.WriteLine();
             //var aa = ToLinearArray(new float[1][,] { c[0] });
@@ -119,34 +213,87 @@ namespace ConsoleApp1
             var st = new Stopwatch();
             st.Start();
 
-            //Parallel.For(0, 1000, i => {
-            //    SumMatrixCpu(c);
+            //Parallel.For(0, 1000, i =>
+            //{
+            //    ConvolutionCPU(c[0], kernel);
             //});
-            SumMatrixCpu(c);
+            //SumMatrixCpu(c);
             //Console.WriteLine(string.Join(",", SumMatrixCpu(c)));
+
+            //var res1 = Rot90(c[0]);
+            //res1 = Rot90(res1);
+
+            //Parallel.For(0, 1000, i => { res1 = Rot90(c[0]); });
+            var res1 = ConvolutionCPU(c[0], kernel);
 
             Console.WriteLine($"CPU - {st.Elapsed}");
             //st.Restart();
 
-            //Parallel.For(0, 1000, i => { SumMatrixManagedCuda(c); });
             ////SumMatrixManagedCuda(c);
 
             //Console.WriteLine($"CUD - {st.Elapsed}");
-            st.Restart();
 
-            Console.WriteLine(string.Join(",", MatrixSum(c)));
-            //Parallel.For(0, 1000, i => { MatrixSum(c); });
+
+            st.Restart();
+            //var res = Rot90Wrapper(c[0]);
+            var res = Convolution(c[0], kernel);
+
+            //Parallel.For(0, 1000, i => { Convolution(c[0], kernel); });
+
+            //for (var i= 0; i < 1000; i++)
+            //    res = Transpose2(c[0]);
+
             //MatrixSum(c);
 
             Console.WriteLine($"GPU - {st.Elapsed}");
+
+            Show2dArray(res1);
+            //Show2dArray(c[0]);
+            Console.WriteLine();
+            Show2dArray(res);
+            //Console.WriteLine(string.Join(",", res));
+
             var key = Console.ReadKey();
 
-            Main(args);
+            Run(args);
+        }
+
+        static void Show2dArray(double[] arr, int stride)
+        {
+            var height = arr.Length / stride;
+            var width = stride;
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    Console.Write($" {arr[y * stride + x]}");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void Show2dArray(double[,] arr)
+        {
+            var height = arr.GetLength(0);
+            var width = arr.GetLength(1);
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    Console.Write($" {arr[y, x]}");
+                }
+
+                Console.WriteLine();
+            }
         }
 
         static double[][,] GetMatrixes(int deep, int width)
         {
             var c = new double[deep][,];
+            var value = 0;
 
             for (var i = 0; i < deep; i++)
             {
@@ -154,13 +301,34 @@ namespace ConsoleApp1
 
                 for (var y = 0; y < c[i].GetLength(0); y++)
                     for (var x = 0; x < c[i].GetLength(1); x++)
-                        c[i][y, x] = i + 1;
+                        c[i][y, x] = i + (++value);
+
+                value = 0;
             }
 
             return c;
         }
 
-        static float[][,] GetMatrixesFloat(int deep, int width)
+        public static unsafe double[,] Rot90(double[,] input)
+        {
+            if (input == null || input.Length == 0)
+                return null;
+
+            var height = input.GetLength(0);
+            var width = input.GetLength(1);
+            var result = new double[width, height];
+            var resultHeight = input.GetLength(0);
+            var resultWidth = input.GetLength(1);
+
+            fixed (double* v = input, r = result)
+                for (var y = 0; y < resultHeight; y++)
+                    for (var x = 0; x < resultWidth; x++)
+                        r[y * resultWidth + x] = v[(height - 1 - x) * width + (y)];
+
+            return result;
+        }
+
+        float[][,] GetMatrixesFloat(int deep, int width)
         {
             var c = new float[deep][,];
 
@@ -176,7 +344,7 @@ namespace ConsoleApp1
             return c;
         }
 
-        static double[] SumMatrixCpu(double[][,] matrix)
+        double[] SumMatrixCpu(double[][,] matrix)
         {
             int Z = matrix.Length;
             int Y = matrix[0].GetLength(0);
@@ -195,7 +363,7 @@ namespace ConsoleApp1
             return result;
         }
 
-        static float[,] SumMatrixCpu(float[][,] matrix)
+        float[,] SumMatrixCpu(float[][,] matrix)
         {
             int Z = matrix.Length;
             int Y = matrix[0].GetLength(0);
@@ -214,7 +382,7 @@ namespace ConsoleApp1
             return result;
         }
 
-        static double[] SumMatrixManagedCuda(double[][,] matrix)
+        double[] SumMatrixManagedCuda(double[][,] matrix)
         {
             int Z = matrix.Length;
             int Y = matrix[0].GetLength(0);
@@ -247,7 +415,7 @@ namespace ConsoleApp1
             return result;
         }
 
-        static double[,] SumMatrixCuda(double[][,] matrix)
+        double[,] SumMatrixCuda(double[][,] matrix)
         {
             //matrixSumCude.GridDimensions = new dim3(784, 1, 1);
             //matrixSumCude.BlockDimensions = new dim3(1, 1, 1);
@@ -305,7 +473,7 @@ namespace ConsoleApp1
             return result;
         }
 
-        static float[] ToLinearArray(float[,] input)
+        float[] ToLinearArray(float[,] input)
         {
             int dimX = input.GetLength(0);
             int dimY = input.GetLength(1);
@@ -322,7 +490,7 @@ namespace ConsoleApp1
             return result;
         }
 
-        static double[] ToLinearArray(double[][,] outputs)
+        double[] ToLinearArray(double[][,] outputs)
         {
             var imageHeight = outputs[0].GetLength(0);
             var imageWidth = outputs[0].GetLength(1);
@@ -343,7 +511,7 @@ namespace ConsoleApp1
             return result;
         }
 
-        static float[] ToLinearArray(float[][,] outputs)
+        float[] ToLinearArray(float[][,] outputs)
         {
             var imageHeight = outputs[0].GetLength(0);
             var imageWidth = outputs[0].GetLength(1);
@@ -364,7 +532,7 @@ namespace ConsoleApp1
             return result;
         }
 
-        static IntPtr Array3DToIntPtr(double[][,] Val)
+        IntPtr Array3DToIntPtr(double[][,] Val)
         {
             IntPtr ret = Marshal.AllocHGlobal((Val.GetLength(0) + Val[0].GetLength(0) + Val[0].GetLength(1)) * sizeof(double));
 
@@ -388,7 +556,7 @@ namespace ConsoleApp1
             return ret;
         }
 
-        static IntPtr Array2DToIntPtr(double[,] Val)
+        IntPtr Array2DToIntPtr(double[,] Val)
         {
             IntPtr ret = Marshal.AllocHGlobal((Val.GetLength(0) + Val.GetLength(1)) * sizeof(double));
             int offset = 0;
@@ -406,6 +574,27 @@ namespace ConsoleApp1
             }
 
             return ret;
+        }
+
+        public static unsafe double[,] ConvolutionCPU(double[,] matrix, double[,] kernel, int step = 1)
+        {
+            var matrixHeight = matrix.GetLength(0);
+            var matrixWidth = matrix.GetLength(1);
+            var kernelHeight = kernel.GetLength(0);
+            var kernelWidth = kernel.GetLength(1);
+            var outputHeight = matrixHeight - kernelHeight + step;
+            var outputWidth = matrixWidth - kernelWidth + step;
+
+            var output = new double[outputHeight, outputWidth];
+
+            fixed (double* m = matrix, k = kernel, o = output)
+                for (var y = 0; y < outputHeight; y++)
+                    for (var x = 0; x < outputWidth; x++)
+                        for (var h = 0; h < kernelHeight; h++)
+                            for (var w = 0; w < kernelWidth; w++)
+                                o[y * outputWidth + x] += (m[((y + h) * matrixWidth + x + w)] * k[h * kernelWidth + w]);
+
+            return output;
         }
     }
 }
