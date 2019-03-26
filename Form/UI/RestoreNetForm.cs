@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ScannerNet.Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -71,17 +72,36 @@ namespace Sobel.UI
             }
         }
 
+        private Bitmap result = null;
+        
         private void restorePictureButton_Click(object sender, EventArgs e)
         {
             var image = (Bitmap)this.actualPicture.Image;
 
-            this.actualPicture.Image = null;
-            this.actualPicture.Image = net.Restore(image);
+//            this.actualPicture.Image = null;
+            result = net.Restore(image);
+            this.actualPicture.Image = result;
         }
 
         private void stopTeachButton_Click(object sender, EventArgs e)
         {
             net.Running = false;
+        }
+
+        private void toBppButtom_Click(object sender, EventArgs e)
+        {
+            this.actualPicture.Image = ((Bitmap)this.actualPicture.Image.Clone()).To1bpp2(3, 0);
+        }
+
+        private void saveResultPictureButton_Click(object sender, EventArgs e)
+        {
+            var open = new SaveFileDialog();
+            open.Filter = "Image File(*.png)|*.png";
+
+            if (result != null && open.ShowDialog() == DialogResult.OK)
+            {
+                result.Save(open.FileName);
+            }
         }
     }
 }

@@ -36,11 +36,13 @@
             this.errorLabel = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.stopTeachButton = new System.Windows.Forms.Button();
             this.restorePictureButton = new System.Windows.Forms.Button();
             this.teachButton = new System.Windows.Forms.Button();
             this.loadExpectedPictureButton = new System.Windows.Forms.Button();
             this.loadActualPictureButton = new System.Windows.Forms.Button();
-            this.stopTeachButton = new System.Windows.Forms.Button();
+            this.toBppButtom = new System.Windows.Forms.Button();
+            this.saveResultPictureButton = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.expectedPicture)).BeginInit();
@@ -133,6 +135,8 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.saveResultPictureButton);
+            this.panel2.Controls.Add(this.toBppButtom);
             this.panel2.Controls.Add(this.stopTeachButton);
             this.panel2.Controls.Add(this.restorePictureButton);
             this.panel2.Controls.Add(this.teachButton);
@@ -143,6 +147,17 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(394, 1468);
             this.panel2.TabIndex = 4;
+            // 
+            // stopTeachButton
+            // 
+            this.stopTeachButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.stopTeachButton.Location = new System.Drawing.Point(21, 323);
+            this.stopTeachButton.Name = "stopTeachButton";
+            this.stopTeachButton.Size = new System.Drawing.Size(352, 74);
+            this.stopTeachButton.TabIndex = 7;
+            this.stopTeachButton.Text = "Stop teach";
+            this.stopTeachButton.UseVisualStyleBackColor = true;
+            this.stopTeachButton.Click += new System.EventHandler(this.stopTeachButton_Click);
             // 
             // restorePictureButton
             // 
@@ -188,16 +203,27 @@
             this.loadActualPictureButton.UseVisualStyleBackColor = true;
             this.loadActualPictureButton.Click += new System.EventHandler(this.loadActualPictureButton_Click);
             // 
-            // stopTeachButton
+            // toBppButtom
             // 
-            this.stopTeachButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.stopTeachButton.Location = new System.Drawing.Point(21, 323);
-            this.stopTeachButton.Name = "stopTeachButton";
-            this.stopTeachButton.Size = new System.Drawing.Size(352, 74);
-            this.stopTeachButton.TabIndex = 7;
-            this.stopTeachButton.Text = "Stop teach";
-            this.stopTeachButton.UseVisualStyleBackColor = true;
-            this.stopTeachButton.Click += new System.EventHandler(this.stopTeachButton_Click);
+            this.toBppButtom.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.toBppButtom.Location = new System.Drawing.Point(21, 697);
+            this.toBppButtom.Name = "toBppButtom";
+            this.toBppButtom.Size = new System.Drawing.Size(352, 74);
+            this.toBppButtom.TabIndex = 8;
+            this.toBppButtom.Text = "ToBpp";
+            this.toBppButtom.UseVisualStyleBackColor = true;
+            this.toBppButtom.Click += new System.EventHandler(this.toBppButtom_Click);
+            // 
+            // saveResultPictureButton
+            // 
+            this.saveResultPictureButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.saveResultPictureButton.Location = new System.Drawing.Point(21, 797);
+            this.saveResultPictureButton.Name = "saveResultPictureButton";
+            this.saveResultPictureButton.Size = new System.Drawing.Size(352, 74);
+            this.saveResultPictureButton.TabIndex = 9;
+            this.saveResultPictureButton.Text = "Save result picture";
+            this.saveResultPictureButton.UseVisualStyleBackColor = true;
+            this.saveResultPictureButton.Click += new System.EventHandler(this.saveResultPictureButton_Click);
             // 
             // RestoreNetForm
             // 
@@ -233,5 +259,7 @@
         private System.Windows.Forms.Button loadActualPictureButton;
         private System.Windows.Forms.Button restorePictureButton;
         private System.Windows.Forms.Button stopTeachButton;
+        private System.Windows.Forms.Button toBppButtom;
+        private System.Windows.Forms.Button saveResultPictureButton;
     }
 }

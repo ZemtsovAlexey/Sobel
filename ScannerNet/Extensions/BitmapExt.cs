@@ -514,8 +514,6 @@ namespace ScannerNet.Extensions
 
             for (var y = 0; y < height; y++)
             {
-                byte c = 255;
-
                 var row = (byte*)bitmapData.Scan0 + (y * bitmapData.Stride);
                 var newRow = (byte*)newBitmapData.Scan0 + (y * newBitmapData.Stride);
 
@@ -529,6 +527,7 @@ namespace ScannerNet.Extensions
                     var kXStart = Math.Max(0, x - ((kernel - 1) / 2));
                     var kW = Math.Min(width - 1, x + ((kernel - 1) / 2) + 1);
 
+                    byte c = 255;
                     var averege = 0d;
                     var min = 255d;
                     var max = 0d;
@@ -553,25 +552,25 @@ namespace ScannerNet.Extensions
 
                     var rowPix = GetPixelBright(row, step, columnOffset);
 
-                    if (d > 20)
+                    if (d > 15)
                     {
                         c = rowPix < averege ? byte.MinValue : byte.MaxValue;
                     }
                     else if ((byte) averege == rowPix)
                     {
-                        c = rowPix > 130 ? byte.MaxValue : byte.MinValue;
+                        c = rowPix > diff ? byte.MaxValue : byte.MinValue;
                     }
                     else
                     {
-                        //c = 
-                        //    (byte)averege == byte.MaxValue 
-                        //    ? byte.MaxValue 
-                        //    : (byte)averege == byte.MinValue 
-                        //        ? byte.MinValue 
-                        //        : 
-                        //        averege - min < max - averege 
-                        //            ? byte.MinValue 
-                        //            : byte.MaxValue; 
+//                        c = 
+//                            (byte)averege == byte.MaxValue 
+//                            ? byte.MaxValue 
+//                            : (byte)averege == byte.MinValue 
+//                                ? byte.MinValue 
+//                                : 
+//                                averege - min < max - averege 
+//                                    ? byte.MinValue 
+//                                    : byte.MaxValue; 
                     }
 //                        c = byte.MaxValue;
                     

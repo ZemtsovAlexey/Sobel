@@ -30,12 +30,14 @@ namespace Sobel.UI
             Network = new Network();
             
             Network.InitLayers(shape, shape,
-                new ConvolutionLayer(ActivationType.BipolarSigmoid, 8, 3, true),
+                new ConvolutionLayer(ActivationType.BipolarSigmoid, 18, 3, true),
 //                new MaxPoolingLayer(2),
 //                new ConvolutionLayer(ActivationType.BipolarSigmoid, 16, 3, true),
-//                new ConvolutionLayer(ActivationType.ReLu, 16, 3),
-                new FullyConnectedLayer(36, ActivationType.BipolarSigmoid),
-                new FullyConnectedLayer(18, ActivationType.BipolarSigmoid),
+//                new ConvolutionLayer(ActivationType.BipolarSigmoid, 18, 3, true),
+                new FullyConnectedLayer(32, ActivationType.BipolarSigmoid),
+                new FullyConnectedLayer(20, ActivationType.BipolarSigmoid),
+                new FullyConnectedLayer(15, ActivationType.BipolarSigmoid),
+//                new FullyConnectedLayer(10, ActivationType.BipolarSigmoid),
                 new FullyConnectedLayer(shapeOut * shapeOut, ActivationType.BipolarSigmoid)
             );
             
@@ -45,21 +47,25 @@ namespace Sobel.UI
         public Bitmap Restore(Bitmap actual)
         {
             var actualMap = actual.GetDoubleMatrix(invert: false, optimize: false);
-            var expectedMap = new double[actualMap.GetLength(0), actualMap.GetLength(1)];
-            var height = expectedMap.GetLength(0) - shape;
-            var width = expectedMap.GetLength(1) - shape;
+            var height = actualMap.GetLength(0);// - shape;
+            var width = actualMap.GetLength(1);// - shape;
+            var resultMap = new double[height, width];
 
-            /*Parallel.For(0, height, y =>
+            for (var y = 0; y < height - shape; y = y + shapeOut)
             {
-                Parallel.For(0, width, x =>
+                for (var x = 0; x < width - shape; x = x + shapeOut)
                 {
+//                    if (actualMap[y + shapeDiff, x + shapeDiff] >= 255d)
+//                        continue;
+                    
                     var input = new double[shape, shape];
                     
                     for (var h = 0; h < shape; h++)
                     {
                         for (var w = 0; w < shape; w++)
                         {
-                            input[h, w] = actualMap[y + h, x + w];
+                            var value = actualMap[y + h, x + w];
+                            input[h, w] = value;
                         }
                     }
                     
@@ -69,13 +75,14 @@ namespace Sobel.UI
                     {
                         for (var w = 0; w < shapeOut; w++)
                         {
-                            actualMap[y + shapeDiff + h, x + shapeDiff + w] = result[h * shapeOut + w];
+                            resultMap[y + shapeDiff + h, x + shapeDiff + w] = result[h * shapeOut + w];
                         }
                     }
-                });
-            });*/
+
+                }
+            }
            
-            for (var y = 0; y < height; y = y + shapeOut)
+            /*for (var y = 0; y < height; y = y + shapeOut)
             {
                 for (var x = 0; x < width; x = x + shapeOut)
                 {
@@ -100,9 +107,9 @@ namespace Sobel.UI
                     }
 
                 }
-            }
+            }*/
 
-            return actualMap.ToBitmap();
+            return resultMap.ToBitmap();
         }
         
         public void Learn(Bitmap actual, Bitmap expected, double learningRate)
@@ -131,16 +138,20 @@ namespace Sobel.UI
                         if (!Running)
                             return;
                         
+//                        if (actualMap[y + shapeDiff, x + shapeDiff] >= 255d)
+//                            continue;
+                        
                         var input = new double[shape, shape];
                     
                         for (var h = 0; h < shape; h++)
                         {
                             for (var w = 0; w < shape; w++)
                             {
-                                input[h, w] = actualMap[y + h, x + w];
+                                var value = actualMap[y + h, x + w];
+                                input[h, w] = value;
                             }
                         }
-                    
+                        
                         var expectedOutput = new double[shapeOut * shapeOut];
                     
                         for (var h = 0; h < shapeOut; h++)
