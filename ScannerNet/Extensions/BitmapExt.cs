@@ -90,8 +90,8 @@ namespace ScannerNet.Extensions
 
             return result;
         }
-        
-        public static double[,] GetDoubleMatrix(this Bitmap bitmap, double delimetr = 255f, bool invert = true)
+
+        public static double[,] GetDoubleMatrix(this Bitmap bitmap, double delimetr = 255f, bool invert = true, bool optimize = true)
         {
             var result = new double[bitmap.Height, bitmap.Width];
             var procesBitmap = (Bitmap)bitmap.Clone();
@@ -102,26 +102,31 @@ namespace ScannerNet.Extensions
             {
                 int imageHeight = procesBitmap.Height;
                 int imageWidth = procesBitmap.Width;
-                
+
                 Parallel.For(0, imageHeight, (int y) =>
                 {
                     var pRow = (byte*)bitmapData.Scan0 + y * bitmapData.Stride;
-                    
+                    var length = optimize ? result.Length : 1;
+
                     Parallel.For(0, imageWidth, (int x) =>
                     {
                         var offset = x * step;
-                        result[y, x] = step == 1 
-                            ? (invert ? 1 - (pRow[offset] / delimetr) : (pRow[offset] / delimetr)) 
-                            : (invert ? 1 - (((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / delimetr) : (((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / delimetr));
+                        result[y, x] = step == 1
+                            ? (invert
+                                  ? 1 - (pRow[offset] / delimetr)
+                                  : (pRow[offset] / delimetr)) / length
+                            : (invert
+                                ? 1 - (((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / delimetr)
+                                : (((pRow[offset + 2] + pRow[offset + 1] + pRow[offset]) / 3) / delimetr)) / length;
                     });
                 });
             }
-            
+
             procesBitmap.UnlockBits(bitmapData);
 
             return result;
         }
-        
+
         public static byte[,] GetByteMatrix(this Bitmap bitmap)
         {
             var result = new byte[bitmap.Height, bitmap.Width];

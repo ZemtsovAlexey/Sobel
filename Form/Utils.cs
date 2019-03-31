@@ -550,18 +550,20 @@ namespace Sobel
             return bitmap;
         }
 
-        public static (string symble, int position) RandomSymble(this Random random)
+        public static (string symble, int position) RandomSymble(this Random random, string chars = null)
         {
-//            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-//            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var chars = " ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮ0123456789ёйцукенгшщзхъфывапролджэячсмитьбю/.,\"";
-//            var chars = "аоеиы";
+            //            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            //            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            //            var chars = " ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮ0123456789ёйцукенгшщзхъфывапролджэячсмитьбю/.,\"";
+            chars = string.IsNullOrEmpty(chars) ? "0123456789ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮёйцукенгшщзхъфывапролджэячсмитьбю" : chars;
+            //            var chars = "0123456789 ёйцукенгшщзхъфывапролджэячсмитьбю/.,\"";
+            //            var chars = "аоеиы";
             var number = random.Next(chars.Length);
             var finalString = new String(new[] { chars[number] });
 
             return (finalString, number);
         }
-        
+
         private static Graphics ShowDifferentVert(Bitmap bmp, int pixelPositiov)
         {
             Pen pen = new Pen(Color.DarkRed, 0.5f);

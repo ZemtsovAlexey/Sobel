@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using Neuro.Layers;
 using Neuro.Learning;
+using Neuro.Models;
 using Neuro.Networks;
 using Neuro.Neurons;
 using ScannerNet.Extensions;
@@ -25,23 +26,30 @@ namespace Sobel.Neronet
 
             Network = new Network();
 
-            Network.InitLayers(26, 26,
-                //new ConvolutionLayer(relu, 8, 3),//24
-                //new MaxPoolingLayer(2),//12
-                //new ConvolutionLayer(relu, 16, 3),//10
-                //new MaxPoolingLayer(2),//5
+            Network.InitLayers(16, 16,
+                new ConvolutionLayer(activation, 16, 5),//12
+                new MaxPoolingLayer(2),//6
+                new MaxPoolingLayer(2),//3
                 //new FullyConnectedLayer(100, activation),
-                new FullyConnectedLayer(500, activation),
-                new FullyConnectedLayer(500, activation),
-                new FullyConnectedLayer(1, activation)
+                new FullyConnectedLayer(100, activation),
+                new FullyConnectedLayer(100, activation),
+                new FullyConnectedLayer(100, activation),
+                new FullyConnectedLayer(100, activation),
+                new FullyConnectedLayer(100, activation),
+                new FullyConnectedLayer(75, activation)
                 );
-            
+
             Network.Randomize();
         }
-        
+
         public double[] Compute(Bitmap bmp)
         {
             return Network.Compute(bmp.GetDoubleMatrix());
+        }
+
+        public double[] Compute(Matrix bmp)
+        {
+            return Network.Compute(bmp.Value);
         }
 
         public void SearchSolution(Bitmap bmp, double[] outputs)

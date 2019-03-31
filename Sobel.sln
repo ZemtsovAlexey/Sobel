@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neuro.GPU", "Neuro.GPU\Neuro.GPU.csproj", "{DE96D50A-6FCE-479E-B508-4FEB827EFE9D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CudaTest", "CudaTest\CudaTest.vcxproj", "{80F225D6-CBEE-4D83-818D-7C539D98288C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CudaNeuroSDK", "CudaNeuroSDK\CudaNeuroSDK.vcxproj", "{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -125,18 +125,16 @@ Global
 		{DE96D50A-6FCE-479E-B508-4FEB827EFE9D}.Release|x64.Build.0 = Release|Any CPU
 		{DE96D50A-6FCE-479E-B508-4FEB827EFE9D}.Release|x86.ActiveCfg = Release|Any CPU
 		{DE96D50A-6FCE-479E-B508-4FEB827EFE9D}.Release|x86.Build.0 = Release|Any CPU
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Debug|Win32.ActiveCfg = Debug|x64
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Debug|Win32.Build.0 = Debug|x64
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Debug|x64.ActiveCfg = Debug|x64
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Debug|x64.Build.0 = Debug|x64
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Debug|x86.ActiveCfg = Debug|x64
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Release|Any CPU.ActiveCfg = Release|x64
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Release|Win32.ActiveCfg = Release|Win32
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Release|Win32.Build.0 = Release|Win32
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Release|x64.ActiveCfg = Release|x64
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Release|x64.Build.0 = Release|x64
-		{80F225D6-CBEE-4D83-818D-7C539D98288C}.Release|x86.ActiveCfg = Release|x64
+		{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}.Debug|Win32.ActiveCfg = Debug|x64
+		{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}.Debug|x64.ActiveCfg = Debug|x64
+		{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}.Debug|x64.Build.0 = Debug|x64
+		{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}.Debug|x86.ActiveCfg = Debug|x64
+		{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}.Release|Any CPU.ActiveCfg = Release|x64
+		{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}.Release|Win32.ActiveCfg = Release|x64
+		{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}.Release|x64.ActiveCfg = Release|x64
+		{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}.Release|x64.Build.0 = Release|x64
+		{1439BCFF-20C9-47D6-BD6B-044866DBF2DD}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

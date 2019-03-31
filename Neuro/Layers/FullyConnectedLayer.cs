@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace Neuro.Layers
         public FullyConnectedNeuron this[int index] => Neurons[index];
         public IActivationFunction Function { get; }
 
-        [DllImport("C:\\work\\Sobel\\x64\\Debug\\CudaTest.dll")]
+        [DllImport("C:\\git_my\\Sobel\\x64\\Debug\\CudaNeuroSDK.dll")]
         public extern static void Multiply2GPU(double[] output, double[] input, double[] weights, int len, int wlen, int nlen);
 
         public FullyConnectedLayer(int neuronsCount, ActivationType activationType)
@@ -64,8 +65,17 @@ namespace Neuro.Layers
 
         public double[] Compute(double[] inputs)
         {
-            return ComputeGPU(inputs);
+            //var st = Stopwatch.StartNew();
+            //return ComputeGPU(inputs);
+
+            //st.Stop();
+            //Console.WriteLine($"gpu - {st.Elapsed}");
+            //st.Restart();
+
             var outputs = Neurons.AsParallel().Select(n => n.Compute(inputs)).ToArray();
+
+            //st.Stop();
+            //Console.WriteLine($"cpu - {st.Elapsed}");
 
             Outputs = outputs;
             
@@ -79,10 +89,10 @@ namespace Neuro.Layers
 
             Multiply2GPU(outputs, inputs, weights, inputs.Length, weights.Length, Neurons.Length);
             var a = Neurons[0].Function;
-            outputs = outputs.Select(x => a.Activation(x)).ToArray();
             
             for (var i = 0; i < outputs.Length; i++)
             {
+                outputs[i] = a.Activation(outputs[i]);
                 Neurons[i].Output = outputs[i];
             }
 
