@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Neuro.ActivationFunctions;
+﻿using Neuro.ActivationFunctions;
 using Neuro.Domain.Layers;
 using Neuro.Models;
 using Neuro.Neurons;
+using System;
+using System.Linq;
 
 namespace Neuro.Layers
 {
@@ -17,7 +16,7 @@ namespace Neuro.Layers
         public int NeuronsCount => Neurons.Length;
         public FullyConnectedNeuron this[int index] => Neurons[index];
         public IActivationFunction Function { get; }
-        
+
         public FullyConnectedLayer(int neuronsCount, ActivationType activationType)
         {
             ActivationFunctionType = activationType;
@@ -27,12 +26,12 @@ namespace Neuro.Layers
             Outputs = new double[neuronsCount];
 
         }
-        
+
         public FullyConnectedLayer(int neuronsCount, int inputsCount, IActivationFunction activationFunction)
         {
             neuronsCount = Math.Max(1, neuronsCount);
             Neurons = new FullyConnectedNeuron[neuronsCount];
-            
+
             for (var i = 0; i < neuronsCount; i++)
             {
                 Neurons[i] = new FullyConnectedNeuron(inputsCount, activationFunction);
@@ -49,7 +48,7 @@ namespace Neuro.Layers
                 Neurons[i] = new FullyConnectedNeuron(inputsCount, Function);
             }
         }
-        
+
         public void Randomize()
         {
             foreach (var neuron in Neurons)
@@ -60,10 +59,13 @@ namespace Neuro.Layers
 
         public double[] Compute(double[] inputs)
         {
+            //for (var i = 0; i < inputs.Length; i++)
+            //    inputs[i] /= inputs.Length;
+
             var outputs = Neurons.Select(n => n.Compute(inputs)).ToArray();
 
             Outputs = outputs;
-            
+
             return outputs;
         }
     }

@@ -17,7 +17,7 @@ namespace ScannerNet.Models
             NeuronsCount = neuronsCount;
             KernelSize = kernelSize;
 
-            if (type == LayerType.MaxPoolingLayer)
+            if (type == LayerType.MaxPoolingLayer || type == LayerType.AvgPoolingLayer)
             {
                 ActivationDisable = true;
             }

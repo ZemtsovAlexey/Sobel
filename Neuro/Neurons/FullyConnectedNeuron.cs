@@ -12,8 +12,8 @@ namespace Neuro.Neurons
         public double[] Weights { get; set; }
         public double Output { get; private set; }
         public IActivationFunction Function { get; }
-        
-        private static readonly Random Random = new Random((int) DateTime.Now.Ticks);
+
+        private static readonly Random Random = new Random((int)DateTime.Now.Ticks);
 
         public FullyConnectedNeuron(int inputsCount, IActivationFunction function)
         {
@@ -26,19 +26,17 @@ namespace Neuro.Neurons
         {
             for (var i = 0; i < Weights.Length; i++)
             {
-                Weights[i] = Random.NextFloat() * (Function.MaxRange - Function.MinRange) + Function.MinRange;
+                Weights[i] = Random.NextDouble() * (Function.MaxRange - Function.MinRange) + Function.MinRange;
             }
         }
 
-        public double Compute(double[] input)
+        public unsafe double Compute(double[] input)
         {
             double e = 0;
-            unsafe
-            {
-                fixed (double* w = Weights, i = input)
-                    for (var n = 0; n < input.Length; n++)
-                        e += w[n] * i[n];
-            }
+
+            fixed (double* w = Weights, i = input)
+                for (var n = 0; n < input.Length; n++)
+                    e += w[n] * i[n];
 
             var output = Function.Activation(e);
 

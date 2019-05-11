@@ -1,6 +1,8 @@
 ﻿using System.Drawing;
+using Neuro.Extensions;
 using Neuro.Layers;
 using Neuro.Learning;
+using Neuro.Models;
 using Neuro.Networks;
 using Neuro.Neurons;
 using ScannerNet.Extensions;
@@ -20,28 +22,31 @@ namespace Sobel.Neronet
 
         public BackPropoginationNew()
         {
-            var activation = ActivationType.BipolarSigmoid;
-            var relu = ActivationType.ReLu;
+            var function = ActivationType.Sigmoid;
 
             Network = new Network();
 
-            Network.InitLayers(26, 26,
-                new ConvolutionLayer(relu, 8, 3),//24
-                new MaxPoolingLayer(2),//12
-                new ConvolutionLayer(relu, 16, 3),//10
-                new MaxPoolingLayer(2),//5
-                //new FullyConnectedLayer(100, activation),
-                new FullyConnectedLayer(50, activation),
-                new FullyConnectedLayer(50, activation),
-                new FullyConnectedLayer(1, activation)
+            Network.InitLayers(28, 28,
+                //new ConvolutionLayer(function, 8, 5),//24
+                //new MaxPoolingLayer(2),
+                //new ConvolutionLayer(function, 16, 3),//10
+                //new MaxPoolingLayer(2),//10
+                new FullyConnectedLayer(50, function),
+                new FullyConnectedLayer(20, function),
+                new FullyConnectedLayer(10, function)
                 );
-            
+
             Network.Randomize();
         }
         
         public double[] Compute(Bitmap bmp)
         {
             return Network.Compute(bmp.GetDoubleMatrix());
+        }
+
+        public double[] Compute(Matrix bmp)
+        {
+            return Network.Compute(bmp.Value);
         }
 
         public void SearchSolution(Bitmap bmp, double[] outputs)

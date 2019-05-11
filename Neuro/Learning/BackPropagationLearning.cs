@@ -276,7 +276,9 @@ namespace Neuro.Learning
                 }
             });
 
-            var input = convLayers.Length > 0 ? convLayers.Last().Outputs.To1DArray() : matrix.To1DArray();
+            var input = convLayers.Length > 0 
+                ? convLayers.Last().Outputs.To1DArray()
+                : matrix.To1DArray();
             var layersCount = fullyConnectedLayers.Count();
 
             Parallel.For(0, layersCount, l =>

@@ -50,6 +50,10 @@ namespace Neuro.Layers
 
         public Matrix[] Compute(Matrix[] input)
         {
+            //for (var i = 0; i < input.Length; i++)
+            //    input[i] /= input[i].Length;
+
+
             var outputs = Neurons.Select(n => n.Compute(input)).ToArray();
 
             Outputs = outputs;

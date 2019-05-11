@@ -20,7 +20,7 @@ namespace Neuro.Networks
         {
             inputWidth = shapeX;
             inputHeight = shapeY;
-            var neuronsCount = 0;
+            var neuronsCount = 1;
             Layers = new ILayer[layers.Length];
 
             int inputLength = shapeX * shapeY;
@@ -65,7 +65,24 @@ namespace Neuro.Networks
                     shapeY = layer.OutputHeight;
                     neuronsCount = layer.NeuronsCount;
                 }
-                
+
+                if (layers[i].Type == LayerType.AvgPoolingLayer)
+                {
+                    var layer = (IAvgPoolingLayer)layers[i];
+
+                    if (shapeX % layer.KernelSize != 0 || shapeY % layer.KernelSize != 0)
+                    {
+                        throw new ArgumentException($"Слой №{i}. Размер входного изображения ({shapeX}x{shapeY}) должен быть кратным размеру ядра ({layer.KernelSize})");
+                    }
+
+                    layer.Init(neuronsCount, shapeX, shapeY);
+
+                    inputLength = layer.OutputHeight * layer.OutputWidht * layer.NeuronsCount;
+                    shapeX = layer.OutputWidht;
+                    shapeY = layer.OutputHeight;
+                    neuronsCount = layer.NeuronsCount;
+                }
+
                 Layers[i] = layers[i];
             }
         }
@@ -153,7 +170,7 @@ namespace Neuro.Networks
                             layerSaveData.ConvNeurons.Add(new ConvNeuronSaveData
                             {
                                 KernelSize = neuron.Weights.GetLength(0),
-                                Weights = neuron.Weights.Value,
+                                //Weights = neuron.Weights.Value,
                                 Bias = neuron.Bias
                             });
                         }

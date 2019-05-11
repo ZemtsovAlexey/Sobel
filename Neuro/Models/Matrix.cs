@@ -23,8 +23,8 @@ namespace Neuro.Models
 
         public static Matrix operator +(Matrix a, Matrix b)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (a.Value == null || a.Value?.Length == 0)
                 throw new ArgumentNullException(nameof(a));
 
@@ -34,8 +34,8 @@ namespace Neuro.Models
             if (a.Value.Length != b.Value.Length)
                 throw new Exception("Matrix size of \"a\" not equal to size of \"b\"");
 
-            #endif
-            
+#endif
+
             var height = a.Value.GetLength(0);
             var width = a.Value.GetLength(1);
             var result = new double[height, width];
@@ -49,16 +49,16 @@ namespace Neuro.Models
 
         public static Matrix operator -(Matrix a, Matrix b)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (a.Value == null || a.Value?.Length == 0)
                 throw new ArgumentNullException(nameof(a));
 
             if (b.Value == null || b.Value?.Length == 0)
                 throw new ArgumentNullException(nameof(b));
 
-            #endif
-            
+#endif
+
             if (a.Value.Length != b.Value.Length)
                 throw new Exception("Matrix size of \"a\" not equal to size of \"b\"");
 
@@ -75,13 +75,13 @@ namespace Neuro.Models
 
         public static Matrix operator -(Matrix a, double value)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (a.Value == null || a.Value?.Length == 0)
                 throw new ArgumentNullException(nameof(a));
 
-            #endif
-            
+#endif
+
             var height = a.Value.GetLength(0);
             var width = a.Value.GetLength(1);
             var result = new double[height, width];
@@ -95,29 +95,29 @@ namespace Neuro.Models
 
         public static unsafe Matrix operator +(Matrix a, double value)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (a.Value == null || a.Value?.Length == 0)
                 throw new ArgumentNullException(nameof(a));
 
-            #endif
-            
+#endif
+
             var height = a.Value.GetLength(0);
             var width = a.Value.GetLength(1);
             var result = new double[height, width];
 
             fixed (double* v = a.Value, r = result)
                 for (var y = 0; y < height; y++)
-                for (var x = 0; x < width; x++)
-                    r[y * width + x] = v[y * width + x] + value;
+                    for (var x = 0; x < width; x++)
+                        r[y * width + x] = v[y * width + x] + value;
 
             return new Matrix(result);
         }
 
         public static Matrix operator *(Matrix a, Matrix b)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (a.Value == null || a.Value?.Length == 0)
                 throw new ArgumentNullException(nameof(a));
 
@@ -127,8 +127,8 @@ namespace Neuro.Models
             if (a.Value.Length != b.Value.Length)
                 throw new Exception("Matrix size of \"a\" not equal to size of \"b\"");
 
-            #endif
-            
+#endif
+
             var height = a.Value.GetLength(0);
             var width = a.Value.GetLength(1);
             var result = new double[height, width];
@@ -142,37 +142,37 @@ namespace Neuro.Models
 
         public static unsafe Matrix operator *(Matrix matrix, Func<double, double> func)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (matrix.Value == null || matrix.Value.Length == 0)
                 throw new ArgumentNullException(nameof(matrix));
 
             if (func == null)
                 throw new ArgumentNullException(nameof(func));
 
-            #endif
-            
+#endif
+
             var matrixHeight = matrix.Value.GetLength(0);
             var matrixWidth = matrix.Value.GetLength(1);
             var output = new double[matrixHeight, matrixWidth];
 
             fixed (double* v = output, m = matrix.Value)
                 for (var y = 0; y < matrixHeight; y++)
-                for (var x = 0; x < matrixWidth; x++)
-                    v[y * matrixWidth + x] = func.Invoke(m[y * matrixWidth + x]);
+                    for (var x = 0; x < matrixWidth; x++)
+                        v[y * matrixWidth + x] = func.Invoke(m[y * matrixWidth + x]);
 
             return new Matrix(output);
         }
 
         public static Matrix operator *(Matrix matrix, double value)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (matrix.Value == null || matrix.Value.Length == 0)
                 throw new ArgumentNullException(nameof(matrix));
 
-            #endif
-            
+#endif
+
             var matrixHeight = matrix.Value.GetLength(0);
             var matrixWidth = matrix.Value.GetLength(1);
             var output = new double[matrixHeight, matrixWidth];
@@ -186,13 +186,13 @@ namespace Neuro.Models
 
         public static Matrix operator /(Matrix matrix, double value)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (matrix.Value == null || matrix.Value.Length == 0)
                 throw new ArgumentNullException(nameof(matrix));
 
-            #endif
-            
+#endif
+
             var matrixHeight = matrix.Value.GetLength(0);
             var matrixWidth = matrix.Value.GetLength(1);
             var output = new double[matrixHeight, matrixWidth];
@@ -218,21 +218,21 @@ namespace Neuro.Models
 
             fixed (double* v = input.Value, r = result)
                 for (var y = 0; y < height; y++)
-                for (var x = 0; x < width; x++)
-                    r[y * width + x] = v[(height - 1 - y) * width + (width - 1 - x)];
+                    for (var x = 0; x < width; x++)
+                        r[y * width + x] = v[(height - 1 - y) * width + (width - 1 - x)];
 
             return new Matrix(result);
         }
 
         public static unsafe Matrix Sum(this Matrix[] matrixes)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (matrixes == null || matrixes.Length < 1)
                 throw new ArgumentNullException(nameof(matrixes));
 
-            #endif
-            
+#endif
+
             var height = matrixes[0].Value.GetLength(0);
             var width = matrixes[0].Value.GetLength(1);
             var sum = new double[height, width];
@@ -240,37 +240,37 @@ namespace Neuro.Models
             foreach (var matrix in matrixes)
                 fixed (double* v = matrix.Value, r = sum)
                     for (var y = 0; y < height; y++)
-                    for (var x = 0; x < width; x++)
-                        r[y * width + x] += v[y * width + x];
+                        for (var x = 0; x < width; x++)
+                            r[y * width + x] += v[y * width + x];
 
             return new Matrix(sum);
         }
 
         public static unsafe double Sum(this Matrix matrix)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (matrix == null || matrix.Length < 1)
                 throw new ArgumentNullException(nameof(matrix));
 
-            #endif
-            
+#endif
+
             var height = matrix.Value.GetLength(0);
             var width = matrix.Value.GetLength(1);
             var sum = 0d;
 
             fixed (double* v = matrix.Value)
                 for (var y = 0; y < height; y++)
-                for (var x = 0; x < width; x++)
-                    sum += v[y * width + x];
+                    for (var x = 0; x < width; x++)
+                        sum += v[y * width + x];
 
             return sum;
         }
 
         public static unsafe Matrix Convolution(this Matrix matrix, Matrix kernel, int step = 1)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (matrix.Value == null || matrix.Value.Length == 0)
                 throw new ArgumentNullException(nameof(matrix));
 
@@ -280,8 +280,8 @@ namespace Neuro.Models
             if (matrix.Value.Length < kernel.Value.Length)
                 throw new Exception("Kernel size more then size of matrix");
 
-            #endif
-            
+#endif
+
             var matrixHeight = matrix.Value.GetLength(0);
             var matrixWidth = matrix.Value.GetLength(1);
             var kernelHeight = kernel.Value.GetLength(0);
@@ -293,18 +293,18 @@ namespace Neuro.Models
 
             fixed (double* m = matrix.Value, k = kernel.Value, o = output)
                 for (var y = 0; y < outputHeight; y++)
-                for (var x = 0; x < outputWidth; x++)
-                for (var h = 0; h < kernelHeight; h++)
-                for (var w = 0; w < kernelWidth; w++)
-                    o[y * outputWidth + x] += (m[((y + h) * matrixWidth + x + w)] * k[h * kernelWidth + w]);
+                    for (var x = 0; x < outputWidth; x++)
+                        for (var h = 0; h < kernelHeight; h++)
+                            for (var w = 0; w < kernelWidth; w++)
+                                o[y * outputWidth + x] += (m[((y + h) * matrixWidth + x + w)] * k[h * kernelWidth + w]);
 
             return new Matrix(output);
         }
 
         public static Matrix BackConvolution(this Matrix matrix, Matrix kernel, int step = 1)
         {
-            #if DEBUG
-            
+#if DEBUG
+
             if (matrix.Value == null || matrix.Value.Length == 0)
                 throw new ArgumentNullException(nameof(matrix));
 
@@ -313,8 +313,8 @@ namespace Neuro.Models
 
             if (matrix.Value.Length < kernel.Value.Length)
                 throw new Exception("Kernel size more then size of matrix");
-            
-            #endif
+
+#endif
 
             var matrixHeight = matrix.Value.GetLength(0);
             var matrixWidth = matrix.Value.GetLength(1);
@@ -347,8 +347,8 @@ namespace Neuro.Models
                 for (var i = 0; i < outputs.Length; i++)
                     fixed (double* oValue = outputs[i].Value)
                         for (var h = 0; h < imageHeight; h++)
-                        for (var w = 0; w < imageWidth; w++)
-                            r[(i * (imageWidth * imageHeight)) + (h * imageWidth + w)] = oValue[h * imageWidth + w];
+                            for (var w = 0; w < imageWidth; w++)
+                                r[(i * (imageWidth * imageHeight)) + (h * imageWidth + w)] = oValue[h * imageWidth + w];
 
             return result;
         }

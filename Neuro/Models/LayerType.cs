@@ -7,6 +7,7 @@ namespace Neuro.Models
     {
         Convolution = 0,
         FullyConnected = 1,
-        MaxPoolingLayer = 2
+        MaxPoolingLayer = 2,
+        AvgPoolingLayer = 3
     }
 }
