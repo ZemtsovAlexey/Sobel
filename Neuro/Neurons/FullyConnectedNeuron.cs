@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Neuro.ActivationFunctions;
 using Neuro.Extensions;
 
@@ -25,6 +22,8 @@ namespace Neuro.Neurons
 
         public void Randomize()
         {
+            Bias = Random.NextFloat() * (Function.MaxRange - Function.MinRange) + Function.MinRange;
+
             for (var i = 0; i < Weights.Length; i++)
             {
                 Weights[i] = Random.NextFloat() * (Function.MaxRange - Function.MinRange) + Function.MinRange;

@@ -37,6 +37,8 @@ namespace Neuro.Neurons
                     Weights[y, x] = Random.NextFloat() * (Function.MaxRange - Function.MinRange) + Function.MinRange;
                 }
             }
+
+            Bias = Random.NextFloat() * (Function.MaxRange - Function.MinRange) + Function.MinRange;
         }
         
         public Matrix Compute(Matrix[] inputs)

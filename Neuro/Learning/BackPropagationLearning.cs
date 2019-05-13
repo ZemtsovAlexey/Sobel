@@ -48,32 +48,43 @@ namespace Neuro.Learning
         
         private double CalculateFullyConnectedLayersError(IReadOnlyList<double> desiredOutput)
         {
-            var layer = fullyConnectedLayers[fullyConnectedLayers.Length - 1];
+            var lastLayer = network.Layers.Last();
             var errors = fullyConnectedNeuronErrors[fullyConnectedLayers.Length - 1];
-            var output = layer.Outputs;
+            var output = (lastLayer as ILinearCompute)?.Outputs;
             var error = 0d;
             
             //расчитываем ошибку на последнем слое
-            for (var i = 0; i < layer.NeuronsCount; i++)
+            for (var i = 0; i < lastLayer.NeuronsCount; i++)
             {
                 var e = desiredOutput[i] - output[i];
-                errors[i] = e * layer[i].Function.Derivative(layer[i].Output);
+
+                //function.Alpha = layer[i].Bias;
+                double derivatived = lastLayer.Type == LayerType.Softmax 
+                    ? ((ISoftmaxLayer)lastLayer).Derivative(i) 
+                    : ((IFullyConnectedLayer)lastLayer).Function.Derivative(((IFullyConnectedLayer)lastLayer)[i].Output);
+
+                errors[i] = e * derivatived;
                 error += e * e;
             }
 
+            var layerIndex = fullyConnectedLayers.Length - (lastLayer.Type == LayerType.Softmax ? 1 : 2);
+
             //расчитываем ошибку на скрытых слоях
-            for (var j = fullyConnectedLayers.Length - 2; j >= 0; j--)
+            for (var j = layerIndex; j >= 0; j--)
             {
-                layer = fullyConnectedLayers[j];
+                var layer = fullyConnectedLayers[j];
                 errors = fullyConnectedNeuronErrors[j];
                 
-                var layerNext = fullyConnectedLayers[j + 1];
+                var layerNext = j + 1 > fullyConnectedLayers.Length - 1 && lastLayer.Type == LayerType.Softmax ? (IFullyConnectedLayer)lastLayer : fullyConnectedLayers[j + 1];
                 var errorsNext = fullyConnectedNeuronErrors[j + 1];
 
                 Parallel.For(0, layer.NeuronsCount, i =>
                 {
                     var sum = layerNext.Neurons.Select((neuron, nIndex) => new { neuron, nIndex }).Sum(x => x.neuron.Weights[i] * errorsNext[x.nIndex]);
-                    errors[i] = layer[i].Function.Derivative(layer[i].Output) * sum;
+                    var function = layer[i].Function;
+
+                    //function.Alpha = layer[i].Bias;
+                    errors[i] = function.Derivative(layer[i].Output) * sum;
                 });
             }
 
@@ -259,9 +270,10 @@ namespace Neuro.Learning
                     
                     var error = convNeuronErrors[l][e] * LearningRate;
                     var weights = layer.Neurons[e].Weights;
+                    var correction = inputs.Convolution(error.Rot180());
 
-                    layer.Neurons[e].Weights = weights + inputs.Convolution(error.Rot180());
-//                    layer.Neurons[e].Bias += error.Sum();
+                    layer.Neurons[e].Weights = weights + correction;
+                    layer.Neurons[e].Bias += correction.Sum();
                 }
             });
 
@@ -272,7 +284,6 @@ namespace Neuro.Learning
             {
                 var layer = fullyConnectedLayers[l];
                 var inputs = l == 0 ? input : fullyConnectedLayers[l - 1].Neurons.Select(x => x.Output).ToArray();
-                var bias = fullyConnectedNeuronErrors[l].Sum();
 
                 unsafe
                 {
@@ -282,12 +293,11 @@ namespace Neuro.Learning
                         var weightsLength = neuron.Weights.Length;
                         var error = fullyConnectedNeuronErrors[l][n];
 
-//                        neuron.Bias += bias;
-
                         fixed (double* weights = neuron.Weights, x = inputs)
                             for (var i = 0; i < weightsLength; i++)
                             {
                                 weights[i] += LearningRate * error * x[i];
+                                neuron.Bias += LearningRate * error * x[i];
                             }
                     });
                 }

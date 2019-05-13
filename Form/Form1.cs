@@ -512,7 +512,7 @@ namespace Sobel
                 .ToList();
 
 //            var chars = "ёйцукенгшщзхъфывапролджэячсмитьбю";
-            var chars = "0123456789ёйцукенгшщзхъфывапролджэячсмитьбю";
+            var chars = "ёйцукенгшщзхъфывапролджэячсмитьбю";
             var network = networks.FirstOrDefault();
             var matrixesCount = matrixes.Count;
             var res = new List<Result>();
@@ -540,7 +540,7 @@ namespace Sobel
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.Flush();
             
-            foreach (var result in res.Where(x => x.answer > 0.7d))
+            foreach (var result in res.Where(x => x.answer > 0.1d))
             {
                 DrawSymbol(resultBitmap, result.cord, result.result, null);
             }

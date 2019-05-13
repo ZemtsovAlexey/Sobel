@@ -12,17 +12,19 @@ namespace Neuro.Networks
 {
     public class Network
     {
-        public ILayer[] Layers;
+        public List<ILayer> Layers;
         public int InputWidth { get; private set; }
         public int InputHeight { get; private set; }
 
-        public void InitLayers(int shapeX, int shapeY, params ILayer[] layers)
+        public void InitLayers((int X, int Y) shape, params ILayer[] layers)
         {
-            InputWidth = shapeX;
-            InputHeight = shapeY;
-            var neuronsCount = 0;
-            Layers = new ILayer[layers.Length];
+            InputWidth = shape.X;
+            InputHeight = shape.Y;
+            Layers = new List<ILayer>();
 
+            var neuronsCount = 0;
+            var shapeX = shape.X;
+            var shapeY = shape.Y;
             int inputLength = shapeX * shapeY;
             
             for (var i = 0; i < layers.Length; i++)
@@ -36,7 +38,17 @@ namespace Neuro.Networks
                     inputLength = layer.Outputs.Length;
                     neuronsCount = layer.NeuronsCount;
                 }
-                
+
+                if (layers[i].Type == LayerType.Softmax)
+                {
+                    var layer = (ISoftmaxLayer)layers[i];
+
+                    layer.Init(inputLength);
+
+                    inputLength = layer.Outputs.Length;
+                    neuronsCount = layer.NeuronsCount;
+                }
+
                 if (layers[i].Type == LayerType.Convolution)
                 {
                     var layer = (IConvolutionLayer) layers[i];
@@ -69,7 +81,7 @@ namespace Neuro.Networks
                     neuronsCount = layer.NeuronsCount;
                 }
                 
-                Layers[i] = layers[i];
+                Layers.Add(layers[i]);
             }
         }
 
@@ -221,9 +233,9 @@ namespace Neuro.Networks
                 }
             }
             
-            InitLayers(obj.InputWidth, obj.InputHeight, layers.ToArray());
+            InitLayers((obj.InputWidth, obj.InputHeight), layers.ToArray());
             
-            for (var l = 0; l < Layers.Length; l++)
+            for (var l = 0; l < Layers.Count; l++)
             {
                 switch (Layers[l].Type)
                 {
@@ -257,6 +269,16 @@ namespace Neuro.Networks
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+    }
+
+    public static class NetworkExtensions
+    {
+        public static Network AddConvolutionLayer(this Network network, ActivationType activationType, int neuronsCount, int kernelSize = 3, bool useReferences = false)
+        {
+            network.Layers.Add(new ConvolutionLayer(activationType, neuronsCount, kernelSize, useReferences));
+
+            return network;
         }
     }
 }

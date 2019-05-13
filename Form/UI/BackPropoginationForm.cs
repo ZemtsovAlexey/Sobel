@@ -55,7 +55,7 @@ namespace Sobel.UI
             var net = new Network();
             var activation = ActivationType.None;
 
-            net.InitLayers(3, 3,
+            net.InitLayers((3, 3),
                 new ConvolutionLayer(activation, 1, 2),//24
                 new FullyConnectedLayer(1, activation)
             );
@@ -118,6 +118,12 @@ namespace Sobel.UI
                 {
                     var convLayer = (IFullyConnectedLayer)layer;
                     bindingSource1.Add(new NetworkSettings(layer.Type, convLayer.ActivationFunctionType, convLayer.NeuronsCount, null));
+                }
+
+                if (layer.Type == LayerType.Softmax)
+                {
+                    var convLayer = (ISoftmaxLayer)layer;
+                    bindingSource1.Add(new NetworkSettings(layer.Type, ActivationType.None, convLayer.NeuronsCount, null));
                 }
             }
             
@@ -410,7 +416,9 @@ namespace Sobel.UI
                 k++;
             }
 
-            realAnswerText.Text = $@"{maxIter} - {result[maxIter]}";
+            var trueResults = "ёйцукенгшщзхъфывапролджэячсмитьбю";
+
+            realAnswerText.Text = $@"{trueResults[maxIter]} - {result[maxIter]}";
         }
 
         private void Learn()
@@ -514,9 +522,9 @@ namespace Sobel.UI
             var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
             var outputs = _networkNew.Network.Layers.Last().NeuronsCount;
             double[] output = new double[outputs];
-            var badResults = " /.,\"DFGIJLQRSUVWYZbdfghijklqrstuvwyz";
+            var badResults = " /.,\"DFGIJLQRSUVWYZbdfghijklqrstuvwyz 0123456789";
 //            var trueResults = "0123456789ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮёйцукенгшщзхъфывапролджэячсмитьбю";
-            var trueResults = "0123456789ёйцукенгшщзхъфывапролджэячсмитьбю";
+            var trueResults = "ёйцукенгшщзхъфывапролджэячсмитьбю";
 
             var teacher = new Neuro.Learning.BackPropagationLearning(_networkNew.Network)
             {
@@ -573,7 +581,7 @@ namespace Sobel.UI
                         k++;
                     }
 
-                    output[text.position] = 1f;
+                    output[text.position] = Math.Max(1f, maxRes);
                     succeses = text.position != maxIter || result[maxIter] < 0.2d ? 0 : succeses + 1;
                     trueAnswerCount++;
                 }
@@ -653,7 +661,7 @@ namespace Sobel.UI
                 }
             }
 
-            _networkNew.Network.InitLayers(pictureSize.x, pictureSize.y, initData.ToArray());
+            _networkNew.Network.InitLayers(pictureSize, initData.ToArray());
             _networkNew.Network.Randomize();
         }
 

@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.LoadTestImgButton = new System.Windows.Forms.Button();
             this.scaleToNum = new System.Windows.Forms.NumericUpDown();
@@ -78,6 +78,7 @@
             this.neuronsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.convolutionalLayerBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.scaleToNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.scaleFromNum)).BeginInit();
@@ -98,6 +99,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.neuronsBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.convolutionalLayerBindingSource)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -123,18 +125,21 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.recognizedText);
             this.groupBox1.Controls.Add(this.textViewPicture);
-            this.groupBox1.Location = new System.Drawing.Point(12, 12);
+            this.groupBox1.Location = new System.Drawing.Point(12, 20);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(502, 307);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox1.Size = new System.Drawing.Size(1004, 590);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Testing";
             // 
             // LoadTestImgButton
             // 
-            this.LoadTestImgButton.Location = new System.Drawing.Point(199, 155);
+            this.LoadTestImgButton.Location = new System.Drawing.Point(398, 298);
+            this.LoadTestImgButton.Margin = new System.Windows.Forms.Padding(6);
             this.LoadTestImgButton.Name = "LoadTestImgButton";
-            this.LoadTestImgButton.Size = new System.Drawing.Size(75, 23);
+            this.LoadTestImgButton.Size = new System.Drawing.Size(150, 44);
             this.LoadTestImgButton.TabIndex = 52;
             this.LoadTestImgButton.Text = "LoadTestImg";
             this.LoadTestImgButton.UseVisualStyleBackColor = true;
@@ -142,39 +147,37 @@
             // 
             // scaleToNum
             // 
-            this.scaleToNum.Location = new System.Drawing.Point(396, 125);
+            this.scaleToNum.Location = new System.Drawing.Point(792, 240);
+            this.scaleToNum.Margin = new System.Windows.Forms.Padding(6);
             this.scaleToNum.Maximum = new decimal(new int[] {
             359,
             0,
             0,
             0});
             this.scaleToNum.Name = "scaleToNum";
-            this.scaleToNum.Size = new System.Drawing.Size(36, 20);
+            this.scaleToNum.Size = new System.Drawing.Size(72, 31);
             this.scaleToNum.TabIndex = 51;
-            this.scaleToNum.Value = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
             // 
             // scaleFromNum
             // 
-            this.scaleFromNum.Location = new System.Drawing.Point(358, 125);
+            this.scaleFromNum.Location = new System.Drawing.Point(716, 240);
+            this.scaleFromNum.Margin = new System.Windows.Forms.Padding(6);
             this.scaleFromNum.Maximum = new decimal(new int[] {
             359,
             0,
             0,
             0});
             this.scaleFromNum.Name = "scaleFromNum";
-            this.scaleFromNum.Size = new System.Drawing.Size(36, 20);
+            this.scaleFromNum.Size = new System.Drawing.Size(72, 31);
             this.scaleFromNum.TabIndex = 50;
             // 
             // randomScaleCheckBox
             // 
             this.randomScaleCheckBox.AutoSize = true;
-            this.randomScaleCheckBox.Location = new System.Drawing.Point(438, 128);
+            this.randomScaleCheckBox.Location = new System.Drawing.Point(876, 246);
+            this.randomScaleCheckBox.Margin = new System.Windows.Forms.Padding(6);
             this.randomScaleCheckBox.Name = "randomScaleCheckBox";
-            this.randomScaleCheckBox.Size = new System.Drawing.Size(61, 17);
+            this.randomScaleCheckBox.Size = new System.Drawing.Size(116, 29);
             this.randomScaleCheckBox.TabIndex = 49;
             this.randomScaleCheckBox.Text = "random";
             this.randomScaleCheckBox.UseVisualStyleBackColor = true;
@@ -182,50 +185,55 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(196, 126);
+            this.label13.Location = new System.Drawing.Point(392, 242);
+            this.label13.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(53, 13);
+            this.label13.Size = new System.Drawing.Size(104, 25);
             this.label13.TabIndex = 47;
             this.label13.Text = "Масштаб";
             // 
             // paddingHNumeric
             // 
-            this.paddingHNumeric.Location = new System.Drawing.Point(396, 98);
+            this.paddingHNumeric.Location = new System.Drawing.Point(792, 188);
+            this.paddingHNumeric.Margin = new System.Windows.Forms.Padding(6);
             this.paddingHNumeric.Maximum = new decimal(new int[] {
             359,
             0,
             0,
             0});
             this.paddingHNumeric.Name = "paddingHNumeric";
-            this.paddingHNumeric.Size = new System.Drawing.Size(36, 20);
+            this.paddingHNumeric.Size = new System.Drawing.Size(72, 31);
             this.paddingHNumeric.TabIndex = 46;
             // 
             // paddingVNumeric
             // 
-            this.paddingVNumeric.Location = new System.Drawing.Point(358, 98);
+            this.paddingVNumeric.Location = new System.Drawing.Point(716, 188);
+            this.paddingVNumeric.Margin = new System.Windows.Forms.Padding(6);
             this.paddingVNumeric.Maximum = new decimal(new int[] {
             359,
             0,
             0,
             0});
             this.paddingVNumeric.Name = "paddingVNumeric";
-            this.paddingVNumeric.Size = new System.Drawing.Size(36, 20);
+            this.paddingVNumeric.Size = new System.Drawing.Size(72, 31);
             this.paddingVNumeric.TabIndex = 45;
             // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(198, 100);
+            this.label12.Location = new System.Drawing.Point(396, 192);
+            this.label12.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(42, 13);
+            this.label12.Size = new System.Drawing.Size(82, 25);
             this.label12.TabIndex = 43;
             this.label12.Text = "Отступ";
             // 
             // loadButton
             // 
-            this.loadButton.Location = new System.Drawing.Point(280, 232);
+            this.loadButton.Location = new System.Drawing.Point(560, 446);
+            this.loadButton.Margin = new System.Windows.Forms.Padding(6);
             this.loadButton.Name = "loadButton";
-            this.loadButton.Size = new System.Drawing.Size(75, 23);
+            this.loadButton.Size = new System.Drawing.Size(150, 44);
             this.loadButton.TabIndex = 42;
             this.loadButton.Text = "Load";
             this.loadButton.UseVisualStyleBackColor = true;
@@ -233,9 +241,10 @@
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(200, 232);
+            this.saveButton.Location = new System.Drawing.Point(400, 446);
+            this.saveButton.Margin = new System.Windows.Forms.Padding(6);
             this.saveButton.Name = "saveButton";
-            this.saveButton.Size = new System.Drawing.Size(75, 23);
+            this.saveButton.Size = new System.Drawing.Size(150, 44);
             this.saveButton.TabIndex = 41;
             this.saveButton.Text = "Save";
             this.saveButton.UseVisualStyleBackColor = true;
@@ -245,35 +254,39 @@
             // 
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label9.Location = new System.Drawing.Point(199, 208);
+            this.label9.Location = new System.Drawing.Point(398, 400);
+            this.label9.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(77, 13);
+            this.label9.Size = new System.Drawing.Size(153, 26);
             this.label9.TabIndex = 40;
             this.label9.Text = "Верный ответ";
             // 
             // realAnswerText
             // 
             this.realAnswerText.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.realAnswerText.Location = new System.Drawing.Point(282, 196);
+            this.realAnswerText.Location = new System.Drawing.Point(564, 377);
+            this.realAnswerText.Margin = new System.Windows.Forms.Padding(6);
             this.realAnswerText.MaxLength = 1;
             this.realAnswerText.Name = "realAnswerText";
-            this.realAnswerText.Size = new System.Drawing.Size(151, 31);
+            this.realAnswerText.Size = new System.Drawing.Size(298, 55);
             this.realAnswerText.TabIndex = 39;
             // 
             // label8
             // 
             this.label8.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label8.Location = new System.Drawing.Point(199, 181);
+            this.label8.Location = new System.Drawing.Point(398, 348);
+            this.label8.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(297, 1);
+            this.label8.Size = new System.Drawing.Size(592, 0);
             this.label8.TabIndex = 38;
             this.label8.Text = "                                         ";
             // 
             // regnizeButton
             // 
-            this.regnizeButton.Location = new System.Drawing.Point(361, 232);
+            this.regnizeButton.Location = new System.Drawing.Point(722, 446);
+            this.regnizeButton.Margin = new System.Windows.Forms.Padding(6);
             this.regnizeButton.Name = "regnizeButton";
-            this.regnizeButton.Size = new System.Drawing.Size(73, 23);
+            this.regnizeButton.Size = new System.Drawing.Size(146, 44);
             this.regnizeButton.TabIndex = 38;
             this.regnizeButton.Text = "Recognize";
             this.regnizeButton.UseVisualStyleBackColor = true;
@@ -282,58 +295,64 @@
             // textRotateNumeric
             // 
             this.textRotateNumeric.DecimalPlaces = 2;
-            this.textRotateNumeric.Location = new System.Drawing.Point(359, 72);
+            this.textRotateNumeric.Location = new System.Drawing.Point(718, 138);
+            this.textRotateNumeric.Margin = new System.Windows.Forms.Padding(6);
             this.textRotateNumeric.Maximum = new decimal(new int[] {
             359,
             0,
             0,
             0});
             this.textRotateNumeric.Name = "textRotateNumeric";
-            this.textRotateNumeric.Size = new System.Drawing.Size(74, 20);
+            this.textRotateNumeric.Size = new System.Drawing.Size(148, 31);
             this.textRotateNumeric.TabIndex = 8;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(199, 74);
+            this.label3.Location = new System.Drawing.Point(398, 142);
+            this.label3.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(114, 13);
+            this.label3.Size = new System.Drawing.Size(218, 25);
             this.label3.TabIndex = 7;
             this.label3.Text = "Угол наклона текста";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(199, 48);
+            this.label2.Location = new System.Drawing.Point(398, 92);
+            this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(77, 13);
+            this.label2.Size = new System.Drawing.Size(150, 25);
             this.label2.TabIndex = 5;
             this.label2.Text = "Верный ответ";
             // 
             // trueAnswerText
             // 
-            this.trueAnswerText.Location = new System.Drawing.Point(359, 45);
+            this.trueAnswerText.Location = new System.Drawing.Point(718, 87);
+            this.trueAnswerText.Margin = new System.Windows.Forms.Padding(6);
             this.trueAnswerText.MaxLength = 1;
             this.trueAnswerText.Name = "trueAnswerText";
-            this.trueAnswerText.Size = new System.Drawing.Size(74, 20);
+            this.trueAnswerText.Size = new System.Drawing.Size(144, 31);
             this.trueAnswerText.TabIndex = 4;
             this.trueAnswerText.Text = "а";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(199, 22);
+            this.label1.Location = new System.Drawing.Point(398, 42);
+            this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(137, 13);
+            this.label1.Size = new System.Drawing.Size(264, 25);
             this.label1.TabIndex = 2;
             this.label1.Text = "Распозноваемый символ";
             // 
             // recognizedText
             // 
-            this.recognizedText.Location = new System.Drawing.Point(359, 19);
+            this.recognizedText.Location = new System.Drawing.Point(718, 37);
+            this.recognizedText.Margin = new System.Windows.Forms.Padding(6);
             this.recognizedText.MaxLength = 1;
             this.recognizedText.Name = "recognizedText";
-            this.recognizedText.Size = new System.Drawing.Size(74, 20);
+            this.recognizedText.Size = new System.Drawing.Size(144, 31);
             this.recognizedText.TabIndex = 1;
             this.recognizedText.Text = "а";
             // 
@@ -341,17 +360,19 @@
             // 
             this.textViewPicture.BackColor = System.Drawing.SystemColors.ControlDark;
             this.textViewPicture.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textViewPicture.Location = new System.Drawing.Point(6, 19);
+            this.textViewPicture.Location = new System.Drawing.Point(12, 37);
+            this.textViewPicture.Margin = new System.Windows.Forms.Padding(6);
             this.textViewPicture.Name = "textViewPicture";
-            this.textViewPicture.Size = new System.Drawing.Size(160, 160);
+            this.textViewPicture.Size = new System.Drawing.Size(318, 306);
             this.textViewPicture.TabIndex = 0;
             this.textViewPicture.TabStop = false;
             // 
             // startLearnButton
             // 
-            this.startLearnButton.Location = new System.Drawing.Point(104, 249);
+            this.startLearnButton.Location = new System.Drawing.Point(208, 479);
+            this.startLearnButton.Margin = new System.Windows.Forms.Padding(6);
             this.startLearnButton.Name = "startLearnButton";
-            this.startLearnButton.Size = new System.Drawing.Size(75, 23);
+            this.startLearnButton.Size = new System.Drawing.Size(150, 44);
             this.startLearnButton.TabIndex = 3;
             this.startLearnButton.Text = "Start";
             this.startLearnButton.UseVisualStyleBackColor = true;
@@ -359,6 +380,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.AutoSize = true;
             this.groupBox2.Controls.Add(this.learningStopNumeric);
             this.groupBox2.Controls.Add(this.learningRateNumeric);
             this.groupBox2.Controls.Add(this.label11);
@@ -372,10 +394,11 @@
             this.groupBox2.Controls.Add(this.learnIterationsNumeric);
             this.groupBox2.Controls.Add(this.stopLearnButton);
             this.groupBox2.Controls.Add(this.startLearnButton);
-            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Left;
-            this.groupBox2.Location = new System.Drawing.Point(3, 16);
+            this.groupBox2.Location = new System.Drawing.Point(6, 30);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(210, 304);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox2.Size = new System.Drawing.Size(420, 579);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Net settings";
@@ -383,14 +406,15 @@
             // learningStopNumeric
             // 
             this.learningStopNumeric.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.learningStopNumeric.Location = new System.Drawing.Point(79, 102);
+            this.learningStopNumeric.Location = new System.Drawing.Point(158, 196);
+            this.learningStopNumeric.Margin = new System.Windows.Forms.Padding(6);
             this.learningStopNumeric.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
             this.learningStopNumeric.Name = "learningStopNumeric";
-            this.learningStopNumeric.Size = new System.Drawing.Size(115, 32);
+            this.learningStopNumeric.Size = new System.Drawing.Size(230, 56);
             this.learningStopNumeric.TabIndex = 43;
             this.learningStopNumeric.Value = new decimal(new int[] {
             200,
@@ -407,14 +431,15 @@
             0,
             0,
             131072});
-            this.learningRateNumeric.Location = new System.Drawing.Point(79, 61);
+            this.learningRateNumeric.Location = new System.Drawing.Point(158, 117);
+            this.learningRateNumeric.Margin = new System.Windows.Forms.Padding(6);
             this.learningRateNumeric.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
             this.learningRateNumeric.Name = "learningRateNumeric";
-            this.learningRateNumeric.Size = new System.Drawing.Size(115, 32);
+            this.learningRateNumeric.Size = new System.Drawing.Size(230, 56);
             this.learningRateNumeric.TabIndex = 11;
             this.learningRateNumeric.Value = new decimal(new int[] {
             2,
@@ -426,9 +451,10 @@
             // 
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label11.Location = new System.Drawing.Point(6, 105);
+            this.label11.Location = new System.Drawing.Point(12, 202);
+            this.label11.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(71, 26);
+            this.label11.Size = new System.Drawing.Size(139, 51);
             this.label11.TabIndex = 44;
             this.label11.Text = "L stop";
             // 
@@ -436,9 +462,10 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label10.Location = new System.Drawing.Point(6, 195);
+            this.label10.Location = new System.Drawing.Point(12, 375);
+            this.label10.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(60, 26);
+            this.label10.Size = new System.Drawing.Size(118, 51);
             this.label10.TabIndex = 42;
             this.label10.Text = "Time";
             // 
@@ -446,10 +473,11 @@
             // 
             this.resultErrorText.Enabled = false;
             this.resultErrorText.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.resultErrorText.Location = new System.Drawing.Point(79, 150);
+            this.resultErrorText.Location = new System.Drawing.Point(158, 288);
+            this.resultErrorText.Margin = new System.Windows.Forms.Padding(6);
             this.resultErrorText.MaxLength = 1;
             this.resultErrorText.Name = "resultErrorText";
-            this.resultErrorText.Size = new System.Drawing.Size(115, 32);
+            this.resultErrorText.Size = new System.Drawing.Size(226, 56);
             this.resultErrorText.TabIndex = 37;
             this.resultErrorText.Text = "0";
             // 
@@ -457,10 +485,11 @@
             // 
             this.totalTimeText.Enabled = false;
             this.totalTimeText.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.totalTimeText.Location = new System.Drawing.Point(79, 192);
+            this.totalTimeText.Location = new System.Drawing.Point(158, 369);
+            this.totalTimeText.Margin = new System.Windows.Forms.Padding(6);
             this.totalTimeText.MaxLength = 1;
             this.totalTimeText.Name = "totalTimeText";
-            this.totalTimeText.Size = new System.Drawing.Size(115, 32);
+            this.totalTimeText.Size = new System.Drawing.Size(226, 56);
             this.totalTimeText.TabIndex = 41;
             this.totalTimeText.Text = "0";
             // 
@@ -468,18 +497,20 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label7.Location = new System.Drawing.Point(6, 153);
+            this.label7.Location = new System.Drawing.Point(12, 294);
+            this.label7.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(60, 26);
+            this.label7.Size = new System.Drawing.Size(117, 51);
             this.label7.TabIndex = 36;
             this.label7.Text = "Error";
             // 
             // label6
             // 
             this.label6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label6.Location = new System.Drawing.Point(8, 138);
+            this.label6.Location = new System.Drawing.Point(16, 265);
+            this.label6.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(188, 2);
+            this.label6.Size = new System.Drawing.Size(374, 2);
             this.label6.TabIndex = 34;
             this.label6.Text = "                                         ";
             // 
@@ -487,9 +518,10 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label5.Location = new System.Drawing.Point(6, 63);
+            this.label5.Location = new System.Drawing.Point(12, 121);
+            this.label5.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(76, 26);
+            this.label5.Size = new System.Drawing.Size(148, 51);
             this.label5.TabIndex = 12;
             this.label5.Text = "L Rate";
             // 
@@ -497,30 +529,33 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label4.Location = new System.Drawing.Point(6, 24);
+            this.label4.Location = new System.Drawing.Point(12, 46);
+            this.label4.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(43, 26);
+            this.label4.Size = new System.Drawing.Size(84, 51);
             this.label4.TabIndex = 10;
             this.label4.Text = "Iter";
             // 
             // learnIterationsNumeric
             // 
             this.learnIterationsNumeric.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.learnIterationsNumeric.Location = new System.Drawing.Point(79, 22);
+            this.learnIterationsNumeric.Location = new System.Drawing.Point(158, 42);
+            this.learnIterationsNumeric.Margin = new System.Windows.Forms.Padding(6);
             this.learnIterationsNumeric.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
             this.learnIterationsNumeric.Name = "learnIterationsNumeric";
-            this.learnIterationsNumeric.Size = new System.Drawing.Size(115, 32);
+            this.learnIterationsNumeric.Size = new System.Drawing.Size(230, 56);
             this.learnIterationsNumeric.TabIndex = 9;
             // 
             // stopLearnButton
             // 
-            this.stopLearnButton.Location = new System.Drawing.Point(22, 249);
+            this.stopLearnButton.Location = new System.Drawing.Point(44, 479);
+            this.stopLearnButton.Margin = new System.Windows.Forms.Padding(6);
             this.stopLearnButton.Name = "stopLearnButton";
-            this.stopLearnButton.Size = new System.Drawing.Size(75, 23);
+            this.stopLearnButton.Size = new System.Drawing.Size(150, 44);
             this.stopLearnButton.TabIndex = 4;
             this.stopLearnButton.Text = "Stop";
             this.stopLearnButton.UseVisualStyleBackColor = true;
@@ -530,29 +565,29 @@
             // 
             this.groupBox3.Controls.Add(this.chart1);
             this.groupBox3.Controls.Add(this.groupBox2);
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox3.Location = new System.Drawing.Point(3, 331);
+            this.groupBox3.Location = new System.Drawing.Point(6, 638);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(1041, 323);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox3.Size = new System.Drawing.Size(2082, 621);
             this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Learning";
             // 
             // chart1
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea1);
-            this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend1.Name = "Legend1";
-            this.chart1.Legends.Add(legend1);
-            this.chart1.Location = new System.Drawing.Point(213, 16);
-            this.chart1.Margin = new System.Windows.Forms.Padding(2);
+            chartArea3.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.chart1.Legends.Add(legend3);
+            this.chart1.Location = new System.Drawing.Point(431, 46);
+            this.chart1.Margin = new System.Windows.Forms.Padding(4);
             this.chart1.Name = "chart1";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(825, 304);
+            series3.ChartArea = "ChartArea1";
+            series3.Legend = "Legend1";
+            series3.Name = "Series1";
+            this.chart1.Series.Add(series3);
+            this.chart1.Size = new System.Drawing.Size(1600, 563);
             this.chart1.TabIndex = 5;
             this.chart1.Text = "chart1";
             // 
@@ -560,18 +595,21 @@
             // 
             this.groupBox4.Controls.Add(this.netSettingsApplyButton);
             this.groupBox4.Controls.Add(this.panel1);
-            this.groupBox4.Location = new System.Drawing.Point(530, 12);
+            this.groupBox4.Location = new System.Drawing.Point(1042, 20);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(502, 307);
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox4.Size = new System.Drawing.Size(1043, 590);
             this.groupBox4.TabIndex = 52;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Net settings";
             // 
             // netSettingsApplyButton
             // 
-            this.netSettingsApplyButton.Location = new System.Drawing.Point(421, 278);
+            this.netSettingsApplyButton.Location = new System.Drawing.Point(842, 535);
+            this.netSettingsApplyButton.Margin = new System.Windows.Forms.Padding(6);
             this.netSettingsApplyButton.Name = "netSettingsApplyButton";
-            this.netSettingsApplyButton.Size = new System.Drawing.Size(75, 23);
+            this.netSettingsApplyButton.Size = new System.Drawing.Size(150, 44);
             this.netSettingsApplyButton.TabIndex = 43;
             this.netSettingsApplyButton.Text = "Apply";
             this.netSettingsApplyButton.UseVisualStyleBackColor = true;
@@ -580,10 +618,10 @@
             // panel1
             // 
             this.panel1.Controls.Add(this.netSettingsDataGridView);
-            this.panel1.Location = new System.Drawing.Point(4, 16);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2);
+            this.panel1.Location = new System.Drawing.Point(8, 31);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(492, 257);
+            this.panel1.Size = new System.Drawing.Size(984, 494);
             this.panel1.TabIndex = 2;
             // 
             // netSettingsDataGridView
@@ -595,10 +633,11 @@
             this.netSettingsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.netSettingsDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.netSettingsDataGridView.Location = new System.Drawing.Point(0, 0);
+            this.netSettingsDataGridView.Margin = new System.Windows.Forms.Padding(6);
             this.netSettingsDataGridView.MultiSelect = false;
             this.netSettingsDataGridView.Name = "netSettingsDataGridView";
             this.netSettingsDataGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.netSettingsDataGridView.Size = new System.Drawing.Size(492, 257);
+            this.netSettingsDataGridView.Size = new System.Drawing.Size(984, 494);
             this.netSettingsDataGridView.TabIndex = 1;
             this.netSettingsDataGridView.DragDrop += new System.Windows.Forms.DragEventHandler(this.dataGridView1_DragDrop);
             this.netSettingsDataGridView.DragOver += new System.Windows.Forms.DragEventHandler(this.dataGridView1_DragOver);
@@ -622,26 +661,35 @@
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.Controls.Add(this.groupBox3, 0, 1);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Controls.Add(this.panel2, 0, 0);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(6);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1047, 657);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(2094, 1265);
             this.tableLayoutPanel1.TabIndex = 53;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.groupBox4);
+            this.panel2.Controls.Add(this.groupBox1);
+            this.panel2.Location = new System.Drawing.Point(3, 3);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(2088, 626);
+            this.panel2.TabIndex = 6;
             // 
             // BackPropoginationForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1047, 657);
-            this.Controls.Add(this.groupBox4);
-            this.Controls.Add(this.groupBox1);
+            this.ClientSize = new System.Drawing.Size(2098, 1270);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "BackPropoginationForm";
             this.Text = "6";
             this.groupBox1.ResumeLayout(false);
@@ -658,6 +706,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.learningRateNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.learnIterationsNumeric)).EndInit();
             this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
@@ -666,6 +715,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.neuronsBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.convolutionalLayerBindingSource)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -718,5 +768,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button LoadTestImgButton;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Panel panel2;
     }
 }

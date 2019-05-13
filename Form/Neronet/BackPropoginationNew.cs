@@ -26,17 +26,18 @@ namespace Sobel.Neronet
 
             Network = new Network();
 
-            Network.InitLayers(16, 16,
-                new ConvolutionLayer(activation, 4, 3),//24
-                new ConvolutionLayer(activation, 8, 3),//24
+            Network.InitLayers((16, 16),
+                //new ConvolutionLayer(activation, 4, 3),//24
+                new ConvolutionLayer(activation, 8, 5),//24
+                new MaxPoolingLayer(2),//10
                 new ConvolutionLayer(activation, 16, 3),//10
                 new MaxPoolingLayer(2),//10
                 //new FullyConnectedLayer(100, activation),
-                new FullyConnectedLayer(43, activation),
-                new FullyConnectedLayer(43, activation),
-                new FullyConnectedLayer(43, activation)
+                new FullyConnectedLayer(80, activation),
+                new FullyConnectedLayer(60, activation),
+                new FullyConnectedLayer(33, activation)
                 );
-            
+
             Network.Randomize();
         }
         

@@ -10,8 +10,6 @@ namespace Neuro.Domain.Layers
         
         FullyConnectedNeuron[] Neurons { get; }
         
-        double[] Outputs { get; }
-        
         IActivationFunction Function { get; }
         
         FullyConnectedNeuron this[int index] { get; }
