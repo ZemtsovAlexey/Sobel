@@ -4,7 +4,7 @@ namespace Neuro.ActivationFunctions
 {
     public class Sigmoid : IActivationFunction
     {
-        public double Alpha { get; set; } = 1;
+        public double Alpha { get; set; } = 0.5d;
         public double MinRange { get; set; } = 0;
         public double MaxRange { get; set; } = 1;
         

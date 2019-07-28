@@ -21,7 +21,7 @@ namespace Neuro.Networks
             InputWidth = shape.X;
             InputHeight = shape.Y;
             Layers = new List<ILayer>();
-
+            
             var neuronsCount = 0;
             var shapeX = shape.X;
             var shapeY = shape.Y;
@@ -52,11 +52,9 @@ namespace Neuro.Networks
                 if (layers[i].Type == LayerType.Convolution)
                 {
                     var layer = (IConvolutionLayer) layers[i];
-                    var outsPerNeuron = neuronsCount > 0 ? layer.NeuronsCount / neuronsCount : (int?)0;
+                    var linksCount = neuronsCount > 0 ? layer.NeuronsCount / neuronsCount + 1 : 0;
 
-                    outsPerNeuron = neuronsCount > 0 && outsPerNeuron > 0 && layer.NeuronsCount % neuronsCount > 0 ? outsPerNeuron + 1 : outsPerNeuron;
-                    
-                    layer.Init(shapeX, shapeY, outsPerNeuron);
+                    layer.Init(shapeX, shapeY, linksCount);
                     
                     inputLength = layer.OutputHeight * layer.OutputWidht * layer.NeuronsCount;
                     shapeX = layer.OutputWidht;
@@ -104,7 +102,7 @@ namespace Neuro.Networks
             
             var outputLinear = output.To1DArray();
 
-            foreach (var layer in Layers.Where(l => l.Type == LayerType.FullyConnected))
+            foreach (var layer in Layers.Where(l => l.Type == LayerType.FullyConnected || l.Type == LayerType.Softmax))
             {
                 outputLinear = (layer as ILinearCompute)?.Compute(outputLinear);
             }
@@ -138,6 +136,28 @@ namespace Neuro.Networks
                         var fullyConnectedLayer = (FullyConnectedLayer) layer;
 
                         layerSaveData.ActivationType = fullyConnectedLayer.ActivationFunctionType;
+
+                        foreach (var neuron in fullyConnectedLayer.Neurons)
+                        {
+                            var weights = new double[neuron.Weights.Length];
+
+                            for (var i = 0; i < neuron.Weights.Length; i++)
+                            {
+                                weights[i] = neuron.Weights[i];
+                            }
+                    
+                            layerSaveData.FullyConnectedNeurons.Add(new FullyConnectedNeuronSaveData
+                            {
+                                Weights = weights,
+                                Bias = neuron.Bias
+                            });
+                        }
+
+                        break;
+                    }
+                    case LayerType.Softmax:
+                    {
+                        var fullyConnectedLayer = (SoftmaxLayer) layer;
 
                         foreach (var neuron in fullyConnectedLayer.Neurons)
                         {
@@ -228,6 +248,9 @@ namespace Neuro.Networks
                     case LayerType.FullyConnected:
                         layers.Add(new FullyConnectedLayer(layer.OutputLength, layer.ActivationType));
                         break;
+                    case LayerType.Softmax:
+                        layers.Add(new SoftmaxLayer(layer.OutputLength));
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -254,6 +277,18 @@ namespace Neuro.Networks
                     case LayerType.FullyConnected:
                     {
                         var layer = (FullyConnectedLayer) Layers[l];
+
+                        for (var n = 0; n < layer.NeuronsCount; n++)
+                        {
+                            layer.Neurons[n].Weights = obj.Layers[l].FullyConnectedNeurons[n].Weights;
+                            layer.Neurons[n].Bias = obj.Layers[l].FullyConnectedNeurons[n].Bias;
+                        }
+                        
+                        break;
+                    }
+                    case LayerType.Softmax:
+                    {
+                        var layer = (SoftmaxLayer) Layers[l];
 
                         for (var n = 0; n < layer.NeuronsCount; n++)
                         {

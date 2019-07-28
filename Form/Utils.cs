@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ScannerNet;
+using ScannerNet.Extensions;
 using Sobel.Models;
 
 namespace Sobel
@@ -377,8 +378,20 @@ namespace Sobel
             return result;
         }
 
+        private static Dictionary<(string text, float forntSize, double rotate, string fontFamaly), Bitmap> cache = 
+            new Dictionary<(string text, float forntSize, double rotate, string fontFamaly), Bitmap>();
+        
         public static Bitmap DrawString(this Bitmap mapBitmap, string text, float fontSize = 100, double rotate = 0, Random random = null)
         {
+            var family = new List<string>{ "Calibri", "Arial", "Times New Roman", "MS Gothic", "Bahnschrift SemiLight SemiConde", "Mercury114", "ShtrixFR" };
+//            var family = new List<string>{ "ShtrixFR", "Mercury114" };
+            var fontFamily = family[random.Next(family.Count)];
+
+            if (cache.TryGetValue((text, fontSize, rotate, fontFamily), out var result))
+                return result;
+            
+            var font = new Font(fontFamily, fontSize);
+            
             Graphics g = Graphics.FromImage(mapBitmap);
 //            var rndColorValue = random.Next(100, 255);
 //            Color randomColor = Color.FromArgb(rndColorValue, rndColorValue, rndColorValue);
@@ -387,19 +400,15 @@ namespace Sobel
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            
-//            var family = new List<string>{ "Calibri", "Arial", "Times New Roman", "MS Gothic", "Bahnschrift SemiLight SemiConde", "Mercury114" };
-            var family = new List<string>{ "ShtrixFR", "Mercury114" };
-            var fontFamily = family[random.Next(family.Count)];
-            
-            var font = new Font(fontFamily, fontSize);
 
             /*if (random.Next(2) == 1)
             {
                 font = new Font(fontFamily, fontSize, FontStyle.Bold);   
             }*/
 
-            TextRenderer.DrawText(g, text, font, new Point(20, 20), Color.Black);
+            var colorValue = 0;// random.Next(0, 120); 
+            
+            TextRenderer.DrawText(g, text, font, new Point(16, 16), Color.FromArgb(colorValue, colorValue, colorValue));
 
             g.Flush();
 
@@ -413,7 +422,60 @@ namespace Sobel
                 g.DrawImage(mapBitmap, new Point(0, 0));
             }
 
+            cache.Add((text, fontSize, rotate, fontFamily), mapBitmap);
+            
             return mapBitmap;
+        }
+        
+        private static Dictionary<(string text, float forntSize, double rotate, string fontFamaly), double[,]> cache2 = 
+            new Dictionary<(string text, float forntSize, double rotate, string fontFamaly), double[,]>();
+        
+        public static double[,] DrawString2(this Bitmap mapBitmap, string text, float fontSize = 100, double rotate = 0, Random random = null)
+        {
+            var family = new List<string>{ "Calibri", "Arial", "Times New Roman", "MS Gothic", "Bahnschrift SemiLight SemiConde", "Mercury114", "ShtrixFR" };
+//            var family = new List<string>{ "ShtrixFR", "Mercury114" };
+            var fontFamily = family[random.Next(family.Count)];
+
+            if (cache2.TryGetValue((text, fontSize, rotate, fontFamily), out var result))
+                return result;
+            
+            var font = new Font(fontFamily, fontSize);
+            
+            Graphics g = Graphics.FromImage(mapBitmap);
+//            var rndColorValue = random.Next(100, 255);
+//            Color randomColor = Color.FromArgb(rndColorValue, rndColorValue, rndColorValue);
+//            g.FillRectangle((Brush) new SolidBrush(randomColor), 0, 0, mapBitmap.Width, mapBitmap.Height);
+            g.FillRectangle(Brushes.White, 0, 0, mapBitmap.Width, mapBitmap.Height);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            /*if (random.Next(2) == 1)
+            {
+                font = new Font(fontFamily, fontSize, FontStyle.Bold);   
+            }*/
+
+            var colorValue = 0;// random.Next(0, 120); 
+            
+            TextRenderer.DrawText(g, text, font, new Point(16, 16), Color.FromArgb(colorValue, colorValue, colorValue));
+
+            g.Flush();
+
+            if (rotate != 0)
+            {
+                var angle = random.NextDouble() * (-rotate - rotate) + rotate;
+                PointF offset = new PointF((float)mapBitmap.Width / 2, (float)mapBitmap.Height / 2);
+                g.TranslateTransform(offset.X, offset.Y);
+                g.RotateTransform((float)angle);
+                g.TranslateTransform(-offset.X, -offset.Y);
+                g.DrawImage(mapBitmap, new Point(0, 0));
+            }
+
+            var map = mapBitmap.CutSymbol((0,0), (0,0)).ResizeImage1(16,16).GetDoubleMatrix(optimize: false);
+
+            cache2.Add((text, fontSize, rotate, fontFamily), map);
+            
+            return map;
         }
 
         public static Bitmap ResizeImage(this Bitmap source, RectangleF destinationBounds)
@@ -426,16 +488,15 @@ namespace Sobel
 
             Bitmap destinationImage = new Bitmap((int)destinationBounds.Width, (int)destinationBounds.Height);
             Graphics graph = Graphics.FromImage(destinationImage);
-            graph.InterpolationMode =
-                System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            graph.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
             // Fill with background color
-            graph.FillRectangle(new SolidBrush(System.Drawing.Color.White), destinationBounds);
+            graph.FillRectangle(new SolidBrush(Color.White), destinationBounds);
 
             float resizeRatio, sourceRatio;
             float scaleWidth, scaleHeight;
 
-            sourceRatio = (float)source.Width / (float)source.Height;
+            sourceRatio = source.Width / (float)source.Height;
 
             if (sourceRatio >= 1.0f)
             {

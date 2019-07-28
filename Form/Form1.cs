@@ -28,7 +28,9 @@ namespace Sobel
         private string lastImgPath = null;
         private (int x, int y) pictureSize = (16, 16);
         private Bitmap workImage;
-        
+        private double _scale = 0;
+        private const int MinImgSize = 2000;
+
         public Form1()
         {
             InitializeComponent();
@@ -44,14 +46,16 @@ namespace Sobel
                 {
                     lastImgPath = open.FileName;
                     Bitmap bit = new Bitmap(open.FileName);
+                    bit = bit.ScaleImage(MinImgSize, MinImgSize);
                     workImage = bit;
 
                     mainPicturePanel.AutoScrollPosition = new Point(0, 0);
                     pictureBox1.Location = new Point(3, 3);
-                    pictureBox1.SizeMode = bit.Width < pictureBox1.Width && bit.Height < pictureBox1.Height ? PictureBoxSizeMode.Zoom : PictureBoxSizeMode.AutoSize;
-                    pictureBox1.Dock = bit.Width < pictureBox1.Width && bit.Height < pictureBox1.Height ? DockStyle.Fill : DockStyle.None;
-                    //mainPicturePanel.AutoScroll = bit.Width >= pictureBox1.Width && bit.Height >= pictureBox1.Height;
+                    pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;//bit.Width < pictureBox1.Width && bit.Height < pictureBox1.Height ? PictureBoxSizeMode.Zoom : PictureBoxSizeMode.AutoSize;
+                    pictureBox1.Dock = DockStyle.None; //bit.Width < pictureBox1.Width && bit.Height < pictureBox1.Height ? DockStyle.Fill : DockStyle.None;
+                    mainPicturePanel.AutoScroll = true;// bit.Width >= pictureBox1.Width && bit.Height >= pictureBox1.Height;
                     pictureBox1.Image = bit;
+                    _scale = 0;
                     Y = 0;
                     X = 0;
                 }
@@ -78,19 +82,11 @@ namespace Sobel
 
         private void findTextButton_Click(object sender, EventArgs e)
         {
-            byte difMin = (byte)findMinNumeric.Value;
-//            var bitmap = workImage.ScaleImage(1000, 1000);
-            /*var cords = Segmentation.FindQRCornersCords(new Bitmap(workImage));
-            pictureBox1.Image = cords.DrawCords(workImage, Color.Red);
-            
-            cords = Segmentation.FindQRCornersCordsY(new Bitmap(workImage));
-            pictureBox1.Image = cords.DrawCords(new Bitmap(pictureBox1.Image), Color.Blue);*/
-            
-
-            var result = Segmentation.ShowTextCord2(new Bitmap(workImage), difMin, difMin);
-            workImage = result.img;
-            pictureBox1.Image = result.cords.DrawCords(workImage); //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
-            cords = result.cords;
+            var bitmap = new Bitmap(pictureBox1.Image);
+            var cords = Segmentation.FindCords(bitmap.GetByteMatrix(), (byte)averageNum.Value);
+            //workImage = bitmap;
+            pictureBox1.Image = cords.DrawCords(bitmap); //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
+            this.cords = cords;
         }
 
         private void prevVertPos_Click(object sender, EventArgs e)
@@ -199,6 +195,7 @@ namespace Sobel
             }
 
             Bitmap bit = new Bitmap(lastImgPath);
+            bit = bit.ScaleImage(MinImgSize, MinImgSize);
             pictureBox1.Image = bit;
             workImage = bit;
         }
@@ -217,8 +214,23 @@ namespace Sobel
             var kernel = (int)findMinNumeric.Value;
             var averege = (double)averageNum.Value;
 //            workImage = ((Bitmap) workImage.Clone()).ToBlackWite(averege);
-            workImage = ((Bitmap) workImage.Clone()).To1bpp2(kernel, averege);
+            workImage = ((Bitmap) workImage.Clone()).To1bpp3(kernel, averege);
             pictureBox1.Image = workImage;
+            
+            byte difMin = (byte)findMinNumeric.Value;
+            byte topStep = (byte)vertPos.Value;
+//            var bitmap = workImage.ScaleImage(1000, 1000);
+            /*var cords = Segmentation.FindQRCornersCords(new Bitmap(workImage));
+            pictureBox1.Image = cords.DrawCords(workImage, Color.Red);
+            
+            cords = Segmentation.FindQRCornersCordsY(new Bitmap(workImage));
+            pictureBox1.Image = cords.DrawCords(new Bitmap(pictureBox1.Image), Color.Blue);*/
+            
+
+            /*var result = Segmentation.ShowTextCord2(new Bitmap(workImage), topStep, difMin);
+            workImage = result.img;
+            pictureBox1.Image = ScaleImage(result.cords.DrawCords(workImage), _scale); //Utils.TestSearch(new Bitmap(pictureBox1.BackgroundImage));
+            cords = result.cords;*/
         }
 
         private void cannyApplyButton_Click(object sender, EventArgs e)
@@ -263,7 +275,7 @@ namespace Sobel
         private void recognizeButton_Click(object sender, EventArgs e)
         {
             //searchText();
-            ShowResult2();
+            ShowResult();
             return;
 
             panel2.Controls.Clear();
@@ -399,7 +411,7 @@ namespace Sobel
             foreach (var path in filesPaths)
             {
                 var setting = File.ReadAllBytes(path);
-                var symbleMatch = Regex.Match(path, @"\\_?(?<symble>\w+)\.nw");
+                var symbleMatch = Regex.Match(path, @"\\_?(?<symble>.+)\.nw");
                 var symble = symbleMatch.Groups["symble"].Value;
 
                 if (symble.Equals("point"))
@@ -421,32 +433,40 @@ namespace Sobel
 
         private void ShowResult()
         {
-            cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
-            var imageMap = workImage.GetDoubleMatrix(invert: false);
+            cords = cords.Where(x => (x.Right - x.Left > 2) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
+            var imageMap = workImage.GetDoubleMatrix(invert: false, optimize: false);
 
             var matrixes = cords
-                .Where(c => c.Right - c.Left > 6 && c.Bottom - c.Top > 6)
+                .Where(c => c.Right - c.Left > 2 && c.Bottom - c.Top > 2)
                 .Select(cord => new MatrixWithCords
                 {
                     cord = cord,
                     matrix = imageMap
-                        .GetMapPart(cord.Left - 2, cord.Top - 2, cord.Right - cord.Left + 4, cord.Bottom - cord.Top + 4)
+                        .GetMapPart(cord.Left - 1, cord.Top - 1, cord.Right + 1 - cord.Left, cord.Bottom + 1 - cord.Top)
                         .ToBitmap()
-                        .ScaleImage(pictureSize.x, pictureSize.y)
-                        .GetDoubleMatrix()
+                        .ResizeImage1(pictureSize.x, pictureSize.y)
+                        .GetDoubleMatrix(optimize: false)
                 })
                 .ToList();
 
             var res = matrixes
-                .AsParallel()
+                //.AsParallel()
                 .Select(m => new
                 {
                     m.cord,
                     result = networks
                         //.AsParallel()
-                        .Select(n => new Result {answer = n.Value.Compute(m.matrix)[0], result = n.Key})
-                        .OrderByDescending(x => x.answer).First()
+                        .Select(n =>
+                        {
+                            var computed = n.Value.Compute(m.matrix);
+                            var maxResult = GetMaxNeuron(computed);
+                            
+                            return n.Key[maxResult.index] == ' ' ? null : new Result {answer = maxResult.value, result = n.Key[maxResult.index].ToString()};
+                        })
+                        .Where(x => x != null)
+                        .OrderByDescending(x => x.answer).FirstOrDefault()
                 })
+                .Where(x => x.result != null)
                 .ToArray()
                 .Select(m => new Result
                 {
@@ -465,10 +485,23 @@ namespace Sobel
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.Flush();
             
-            foreach (var result in res.Where(x => x.answer > 0.9d))
+            foreach (var result in res.Where(x => x.answer > 0.1d))
+            {
+                var color = result.answer > 0.85d 
+                    ? Color.Green 
+                    : result.answer > 0.65d
+                        ? Color.Yellow
+                        : result.answer > 0.4d
+                            ? Color.Red
+                            : Color.SaddleBrown;
+                
+                DrawSymbol(resultBitmap, result.cord, result.result, null, color);
+            }
+            
+            /*foreach (var result in res.Where(x => x.answer > 0.9d))
             {
                 DrawSymbol(resultBitmap, result.cord, result.result, null);
-            }
+            }*/
 
             pictureBox1.Image = resultBitmap;
 
@@ -510,11 +543,11 @@ namespace Sobel
         
         private void ShowResult2()
         {
-            cords = cords.Where(x => (x.Right - x.Left > 6) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
+            cords = cords.Where(x => (x.Right - x.Left > 2) && (x.Right - x.Left < 100)).OrderBy(x => x.Top).ThenBy(x => x.Left).ToList();
             var imageMap = workImage.GetDoubleMatrix(invert: false, optimize: false);
 
             var matrixes = cords
-                .Where(c => c.Right - c.Left > 6 && c.Bottom - c.Top > 6)
+                .Where(c => c.Right - c.Left > 2 && c.Bottom - c.Top > 2)
                 .Select(cord => new MatrixWithCords
                 {
                     cord = cord,
@@ -523,18 +556,39 @@ namespace Sobel
                         .ToBitmap()
                         .ScaleImage(pictureSize.x, pictureSize.y)
 //                        .ToBlackWite()
-                        .GetDoubleMatrix()
+                        .GetDoubleMatrix(optimize: false)
                 })
                 .ToList();
 
-            var chars = "ёйцукенгшщзхъфывапролджэячсмитьбюЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮ0123456789";
+//            var chars = "ёйцукенгшщзхъфывапролджэячсмитьбюЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮ0123456789";
 //            var chars = "ёйцукенгшщзхъфывапролджэячсмитьбю";
-            var chars = "ёйцукенгшщзхъфывапролджэячсмитьбю";
+            var chars = "ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ ";
             var network = networks.FirstOrDefault();
             var matrixesCount = matrixes.Count;
             var res = new List<Result>();
 
-            Parallel.For(0, matrixesCount, i =>
+            for (var i = 0; i < matrixesCount; i++)
+            {
+                var m = matrixes[i];
+                var computed = network.Value.Compute(m.matrix);
+//                var results = new List<(double[])>();
+
+                Parallel.For(0, networks.Count, n =>
+                {
+                    
+                });
+                
+                var maxResult = GetMaxNeuron(computed);
+                
+                res.Add(new Result
+                {
+                    cord = m.cord,
+                    result = chars[maxResult.index].ToString(),
+                    answer = maxResult.value
+                });
+            }
+
+            /*Parallel.For(0, matrixesCount, i =>
             {
                 var m = matrixes[i];
                 var computed = network.Value.Compute(m.matrix);
@@ -546,7 +600,7 @@ namespace Sobel
                     result = chars[maxResult.index].ToString(),
                     answer = maxResult.value
                 });
-            });
+            });*/
 
             var resultBitmap = new Bitmap(workImage.Width, workImage.Height, PixelFormat.Format32bppArgb);
 
@@ -617,7 +671,7 @@ namespace Sobel
                 foreach (var path in filesPaths)
                 {
                     var setting = File.ReadAllBytes(path);
-                    var symbleMatch = Regex.Match(path, @"\\_?(?<symble>\w+)\.nw");
+                    var symbleMatch = Regex.Match(path, @"\\(?<symble>(\w|\s|\d)+)\.nw");
                     var symble = symbleMatch.Groups["symble"].Value;
                     var net = new Network();
 
@@ -638,6 +692,23 @@ namespace Sobel
         {
             var form = new RestoreNetForm();
             form.Show();
+        }
+
+        private void scaleDownButton_Click(object sender, EventArgs e)
+        {
+            _scale -= 0.1d;
+            pictureBox1.Image = ScaleImage(new Bitmap(pictureBox1.Image), _scale);
+        }
+
+        private void scaleUpButton_Click(object sender, EventArgs e)
+        {
+            _scale += 0.1d;
+            pictureBox1.Image = ScaleImage(new Bitmap(pictureBox1.Image), _scale);
+        }
+
+        private Bitmap ScaleImage(Bitmap image, double scale)
+        {
+            return image.ScaleImage(image.Width + (int)(image.Width * scale), image.Height + (int)(image.Height * scale));
         }
     }
 

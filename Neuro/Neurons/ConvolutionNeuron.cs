@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Neuro.ActivationFunctions;
 using Neuro.Extensions;
 using Neuro.Models;
@@ -15,9 +16,9 @@ namespace Neuro.Neurons
         public double Bias { get; set; } = 0;
         public Matrix Output { get; set; }
         public int Padding { get; } = 1;
-        public int? ParentId { get; }
+        public int[] ParentId { get; }
 
-        public ConvolutionNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3, int? parentId = null)
+        public ConvolutionNeuron(IActivationFunction function, int inWidth, int inHeight, int kernelSize = 3, int[] parentId = null)
         {
             _kernelSize = kernelSize;
             Weights = new Matrix(new double[kernelSize, kernelSize]);
@@ -43,7 +44,7 @@ namespace Neuro.Neurons
         
         public Matrix Compute(Matrix[] inputs)
         {
-            var input = ParentId.HasValue ? inputs[ParentId.Value] : inputs.Sum();
+            var input = ParentId != null && ParentId.Any() ? inputs.Where((x, i) => ParentId.Contains(i)).ToArray().Sum() : inputs.Sum();
             var output = (input.Convolution(Weights, Padding) + Bias) * Function.Activation;
 
             Output = output;

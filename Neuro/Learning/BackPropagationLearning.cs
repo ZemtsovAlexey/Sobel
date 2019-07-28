@@ -25,12 +25,16 @@ namespace Neuro.Learning
 
             var matrixLayers = network.Layers.Where(x => x.Type == LayerType.Convolution || x.Type == LayerType.MaxPoolingLayer).Select(x => x as IMatrixLayer).ToArray();
             fullyConnectedLayers = network.Layers.Where(x => x.Type == LayerType.FullyConnected).Select(x => x as IFullyConnectedLayer).ToArray();
+            var softmaxAny = network.Layers.Any(x => x.Type == LayerType.Softmax);
 
-            fullyConnectedNeuronErrors = new double[fullyConnectedLayers.Length][];
+            fullyConnectedNeuronErrors = new double[fullyConnectedLayers.Length + (softmaxAny ? 1 : 0)][];
             convNeuronErrors = new Matrix[matrixLayers.Length][];
-
+            
             for (var i = 0; i < fullyConnectedLayers.Length; i++)
                 fullyConnectedNeuronErrors[i] = new double[fullyConnectedLayers[i].NeuronsCount];
+            
+            if (softmaxAny)
+                fullyConnectedNeuronErrors[fullyConnectedNeuronErrors.Length - 1] = new double[network.Layers.Last().NeuronsCount];
             
             for (var i = 0; i < matrixLayers.Length; i++)
                 convNeuronErrors[i] = new Matrix[matrixLayers[i].Outputs.Length];
@@ -49,7 +53,7 @@ namespace Neuro.Learning
         private double CalculateFullyConnectedLayersError(IReadOnlyList<double> desiredOutput)
         {
             var lastLayer = network.Layers.Last();
-            var errors = fullyConnectedNeuronErrors[fullyConnectedLayers.Length - 1];
+            var errors = fullyConnectedNeuronErrors[fullyConnectedNeuronErrors.Length - 1];
             var output = (lastLayer as ILinearCompute)?.Outputs;
             var error = 0d;
             
@@ -75,7 +79,7 @@ namespace Neuro.Learning
                 var layer = fullyConnectedLayers[j];
                 errors = fullyConnectedNeuronErrors[j];
                 
-                var layerNext = j + 1 > fullyConnectedLayers.Length - 1 && lastLayer.Type == LayerType.Softmax ? (IFullyConnectedLayer)lastLayer : fullyConnectedLayers[j + 1];
+                var layerNext = j + 1 > fullyConnectedLayers.Length - 1 && lastLayer.Type == LayerType.Softmax ? (ILinearCompute)lastLayer : (ILinearCompute)fullyConnectedLayers[j + 1];
                 var errorsNext = fullyConnectedNeuronErrors[j + 1];
 
                 Parallel.For(0, layer.NeuronsCount, i =>
@@ -124,7 +128,7 @@ namespace Neuro.Learning
                             var neurons = layer.Neurons.Select((neuron, i) => new {neuron, index = i});
                                 
                             if (layer.UseReferences)
-                                neurons = neurons.Where(x => x.neuron.ParentId == n).ToList();
+                                neurons = neurons.Where(x => x.neuron.ParentId.Contains(n)).ToList();
 
                             foreach (var neuron in neurons)
                             {
@@ -266,7 +270,7 @@ namespace Neuro.Learning
                 for (var e = 0; e < convNeuronErrors[l].Length; e++)
                 {
                     var parentId = layer.Neurons[e].ParentId;
-                    inputs = l > 0 && layer.UseReferences && parentId.HasValue ? convLayers[l - 1].Outputs[parentId.Value] : inputs;
+                    inputs = l > 0 && layer.UseReferences && parentId != null && parentId.Any() ? convLayers[l - 1].Outputs.Where((x, i) => parentId.Contains(i)).ToArray().Sum(): inputs;
                     
                     var error = convNeuronErrors[l][e] * LearningRate;
                     var weights = layer.Neurons[e].Weights;
@@ -302,6 +306,31 @@ namespace Neuro.Learning
                     });
                 }
             });
+
+            var lastLayer = network.Layers.Last();
+
+            if (lastLayer.Type == LayerType.Softmax)
+            {
+                var layer = network.Layers.Last() as ISoftmaxLayer;
+                var inputs = fullyConnectedLayers.Last().Outputs;
+                
+                unsafe
+                {
+                    Parallel.For(0, layer.NeuronsCount, n =>
+                    {
+                        var neuron = layer.Neurons[n];
+                        var weightsLength = neuron.Weights.Length;
+                        var error = fullyConnectedNeuronErrors.Last()[n];
+
+                        fixed (double* weights = neuron.Weights, x = inputs)
+                            for (var i = 0; i < weightsLength; i++)
+                            {
+                                weights[i] += LearningRate * error * x[i];
+                                neuron.Bias += LearningRate * error * x[i];
+                            }
+                    });
+                }
+            }
         }
     }
 }

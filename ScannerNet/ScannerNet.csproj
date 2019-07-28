@@ -58,6 +58,7 @@
     <Compile Include="Models\Cord.cs" />
     <Compile Include="Models\LineCord.cs" />
     <Compile Include="Models\NetworkSettings.cs" />
+    <Compile Include="Models\MyPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scanner.cs" />
     <Compile Include="Segmentation.cs" />

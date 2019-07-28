@@ -165,9 +165,54 @@ namespace ScannerNet.Extensions
 
             return result;
         }
+
+        public static Bitmap GetPart(this Bitmap bitmap, int l, int t, int r, int b)
+        {
+            var x = l;
+            var y = t;
+            var width = r - l;
+            var height = b - t;
+            var cloneRect = new Rectangle(x, y, width, height);
+            var format = bitmap.PixelFormat;
+            
+            return bitmap.Clone(cloneRect, format);
+        }
         
         public static double[,] GetMapPart(this double[,] map, int x, int y, int width, int height)
         {
+            x = Math.Max(0, Math.Min(map.GetLength(1), x));
+            y = Math.Max(0, Math.Min(map.GetLength(0), y));
+            
+            height = Math.Max(0, Math.Min(y + height, map.GetLength(0) - 1) - y);
+            width = Math.Max(0, Math.Min(x + width, map.GetLength(1) - 1) - x);
+
+            var result = new double[height, width];
+
+            Parallel.For(0, height, (int Y) =>
+            {
+                Parallel.For(0, width, (int X) =>
+                {
+                    try
+                    {
+                        result[Y, X] = map[Y + y, X + x];
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ArgumentOutOfRangeException($"{map.GetLength(0)}/{map.GetLength(1)} - {Y+y}/{X+x}", ex);
+                    }
+                });
+            });
+            
+            return result;
+        }
+        
+        public static double[,] GetMapPartByCords(this double[,] map, int l, int t, int r, int b)
+        {
+            var x = l;
+            var y = t;
+            var width = r - l;
+            var height = b - t;
+            
             x = Math.Max(0, Math.Min(map.GetLength(1), x));
             y = Math.Max(0, Math.Min(map.GetLength(0), y));
             
@@ -441,7 +486,7 @@ namespace ScannerNet.Extensions
             var bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
             var newBitmapData = newBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, newBitmap.PixelFormat);
             var step = newBitmap.GetStep();
-            var scanStep = Math.Min(height, width) / 20;
+            var scanStep = kernel;//Math.Min(height, width) / 20;
 
             scanStep = scanStep < 10 ? 10 : scanStep;
 //            scanStep = 20;
@@ -482,14 +527,11 @@ namespace ScannerNet.Extensions
                         for (var kX = 0; kX < scanStep; kX++)  
                         {
                             var rowPix = GetPixelBright(kRow, step, step * (x * scanStep + kX));
-//                            c = rowPix < averege ? byte.MinValue : byte.MaxValue;
-                            if (d > 20)
+                            c = rowPix < averege ? byte.MinValue : byte.MaxValue;
+                            
+                            if (d < 15)
                             {
-                                c = rowPix < averege ? byte.MinValue : byte.MaxValue;
-                            }
-                            else if ((byte) averege == rowPix)
-                            {
-                                c = rowPix > 130 ? byte.MaxValue : byte.MinValue;
+                                c = byte.MaxValue;
                             }
                             
                             SetPixelBright(newRow, step, step * (x * scanStep + kX), c);
@@ -533,27 +575,32 @@ namespace ScannerNet.Extensions
                     var min = 255d;
                     var max = 0d;
 
-                    for (var kY = kYStart; kY < kH; kY++) { 
-                    //Parallel.For(kYStart, kH, kY => {
+                    for (var kY = kYStart; kY < kH; kY++) 
+                    { 
                         var kRow = (byte*)bitmapData.Scan0 + (kY * bitmapData.Stride);
 
                         for (var kX = kXStart; kX < kW; kX++)  
-                        //Parallel.For(kXStart, kW, kX =>
                         {
                             var p = GetPixelBright(kRow, step, step * kX);
 
                             averege += p;
                             min = Math.Min(min, p);
                             max = Math.Max(max, p);
-                        }//);
-                    }//);
+                        }
+                    }
 
                     averege /= ((kW - kXStart) * (kH - kYStart));
                     var d = max - min;
 
                     var rowPix = GetPixelBright(row, step, columnOffset);
+                    c = rowPix < averege ? byte.MinValue : byte.MaxValue;
 
-                    if (d > 20)
+                    if (d < 15)
+                    {
+                        c = byte.MaxValue;
+                    }
+                    
+                    /*if (d > 80)
                     {
                         c = rowPix < averege ? byte.MinValue : byte.MaxValue;
                     }
@@ -572,8 +619,7 @@ namespace ScannerNet.Extensions
                         //        averege - min < max - averege 
                         //            ? byte.MinValue 
                         //            : byte.MaxValue; 
-                    }
-//                        c = byte.MaxValue;
+                    }*/
                     
                     SetPixelBright(newRow, step, columnOffset, c);
 
@@ -690,6 +736,31 @@ namespace ScannerNet.Extensions
             }
             
             Graphics.FromImage(newImage).DrawImage(image, 0, 0, newWidth, newHeight);
+            Bitmap bmp = new Bitmap(newImage);
+
+            return bmp;
+        }
+        
+        public static Bitmap ResizeImage1(this Bitmap image, int maxWidth, int maxHeight)
+        {
+            var ratioX = (double)maxWidth / image.Width;
+            var ratioY = (double)maxHeight / image.Height;
+            var ratio = Math.Min(ratioX, ratioY);
+
+            var newWidth = (int)(image.Width * ratio);
+            var newHeight = (int)(image.Height * ratio);
+            var x = ((Math.Max(maxWidth, newWidth) - Math.Min(maxWidth, newWidth)) / 2);
+            var y = ((Math.Max(maxHeight, newHeight) - Math.Min(maxHeight, newHeight)) / 2);
+
+            var newImage = new Bitmap(maxWidth, maxHeight);
+            
+            using (Graphics gfx = Graphics.FromImage(newImage))
+            using (SolidBrush brush = new SolidBrush(Color.White))
+            {
+                gfx.FillRectangle(brush, 0, 0, maxWidth, maxHeight);
+            }
+            
+            Graphics.FromImage(newImage).DrawImage(image, x, y, newWidth, newHeight);
             Bitmap bmp = new Bitmap(newImage);
 
             return bmp;

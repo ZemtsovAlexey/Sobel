@@ -18,7 +18,7 @@ namespace Sobel.UI
         public Network Network;
         public bool Running;
         private int shape = 5;
-        private int shapeOut = 3;
+        private int shapeOut = 5;
         private int shapeDiff = 0;
 //        private Func<double, double> eventLog;
         public event EventHandler<double> EventHandler;
@@ -29,13 +29,13 @@ namespace Sobel.UI
             shapeDiff = (shape - shapeOut) / 2;
             Network = new Network();
             
-            Network.InitLayers(shape, shape,
-                new ConvolutionLayer(ActivationType.BipolarSigmoid, 8, 3, true),
+            Network.InitLayers((shape, shape),
+//                new ConvolutionLayer(ActivationType.BipolarSigmoid, 8, 3, true),
 //                new MaxPoolingLayer(2),
 //                new ConvolutionLayer(ActivationType.BipolarSigmoid, 16, 3, true),
 //                new ConvolutionLayer(ActivationType.ReLu, 16, 3),
                 new FullyConnectedLayer(36, ActivationType.BipolarSigmoid),
-                new FullyConnectedLayer(18, ActivationType.BipolarSigmoid),
+                new FullyConnectedLayer(36, ActivationType.BipolarSigmoid),
                 new FullyConnectedLayer(shapeOut * shapeOut, ActivationType.BipolarSigmoid)
             );
             

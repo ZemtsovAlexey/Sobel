@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Neuro.ActivationFunctions;
 using Neuro.Domain.Layers;
 using Neuro.Models;
@@ -32,19 +33,28 @@ namespace Neuro.Layers
             UseReferences = useReferences;
         }
 
-        public void Init(int inputWidth, int inputHeight, int? outsPerNeuron)
+        public void Init(int inputWidth, int inputHeight, int linksCount)
         {
             OutputWidht = inputWidth - KernelSize + 1;
             OutputHeight = inputHeight - KernelSize + 1;
             
             for (var i = 0; i < NeuronsCount; i++)
             {
-                int? parentNeuron = null;
+                var parentNeuron = new List<int>();
+
+                if (UseReferences && linksCount > 0)
+                {
+                    var pIndex = (i + 1) / linksCount; 
+                    
+                    parentNeuron.Add(pIndex);
+
+                    if ((i + 1) % linksCount == 0)
+                    {
+                        parentNeuron.Add(pIndex - 1);
+                    }
+                }
                 
-                if (UseReferences)
-                    parentNeuron = outsPerNeuron.HasValue && outsPerNeuron.Value > 0 ? i / outsPerNeuron : 0;
-                
-                Neurons[i] = new ConvolutionNeuron(_function, inputWidth, inputHeight, KernelSize, parentNeuron);
+                Neurons[i] = new ConvolutionNeuron(_function, inputWidth, inputHeight, KernelSize, parentNeuron.ToArray());
             }
         }
 

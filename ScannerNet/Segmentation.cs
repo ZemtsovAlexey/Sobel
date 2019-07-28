@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Emgu.CV;
 using Emgu.CV.Cuda;
 using Emgu.CV.CvEnum;
@@ -1614,6 +1615,147 @@ namespace ScannerNet
             newBitmap.UnlockBits(newBitmapData);
 
             return newBitmap;
+        }
+        
+        public static List<Cord> FindCords(this byte[,] imageMatrix, byte avrBright = 255 / 2)
+        {
+            var width = imageMatrix.GetLength(1);
+            var height = imageMatrix.GetLength(0);
+            var cords = new List<Cord>();
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    if (imageMatrix[y,x] < avrBright)
+                    {
+                        var inCord = cords.InCord(x, y);
+
+                        if (inCord != null)
+                        {
+                            x = inCord.Right;
+                            continue;
+                        }
+                        
+                        var buffer = new List<MyPoint> {new MyPoint(x, y)};
+
+                        buffer = imageMatrix.FindCords(buffer, x, y, avrBright);
+
+                        var cord = new Cord(buffer.Min(b => b.Y), buffer.Max(b => b.Y), buffer.Min(b => b.X), buffer.Max(b => b.X));
+
+                        cords.Add(cord);
+                        x = cord.Right + 1;
+                    }
+                }
+            }
+
+            return cords.Distinct().ToList();
+        }
+
+        private static List<MyPoint> FindCords(this byte[,] imageMatrix, List<MyPoint> buffer, int x, int y, byte avrBright = 255 / 2)
+        {
+            if (buffer.Count > 200)
+            {
+                return buffer;
+            }
+        
+            var width = imageMatrix.GetLength(1);
+            var height = imageMatrix.GetLength(0);
+
+            /*Parallel.For(0, 4, (int i) =>
+            {
+                switch (i)
+                {
+                    case 0:
+                    {
+                        var ix = x + 1;
+                        var iy = y;
+
+                        //to right
+                        if (ix < width && !buffer.Exist(ix, iy) && imageMatrix[iy, ix] < avrBright)
+                        {
+                            buffer = buffer.AddIfNotExist(ix, iy);
+                            buffer = imageMatrix.FindCords(buffer, ix, iy, avrBright);
+                        }
+                        
+                        return;
+                    }
+                    case 1:
+                    {
+                        var ix = x;
+                        var iy = y + 1;
+
+                        //to bottom
+                        if (iy < height && !buffer.Exist(ix, iy) && imageMatrix[iy, ix] < avrBright)
+                        {
+                            buffer = buffer.AddIfNotExist(ix, iy);
+                            buffer = imageMatrix.FindCords(buffer, ix, iy, avrBright);
+                        }
+                    }
+                }
+            });*/
+            
+            var ix = x + 1;
+            var iy = y;
+
+            //to right
+            if (ix < width && !buffer.Exist(ix, iy) && imageMatrix[iy, ix] < avrBright)
+            {
+                buffer = buffer.AddIfNotExist(ix, iy);
+                buffer = imageMatrix.FindCords(buffer, ix, iy, avrBright);
+            }
+
+            ix = x;
+            iy = y + 1;
+
+            //to bottom
+            if (iy < height && !buffer.Exist(ix, iy) && imageMatrix[iy, ix] < avrBright)
+            {
+                buffer = buffer.AddIfNotExist(ix, iy);
+                buffer = imageMatrix.FindCords(buffer, ix, iy, avrBright);
+            }
+
+            ix = x - 1;
+            iy = y;
+
+            //to left
+            if (ix > -1 && !buffer.Exist(ix, iy) && imageMatrix[iy, ix] < avrBright)
+            {
+                buffer = buffer.AddIfNotExist(ix, iy);
+                buffer = imageMatrix.FindCords(buffer, ix, iy, avrBright);
+            }
+
+            ix = x;
+            iy = y - 1;
+
+            //to top
+            if (iy > -1 && !buffer.Exist(ix, iy) && imageMatrix[iy, ix] < avrBright)
+            {
+                buffer = buffer.AddIfNotExist(ix, iy);
+                buffer = imageMatrix.FindCords(buffer, ix, iy, avrBright);
+            }
+
+            return buffer;
+        }
+
+        private static List<MyPoint> AddIfNotExist(this List<MyPoint> buffer, int x, int y)
+        {
+            if (!buffer.Any(b => b.X == x && b.Y == y))
+            {
+                buffer.Add(new MyPoint(x, y));
+            }
+
+            return buffer;
+        }
+
+        private static bool Exist(this List<MyPoint> buffer, int x, int y)
+        {
+            return buffer.Any(b => b.X == x && b.Y == y);
+        }
+
+        private static Cord InCord(this List<Cord> cords, int x, int y)
+        {
+            return cords.FirstOrDefault(c => x >= c.Left && x <= c.Right && y >= c.Top && y <= c.Bottom);
         }
     }
 }
