@@ -11,6 +11,6 @@ namespace Neuro.Domain.Layers
         bool UseReferences { get; }
         ConvolutionNeuron this[int index] { get; }
 
-        void Init(int inputWidth, int inputHeight, int linksCount);
+        void Init(int index, int inputWidth, int inputHeight, int linksCount);
     }
 }

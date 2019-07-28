@@ -14,6 +14,6 @@ namespace Neuro.Domain.Layers
         
         FullyConnectedNeuron this[int index] { get; }
 
-        void Init(int inputsCount);
+        void Init(int index, int inputsCount);
     }
 }

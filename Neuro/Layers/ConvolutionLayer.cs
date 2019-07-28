@@ -9,6 +9,7 @@ namespace Neuro.Layers
 {
     public class ConvolutionLayer : IConvolutionLayer
     {
+        public int Index { get; private set; }
         public LayerType Type { get; set; } = LayerType.Convolution;
         public ActivationType ActivationFunctionType { get; }
         public ConvolutionNeuron[] Neurons { get; set; }
@@ -33,8 +34,9 @@ namespace Neuro.Layers
             UseReferences = useReferences;
         }
 
-        public void Init(int inputWidth, int inputHeight, int linksCount)
+        public void Init(int index, int inputWidth, int inputHeight, int linksCount)
         {
+            Index = index;
             OutputWidht = inputWidth - KernelSize + 1;
             OutputHeight = inputHeight - KernelSize + 1;
             

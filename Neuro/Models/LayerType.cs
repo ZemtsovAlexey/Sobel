@@ -8,6 +8,7 @@ namespace Neuro.Models
         Convolution = 0,
         FullyConnected = 1,
         MaxPoolingLayer = 2,
-        Softmax = 3
+        Softmax = 3,
+        Dropout = 4
     }
 }

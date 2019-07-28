@@ -10,12 +10,13 @@ namespace ScannerNet.Models
             
         }
 
-        public NetworkSettings(LayerType type, ActivationType? activation, int? neuronsCount, int? kernelSize)
+        public NetworkSettings(LayerType type, ActivationType? activation, int? neuronsCount, int? kernelSize, double? dropProbability)
         {
             Type = type;
             Activation = activation;
             NeuronsCount = neuronsCount;
             KernelSize = kernelSize;
+            DropProbability = dropProbability;
 
             if (type == LayerType.MaxPoolingLayer)
             {
@@ -32,5 +33,7 @@ namespace ScannerNet.Models
         public int? KernelSize { get; set; }
         
         public bool ActivationDisable { get; set; }
+
+        public double? DropProbability { get; set; }
     }
 }

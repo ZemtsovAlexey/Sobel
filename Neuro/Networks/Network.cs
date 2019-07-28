@@ -33,7 +33,7 @@ namespace Neuro.Networks
                 {
                     var layer = (IFullyConnectedLayer) layers[i];
                     
-                    layer.Init(inputLength);
+                    layer.Init(i, inputLength);
 
                     inputLength = layer.Outputs.Length;
                     neuronsCount = layer.NeuronsCount;
@@ -43,7 +43,7 @@ namespace Neuro.Networks
                 {
                     var layer = (ISoftmaxLayer)layers[i];
 
-                    layer.Init(inputLength);
+                    layer.Init(i, inputLength);
 
                     inputLength = layer.Outputs.Length;
                     neuronsCount = layer.NeuronsCount;
@@ -54,7 +54,7 @@ namespace Neuro.Networks
                     var layer = (IConvolutionLayer) layers[i];
                     var linksCount = neuronsCount > 0 ? layer.NeuronsCount / neuronsCount + 1 : 0;
 
-                    layer.Init(shapeX, shapeY, linksCount);
+                    layer.Init(i, shapeX, shapeY, linksCount);
                     
                     inputLength = layer.OutputHeight * layer.OutputWidht * layer.NeuronsCount;
                     shapeX = layer.OutputWidht;
@@ -71,14 +71,21 @@ namespace Neuro.Networks
                         throw new ArgumentException($"Слой №{i}. Размер входного изображения ({shapeX}x{shapeY}) должен быть кратным размеру ядра ({layer.KernelSize})");
                     }
                     
-                    layer.Init(neuronsCount, shapeX, shapeY);
+                    layer.Init(i, neuronsCount, shapeX, shapeY);
                     
                     inputLength = layer.OutputHeight * layer.OutputWidht * layer.NeuronsCount;
                     shapeX = layer.OutputWidht;
                     shapeY = layer.OutputHeight;
                     neuronsCount = layer.NeuronsCount;
                 }
-                
+
+                if (layers[i].Type == LayerType.Dropout)
+                {
+                    var layer = (IDropoutLayer)layers[i];
+
+                    layer.Init(i);
+                }
+
                 Layers.Add(layers[i]);
             }
         }

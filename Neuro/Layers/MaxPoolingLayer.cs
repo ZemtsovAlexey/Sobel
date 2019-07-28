@@ -7,6 +7,7 @@ namespace Neuro.Layers
 {
     public class MaxPoolingLayer : IMaxPoolingLayer
     {
+        public int Index { get; private set; }
         public LayerType Type { get; } = LayerType.MaxPoolingLayer;
         public MaxPoolingNeuron[] Neurons { get; private set; }
         public Matrix[] Outputs { get; private set; }
@@ -20,8 +21,9 @@ namespace Neuro.Layers
             KernelSize = kernelSize;
         }
 
-        public void Init(int neuronsCount, int inputWidth, int inputHeitght)
+        public void Init(int index, int neuronsCount, int inputWidth, int inputHeitght)
         {
+            Index = index;
             Neurons = new MaxPoolingNeuron[neuronsCount];
             Outputs = new Matrix[neuronsCount];
             OutputHeight = inputHeitght / KernelSize;

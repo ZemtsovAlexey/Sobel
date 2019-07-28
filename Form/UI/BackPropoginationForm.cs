@@ -113,25 +113,31 @@ namespace Sobel.UI
                 if (layer.Type == LayerType.Convolution)
                 {
                     var convLayer = (IConvolutionLayer)layer;
-                    bindingSource1.Add(new NetworkSettings(layer.Type, convLayer.ActivationFunctionType, convLayer.NeuronsCount, convLayer.KernelSize));
+                    bindingSource1.Add(new NetworkSettings(layer.Type, convLayer.ActivationFunctionType, convLayer.NeuronsCount, convLayer.KernelSize, null));
                 }
                 
                 if (layer.Type == LayerType.MaxPoolingLayer)
                 {
                     var convLayer = (IMaxPoolingLayer)layer;
-                    bindingSource1.Add(new NetworkSettings(layer.Type, null, null, convLayer.KernelSize));
+                    bindingSource1.Add(new NetworkSettings(layer.Type, null, null, convLayer.KernelSize, null));
                 }
                 
                 if (layer.Type == LayerType.FullyConnected)
                 {
                     var convLayer = (IFullyConnectedLayer)layer;
-                    bindingSource1.Add(new NetworkSettings(layer.Type, convLayer.ActivationFunctionType, convLayer.NeuronsCount, null));
+                    bindingSource1.Add(new NetworkSettings(layer.Type, convLayer.ActivationFunctionType, convLayer.NeuronsCount, null, null));
                 }
 
                 if (layer.Type == LayerType.Softmax)
                 {
                     var convLayer = (ISoftmaxLayer)layer;
-                    bindingSource1.Add(new NetworkSettings(layer.Type, ActivationType.None, convLayer.NeuronsCount, null));
+                    bindingSource1.Add(new NetworkSettings(layer.Type, ActivationType.None, convLayer.NeuronsCount, null, null));
+                }
+
+                if (layer.Type == LayerType.Dropout)
+                {
+                    var convLayer = (IDropoutLayer)layer;
+                    bindingSource1.Add(new NetworkSettings(layer.Type, null, null, null, convLayer.DropProbability));
                 }
             }
             
@@ -238,6 +244,18 @@ namespace Sobel.UI
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value = null;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value ?? 1;;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[0].Value = LayerType.Softmax;
+                }
+                else if (selectedValue?.ToString() == "Dropout")
+                {
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[1].ReadOnly = true;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].ReadOnly = true;
+
+                    netSettingsDataGridView.EndEdit();
+
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[1].Value = ActivationType.None;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value = null;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[0].Value = LayerType.Dropout;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value ?? 2;
                 }
                 else
                 {

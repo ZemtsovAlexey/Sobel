@@ -90,6 +90,8 @@ namespace Neuro.Learning
                     //function.Alpha = layer[i].Bias;
                     errors[i] = function.Derivative(layer[i].Output) * sum;
                 });
+
+                errors = network.Layers[layer.Index + 1].Type == LayerType.Dropout ? ((IDropoutLayer)network.Layers[layer.Index + 1]).Derivative(errors) : errors;
             }
 
             return error;

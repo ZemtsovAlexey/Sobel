@@ -9,6 +9,7 @@ namespace Neuro.Layers
 {
     public class SoftmaxLayer : ISoftmaxLayer
     {
+        public int Index { get; private set; }
         public LayerType Type { get; set; } = LayerType.Softmax;
         public FullyConnectedNeuron[] Neurons { get; }
         public double[] Outputs { get; private set; }
@@ -37,8 +38,10 @@ namespace Neuro.Layers
             Outputs = new double[neuronsCount];
         }
 
-        public void Init(int inputsCount)
+        public void Init(int index, int inputsCount)
         {
+            Index = index;
+
             for (var i = 0; i < NeuronsCount; i++)
             {
                 Neurons[i] = new FullyConnectedNeuron(inputsCount, Function);

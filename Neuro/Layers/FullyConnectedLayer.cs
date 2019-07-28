@@ -10,6 +10,7 @@ namespace Neuro.Layers
 {
     public class FullyConnectedLayer : IFullyConnectedLayer
     {
+        public int Index { get; private set; }
         public LayerType Type { get; set; } = LayerType.FullyConnected;
         public ActivationType ActivationFunctionType { get; }
         public FullyConnectedNeuron[] Neurons { get; }
@@ -42,8 +43,10 @@ namespace Neuro.Layers
 
         }
 
-        public void Init(int inputsCount)
+        public void Init(int index, int inputsCount)
         {
+            Index = index;
+
             for (var i = 0; i < NeuronsCount; i++)
             {
                 Neurons[i] = new FullyConnectedNeuron(inputsCount, Function);
