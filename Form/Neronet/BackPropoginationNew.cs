@@ -13,8 +13,8 @@ namespace Sobel.Neronet
         public Network Network;
 
         public int Iterations = 2000;
-        public double LearningRate = 0.01f;
-        public double ResultError = 0;
+        public float LearningRate = 0.01f;
+        public float ResultError = 0;
         public int Iteration { get; set; }
 
         private bool _needToStop = false;
@@ -26,33 +26,37 @@ namespace Sobel.Neronet
 
             Network = new Network();
 
-            Network.InitLayers((16, 16),
-                new ConvolutionLayer(activation, 5, 3, true),//24
-                new ConvolutionLayer(activation, 10, 3, true),
+            Network.InitLayers((12, 12),
+                new DropoutLayer(0.3f),
+                new ConvolutionLayer(activation, 4, 5, false),//24
+                new ConvolutionLayer(activation, 8, 3, false),//24
+//                new ConvolutionLayer(activation, 4, 3, true),
                 new MaxPoolingLayer(2),
-                new FullyConnectedLayer(40, activation),
-                new DropoutLayer(0.2),
-                new FullyConnectedLayer(40, activation),
-                new DropoutLayer(0.2),
+                new FullyConnectedLayer(50, activation),
                 new SoftmaxLayer(34)
                 );
 
             Network.Randomize();
         }
         
-        public double[] Compute(Matrix bmp)
+        public float[] Compute(Matrix bmp)
         {
             return Network.Compute(bmp.Value);
         }
+        
+        public float[] TeachCompute(Matrix bmp)
+        {
+            return Network.TeachCompute(bmp.Value);
+        }
 
-        public void SearchSolution(Bitmap bmp, double[] outputs)
+        public void SearchSolution(Bitmap bmp, float[] outputs)
         {
             var teacher = new BackPropagationLearning(Network)
             {
                 LearningRate = LearningRate
             };
 
-            teacher.Run(bmp.GetDoubleMatrix(), outputs);
+            teacher.Run(bmp.GetMatrix(), outputs);
         }
 
         public void SearchSolutionStop()

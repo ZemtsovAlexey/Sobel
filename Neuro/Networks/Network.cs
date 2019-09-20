@@ -12,9 +12,9 @@ namespace Neuro.Networks
 {
     public class Network
     {
-        public List<ILayer> Layers;
-        public int InputWidth { get; private set; }
-        public int InputHeight { get; private set; }
+        public List<ILayer> Layers = new List<ILayer>();
+        public int InputWidth { get; internal set; }
+        public int InputHeight { get; internal set; }
 
         public void InitLayers((int X, int Y) shape, params ILayer[] layers)
         {
@@ -98,7 +98,7 @@ namespace Neuro.Networks
             }
         }
         
-        public double[] Compute(double[,] input)
+        public float[] Compute(float[,] input)
         {
             var output = new[] {new Matrix(input)};
 
@@ -112,6 +112,43 @@ namespace Neuro.Networks
             foreach (var layer in Layers.Where(l => l.Type == LayerType.FullyConnected || l.Type == LayerType.Softmax))
             {
                 outputLinear = (layer as ILinearCompute)?.Compute(outputLinear);
+            }
+
+            return outputLinear;
+        }
+        
+        public float[] TeachCompute(float[,] input)
+        {
+            var output = new[] {new Matrix(input)};
+            
+            if (Layers.First().Type == LayerType.Dropout)
+            {
+                var dropLayer = (IDropoutLayer) Layers.First();
+                output = new[] {new Matrix(dropLayer.Derivative(output[0].To1DArray()), output[0].GetLength(1))};
+            }
+
+            foreach (var layer in Layers.Where(l => l.Type == LayerType.Convolution || l.Type == LayerType.MaxPoolingLayer))
+            {
+                output = (layer as IMatrixLayer)?.Compute(output);
+            }
+            
+            var outputLinear = output.To1DArray();
+
+            foreach (var layer in Layers.Where(l => l.Type == LayerType.FullyConnected || l.Type == LayerType.Softmax || l.Type == LayerType.Dropout))
+            {
+                if (layer.Type == LayerType.Dropout)
+                {
+                    if (layer.Index == 0)
+                        continue;
+                    
+                    var prevLayer = (ILinearCompute) Layers[layer.Index - 1];
+
+                    prevLayer.Outputs = ((IDropoutLayer) layer).Derivative(prevLayer.Outputs);
+                }
+                else
+                {
+                    outputLinear = (layer as ILinearCompute)?.Compute(outputLinear);
+                }
             }
 
             return outputLinear;
@@ -146,7 +183,7 @@ namespace Neuro.Networks
 
                         foreach (var neuron in fullyConnectedLayer.Neurons)
                         {
-                            var weights = new double[neuron.Weights.Length];
+                            var weights = new float[neuron.Weights.Length];
 
                             for (var i = 0; i < neuron.Weights.Length; i++)
                             {
@@ -168,7 +205,7 @@ namespace Neuro.Networks
 
                         foreach (var neuron in fullyConnectedLayer.Neurons)
                         {
-                            var weights = new double[neuron.Weights.Length];
+                            var weights = new float[neuron.Weights.Length];
 
                             for (var i = 0; i < neuron.Weights.Length; i++)
                             {
@@ -208,6 +245,12 @@ namespace Neuro.Networks
                         var fullyConnectedLayer = (MaxPoolingLayer) layer;
 
                         layerSaveData.KernelSize = fullyConnectedLayer.KernelSize;
+                        break;
+                    }
+                    case LayerType.Dropout:
+                    {
+                        var dropoutLayer = (DropoutLayer) layer;
+                        layerSaveData.DropProbability = dropoutLayer.DropProbability;
                         break;
                     }
                     default:
@@ -258,6 +301,9 @@ namespace Neuro.Networks
                     case LayerType.Softmax:
                         layers.Add(new SoftmaxLayer(layer.OutputLength));
                         break;
+                    case LayerType.Dropout:
+                        layers.Add(new DropoutLayer(layer.DropProbability));
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -305,6 +351,7 @@ namespace Neuro.Networks
                         
                         break;
                     }
+                    case LayerType.Dropout:
                     case LayerType.MaxPoolingLayer:
                         break;
                     default:
@@ -316,11 +363,45 @@ namespace Neuro.Networks
 
     public static class NetworkExtensions
     {
-        public static Network AddConvolutionLayer(this Network network, ActivationType activationType, int neuronsCount, int kernelSize = 3, bool useReferences = false)
+        public static Network AddInputLayer(this Network network, (int X, int Y) shape)
         {
-            network.Layers.Add(new ConvolutionLayer(activationType, neuronsCount, kernelSize, useReferences));
+            network.InputWidth = shape.X;
+            network.InputHeight = shape.Y;
 
             return network;
+        }
+
+        public static Network AddConvolutionLayer(this Network network, ActivationType activationType, int neuronsCount, int kernelSize = 3, bool useReferences = false, bool useGpu = false)
+        {
+            network.Layers.Add(new ConvolutionLayer(activationType, neuronsCount, kernelSize, useReferences, useGpu));
+
+            return network;
+        }
+
+        public static Network AddMaxPoolingLayer(this Network network, int kernelSize)
+        {
+            network.Layers.Add(new MaxPoolingLayer(kernelSize));
+
+            return network;
+        }
+
+        public static Network AddFullyConnectedLayer(this Network network, ActivationType activationType, int neuronsCount)
+        {
+            network.Layers.Add(new FullyConnectedLayer(neuronsCount, activationType));
+
+            return network;
+        }
+
+        public static Network AddDropoutLayer(this Network network, float dropProbability)
+        {
+            network.Layers.Add(new DropoutLayer(dropProbability));
+
+            return network;
+        }
+
+        public static void AddSoftmaxLayer(this Network network, int neuronsCount)
+        {
+            network.Layers.Add(new SoftmaxLayer(neuronsCount));
         }
     }
 }

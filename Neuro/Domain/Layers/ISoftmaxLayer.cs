@@ -6,6 +6,6 @@ namespace Neuro.Domain.Layers
     {
         void Init(int index, int inputsCount);
 
-        double Derivative(int neuron);
+        float Derivative(int neuron);
     }
 }

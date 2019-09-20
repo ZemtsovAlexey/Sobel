@@ -34,13 +34,13 @@ namespace Sobel.UI
         private Series _seriesSuccess;
         private int _succeses = 0;
         private bool _neadToStopLearning;
-        private (int x, int y) pictureSize = (16, 16);
+        private (int x, int y) pictureSize = (12, 12);
         private BindingSource bindingSource1 = new BindingSource();
         private Rectangle dragBoxFromMouseDown;
         private int rowIndexFromMouseDown;
         private int rowIndexOfItemUnderMouseToDrop;
         
-        private const string BadResults = " /\\*(){}-+&?#DFGIJLQRSUVWYZbdfghijklqrstuvwyz0123456789";
+        private const string BadResults = " /\\*(){}-+&?#DFGIJLQRSUVWYZbdfghijklqrstuvwzЁЙЦУКЕНГШЩЗХФЫВАПРОЛДЖЭЯЧСМИТБЮ0123456789";
 //            var trueResults = "0123456789ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯСМИТЬБЮёйцукенгшщзхъфывапролджэячсмитьбю";
         private const string TrueResults = "ёйцукенгшщзхъфывапролджэячсмитьбю"; //ЁЕАБО
         
@@ -70,20 +70,20 @@ namespace Sobel.UI
 
             var convNeuron = (net.Layers[0] as ConvolutionLayer).Neurons[0];
 
-            convNeuron.Weights = new Matrix(new [,]{{0.1d, 0.2d}, {0.3d, 0.4d}});
+            convNeuron.Weights = new Matrix(new [,]{{0.1f, 0.2f}, {0.3f, 0.4f}});
 
             var firstFullConLayer = (net.Layers[1] as FullyConnectedLayer);
 
-            firstFullConLayer[0].Weights[0] = 0.1d;
-            firstFullConLayer[0].Weights[1] = 0.2d;
-            firstFullConLayer[0].Weights[2] = 0.3d;
-            firstFullConLayer[0].Weights[3] = 0.4d;
+            firstFullConLayer[0].Weights[0] = 0.1f;
+            firstFullConLayer[0].Weights[1] = 0.2f;
+            firstFullConLayer[0].Weights[2] = 0.3f;
+            firstFullConLayer[0].Weights[3] = 0.4f;
 
-            var input = new double[3, 3]
+            var input = new float[3, 3]
             {
-                {0.1d, 0.2d, 0.3d},
-                {0.4d, 0.5d, 0.6d},
-                {0.7d, 0.8d, 0.9d}
+                {0.1f, 0.2f, 0.3f},
+                {0.4f, 0.5f, 0.6f},
+                {0.7f, 0.8f, 0.9f}
             };
             
             var output = net.Compute(input);
@@ -93,7 +93,7 @@ namespace Sobel.UI
                 LearningRate = 1f
             };
             
-            teacher.Run(input, new []{ 0.60d });
+            teacher.Run(input, new []{ 0.60f });
             
             var output2 = net.Compute(input);
             
@@ -159,6 +159,12 @@ namespace Sobel.UI
             column2.Frozen = false;
             dataGridView1.Columns.Add(column2);
             
+            DataGridViewColumn column3 = new DataGridViewTextBoxColumn();
+            column3.DataPropertyName = "DropProbability";
+            column3.Name = "dropValue";
+            column3.Frozen = false;
+            dataGridView1.Columns.Add(column3);
+            
             dataGridView1.EditingControlShowing += _DataGridView_EditingControlShowing;
             dataGridView1.BindingContextChanged += new EventHandler(BindingContext_Changed);
 
@@ -204,7 +210,6 @@ namespace Sobel.UI
         
         private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
             try
             {
                 var selectedValue = (sender as ComboBox)?.SelectedValue;
@@ -256,6 +261,7 @@ namespace Sobel.UI
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[2].Value = null;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[0].Value = LayerType.Dropout;
                     netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[3].Value ?? 2;
+                    netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[4].Value = netSettingsDataGridView.Rows[netSettingsDataGridView.CurrentCell.RowIndex].Cells[4].Value ?? 2;
                 }
                 else
                 {
@@ -405,9 +411,6 @@ namespace Sobel.UI
 
         private async void startLearnButton_Click(object sender, EventArgs e)
         {
-            var st = new Stopwatch();
-            st.Start();
-
             _succeses = 0;
             _neadToStopLearning = false;
             InitLerningChart();
@@ -427,7 +430,7 @@ namespace Sobel.UI
             var b = new Bitmap(1, 1);
             b.SetPixel(0, 0, Color.White);
 
-            var rotateImage = (double)textRotateNumeric.Value;
+            var rotateImage = (float)textRotateNumeric.Value;
             var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
             var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
             
@@ -447,12 +450,12 @@ namespace Sobel.UI
             var st = new Stopwatch();
             st.Start();
 
-            var result = _networkNew.Compute(new Matrix(bitmap.GetDoubleMatrix(optimize: false)));
+            var result = _networkNew.TeachCompute(new Matrix(bitmap.GetMatrix(optimize: false)));
 
             var time = st.ElapsedMilliseconds;
             
             int maxIter = 0;
-            double maxRes = 0;
+            float maxRes = 0;
             var k = 0;
 
             foreach (var neuron in result)
@@ -482,12 +485,12 @@ namespace Sobel.UI
             Bitmap bitmap;
             int falseAnswerCount = 0;
             int trueAnswerCount = 0;
-            double[] output;
-            double error = 0;
+            float[] output;
+            float error = 0;
             int succeses = 0;
-            double totalTime = 0;
-            double totalError = 0;
-            var rotateImage = (double)textRotateNumeric.Value;
+            float totalTime = 0;
+            float totalError = 0;
+            var rotateImage = (float)textRotateNumeric.Value;
             (int V, int H) padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
             var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
 
@@ -495,7 +498,7 @@ namespace Sobel.UI
 
             var teacher = new Neuro.Learning.BackPropagationLearning(_networkNew.Network)
             {
-                LearningRate = (double)learningRateNumeric.Value
+                LearningRate = (float)learningRateNumeric.Value
             };
 
             var st = new Stopwatch();
@@ -504,7 +507,7 @@ namespace Sobel.UI
             {
                 if (_neadToStopLearning) break;
 
-                teacher.LearningRate = (double)learningRateNumeric.Value;
+                teacher.LearningRate = (float)learningRateNumeric.Value;
                 var fontSize = _random.Next(16, 50);
                 
                 st.Start();
@@ -518,9 +521,9 @@ namespace Sobel.UI
                 
                 if (!text.symble.Equals(trueAnswerText.Text) && falseAnswerCount < 2)
                 {
-                    matrix = new Matrix(bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y).GetDoubleMatrix(1));
+                    matrix = new Matrix(bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y).GetMatrix(1));
                     var computed = _networkNew.Compute(matrix)[0];
-                    output = new double[] { -1f };
+                    output = new float[] { -1f };
 
 //                    st.Start();
                     
@@ -531,9 +534,9 @@ namespace Sobel.UI
                 }
                 else
                 {
-                    matrix = new Matrix(bmp.DrawString(trueAnswerText.Text, fontSize, 0, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y).GetDoubleMatrix(1));
+                    matrix = new Matrix(bmp.DrawString(trueAnswerText.Text, fontSize, 0, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y).GetMatrix(1));
                     var computed = _networkNew.Compute(matrix)[0];
-                    output = new double[] { 1f };
+                    output = new float[] { 1f };
 
 //                    st.Start();
 
@@ -560,7 +563,7 @@ namespace Sobel.UI
         private List<Symble> LoadTeachDataSet(string name)
         {
             var image = new Bitmap($@"C:\Users\zemtsov\Pictures\test acts\{name}.jpg");
-//            var imageMap = image.GetDoubleMatrix(invert: false, optimize: false);
+//            var imageMap = image.GetFloatMatrix(invert: false, optimize: false);
             var document = XDocument.Load($@"C:\Users\zemtsov\Pictures\test acts\{name}.xml");
             
             var root = document?.Root;
@@ -579,13 +582,13 @@ namespace Sobel.UI
                         image
                             .GetPart(int.Parse(x.Attribute("l").Value), int.Parse(x.Attribute("t").Value), int.Parse(x.Attribute("r").Value), int.Parse(x.Attribute("b").Value))
                             .ResizeImage1(pictureSize.x, pictureSize.y)
-                            .GetDoubleMatrix(optimize: false),
+                            .GetMatrix(optimize: false),
                         x.Value));
 		
             return chars.ToList();
         }
 
-        private double[,] GetSymbolMap(IReadOnlyList<Symble> symbles, string symble)
+        private float[,] GetSymbolMap(IReadOnlyList<Symble> symbles, string symble)
         {
             var targetSymbles = symbles.Where(x => x.Value == symble).ToList();
 
@@ -599,92 +602,69 @@ namespace Sobel.UI
 
         private List<Symble> Symbles = null;
         
-        private void LearnAnyNeurons()
+        private void LearnAnyNeurons(bool autocod = false)
         {
             startLearnButton.Enabled = false;
-
-            /*List<Symble> symbols = null;
-
-            if (Symbles == null)
-            {
-                Symbles = LoadTeachDataSet("30");
-                Symbles.AddRange(LoadTeachDataSet("52"));
-                Symbles.AddRange(LoadTeachDataSet("51"));
-                
-                symbols = Symbles;
-            }
-            else
-            {
-                symbols = Symbles;
-            }*/
-
+            
             var bmp = new Bitmap(textViewPicture.Width, textViewPicture.Height);
             var iterations = (long)learnIterationsNumeric.Value;
             (string symble, int position) text;
             Bitmap bitmap;
-            double[,] symbleMap;
+            float[,] symbleMap;
             int succeses = 0;
-            double totalTime = 0;
-            double totalError = 0;
-            var rotateImage = (double)textRotateNumeric.Value;
+            float totalTime = 0;
+            float totalError = 0;
+            var rotateImage = (float)textRotateNumeric.Value;
             (int V, int H) padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
             var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
             var outputs = _networkNew.Network.Layers.Last().NeuronsCount;
 
             var teacher = new Neuro.Learning.BackPropagationLearning(_networkNew.Network)
             {
-                LearningRate = (double)learningRateNumeric.Value
+                LearningRate = (float)learningRateNumeric.Value
             };
 
             var st = new Stopwatch();
-            var teachedList = new List<int>();
+            var teachedList2 = new HashSet<int>();
             long i = 0;
             var trueAnswerCount = 0;
             var badChars = outputs > 2 ? BadResults.ToCharArray() : BadResults.Where(x => x != trueAnswerText.Text[0]).Select(x => x).ToArray();
             var trueChars = outputs > 2 ? TrueResults : trueAnswerText.Text;
 
-            while ((iterations == 0 ||i < iterations))
+            while (!_neadToStopLearning)
             {
                 if (_neadToStopLearning) break;
                 
                 st.Start();
                 
-                teacher.LearningRate = (double)learningRateNumeric.Value;
+                teacher.LearningRate = (float)learningRateNumeric.Value;
                 padding.H = _random.Next((-((int)paddingHNumeric.Value)), ((int)paddingHNumeric.Value));
                 padding.V = _random.Next((-((int)paddingVNumeric.Value)), ((int)paddingVNumeric.Value));
-                var output = new double[outputs];
+                var output = new float[outputs];
                 
                 var fontSize = _random.Next(16, 50);
-//                var fontSize = 50;
 
-                if (trueAnswerCount < trueChars.Length / 2)
+                if (trueAnswerCount < trueChars.Length / 1.5)
                 {
-                    if (teachedList.Count == outputs - 1)
-                        teachedList.Clear();
-//
+                    if (teachedList2.Count == trueChars.Length)
+                    {
+                        teachedList2.Clear();
+                    }
+
                     text = _random.RandomSymble(trueChars);
-//                
-                    if (teachedList.Any(x => x == text.position))
+
+                    if (teachedList2.Contains(text.position))
                         continue;
                 
                     if (text.position < outputs)
-                        teachedList.Add(text.position);
+                        teachedList2.Add(text.position);
                     
-//                    bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
-                    symbleMap = bmp.DrawString2(text.symble, fontSize, rotateImage, random: _random);
-//                    var averBright = bitmap.GetAverBright();
-//                    bitmap = bitmap.ToBlackWite(averBright);
+                    symbleMap = bmp.DrawString2(text.symble, pictureSize, fontSize, rotateImage, random: _random);
 
-//                    symbleMap = GetSymbolMap(symbols, text.symble);
-//                    
-//                    if (symbleMap == null)
-//                        continue;
-//                    
-                    var result = _networkNew.Compute(new Matrix(symbleMap));
-//                    var result = _networkNew.Compute(new Matrix(bitmap.GetDoubleMatrix(optimize: false)));
+                    var result = _networkNew.TeachCompute(new Matrix(symbleMap));
                     
                     int maxIter = 0;
-                    double maxRes = 0;
+                    float maxRes = 0;
                     var k = 0;
                 
                     foreach (var neuron in result)
@@ -698,30 +678,23 @@ namespace Sobel.UI
                         k++;
                     }
 
-                    output[text.position] = 1d;// Math.Max(1f, maxRes);
+                    output[text.position] = 1f;// Math.Max(1f, maxRes);
                     succeses = text.position != maxIter ? 0 : succeses + 1;
                     trueAnswerCount++;
                 }
                 else
                 {
                     text = _random.RandomSymble(string.Join("", badChars));
-//                    bitmap = bmp.DrawString(text.symble, fontSize, rotateImage, random: _random).CutSymbol(padding, scale).ScaleImage(pictureSize.x, pictureSize.y);
-                    symbleMap = bmp.DrawString2(text.symble, fontSize, rotateImage, random: _random);
-//                    symbleMap = GetSymbolMap(symbols, text.symble);
-                    
-//                    if (symbleMap == null)
-//                        continue;
-                    
-//                    var result = _networkNew.Compute(new Matrix(bitmap.GetDoubleMatrix(optimize: false)));
-                    var result = _networkNew.Compute(new Matrix(symbleMap));
+                    symbleMap = bmp.DrawString2(text.symble, pictureSize, fontSize, rotateImage, random: _random);
 
-                    output[outputs - 1] = 1d;
+                    var result = _networkNew.TeachCompute(new Matrix(symbleMap));
+
+                    output[outputs - 1] = 1f;
                     succeses = result[outputs - 1] >= 0.5d ? succeses + 1 : 0;
                     trueAnswerCount = 0;
                 }
 
-//                totalError += teacher.Run(bitmap.GetDoubleMatrix(), output);
-                totalError += teacher.Run(symbleMap, output);
+                totalError += teacher.Run(symbleMap, autocod ? new Matrix(symbleMap).To1DArray() : output);
                 
                 st.Stop();
                 totalTime += st.ElapsedMilliseconds;
@@ -729,7 +702,6 @@ namespace Sobel.UI
                 if (i % 10 == 0)
                 {
                     BeginInvoke(new EventHandler<LogEventArgs>(ShowLogs), this, new LogEventArgs(i, succeses, totalTime / (i + 1), totalError / (i + 1)));
-                    //succeses = 0;
                 }
 
                 st.Reset();
@@ -791,6 +763,10 @@ namespace Sobel.UI
                     case LayerType.Softmax:
                         initData.Add(new SoftmaxLayer(item.NeuronsCount.Value));
                         break;
+                    
+                    case LayerType.Dropout:
+                        initData.Add(new DropoutLayer(item.DropProbability.Value));
+                        break;
                 }
             }
 
@@ -806,7 +782,7 @@ namespace Sobel.UI
                 {
                     Bitmap bit = new Bitmap(open.FileName);
 
-                    var rotateImage = (double)textRotateNumeric.Value;
+                    var rotateImage = (float)textRotateNumeric.Value;
                     var padding = ((int)paddingVNumeric.Value, (int)paddingHNumeric.Value);
                     var scale = ((int)scaleFromNum.Value, (int)scaleToNum.Value);
                     var averege = bit.GetAverBright();
@@ -818,10 +794,10 @@ namespace Sobel.UI
                     
                     textViewPicture.Image = bitmap;
                     
-                    var result = _networkNew.Compute(new Matrix(bitmap.GetDoubleMatrix()));
+                    var result = _networkNew.Compute(new Matrix(bitmap.GetMatrix()));
 
                     int maxIter = 0;
-                    double maxRes = 0;
+                    float maxRes = 0;
                     var k = 0;
 
                     foreach (var neuron in result)
@@ -837,6 +813,56 @@ namespace Sobel.UI
 
                     realAnswerText.Text = $@"{maxIter} - {string.Join(" | ", result)}";
                 }
+        }
+
+        private void SaveLayerToButton_Click(object sender, EventArgs e)
+        {
+            //OpenFileDialog open = new OpenFileDialog();
+            //open.Filter = "Network Files(*.nw)|*.nw";
+            Network nw = new Network();
+
+            //if (open.ShowDialog() == DialogResult.OK)
+            //{
+            //    var a = File.ReadAllBytes(open.FileName);
+            //    nw.Load(a);
+            //}
+
+            //var layerNumber = (int)LayerNumericUpDown.Value;
+            //var layer = _networkNew.Network.Layers[layerNumber];
+            //var index = Math.Max(nw.Layers.Count - 1, 0);
+
+            //nw.Layers.Insert(index, layer);
+
+            var save = new SaveFileDialog();
+            save.Filter = "Network Files(*.nw)|*.nw";
+
+            if (save.ShowDialog() == DialogResult.OK)
+            {
+                var a = File.ReadAllBytes(save.FileName);
+                nw.Load(a);
+
+                var layerNumber = (int)LayerNumericUpDown.Value;
+                var layer = _networkNew.Network.Layers[layerNumber];
+                var index = Math.Max(nw.Layers.Count - 1, 0);
+
+                nw.Layers.Insert(index, layer);
+
+                var data = nw.Save();
+                using (var file = save.OpenFile())
+                {
+                    file.Write(data, 0, data.Length);
+                }
+            }
+        }
+
+        private async void Button1_Click(object sender, EventArgs e)
+        {
+            _succeses = 0;
+            _neadToStopLearning = false;
+            InitLerningChart();
+
+            //LearnAnyNeurons(true);
+            await Task.Run(() => LearnAnyNeurons(true));
         }
     }
 }

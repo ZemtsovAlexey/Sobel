@@ -4,10 +4,10 @@ namespace Neuro.Domain.Layers
 {
     public interface IDropoutLayer : ILayer
     {
-        double DropProbability { get; }
+        float DropProbability { get; set; }
 
         void Init(int index);
 
-        double[] Derivative(double[] inputs);
+        float[] Derivative(float[] inputs);
     }
 }

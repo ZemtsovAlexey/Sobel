@@ -10,7 +10,7 @@ namespace Neuro.Layers
         public int Index { get; private set; }
         public LayerType Type { get; } = LayerType.MaxPoolingLayer;
         public MaxPoolingNeuron[] Neurons { get; private set; }
-        public Matrix[] Outputs { get; private set; }
+        public Matrix[] Outputs { get; set; }
         public int OutputWidht { get; private set; }
         public int OutputHeight { get; private set; }
         public int NeuronsCount => Neurons.Length;

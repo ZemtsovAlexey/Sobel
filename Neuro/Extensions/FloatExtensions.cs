@@ -4,19 +4,19 @@ namespace Neuro.Extensions
 {
     public static class FloatExtensions
     {
-        public static double NextFloat(this Random random)
+        public static float NextFloat(this Random random)
         {
-            return (double)random.NextDouble(); // range 0.0 to 1.0
+            return (float)random.NextDouble(); // range 0.0 to 1.0
         }
 
-        public static double[,] Sum(this double[][,] inputs)
+        public static float[,] Sum(this float[][,] inputs)
         {
             if (inputs == null || inputs.Length < 1)
                 return null;
 
             var inputHeight = inputs[0].GetLength(0);
             var inputWidth = inputs[0].GetLength(1);
-            var sum = new double[inputHeight, inputWidth];
+            var sum = new float[inputHeight, inputWidth];
 
             foreach (var input in inputs)
             {
@@ -32,14 +32,14 @@ namespace Neuro.Extensions
             return sum;
         }
 
-        public static double Sum(this double[,] inputs)
+        public static float Sum(this float[,] inputs)
         {
             if (inputs == null || inputs.Length < 1)
                 return 0;
 
             var inputHeight = inputs.GetLength(0);
             var inputWidth = inputs.GetLength(1);
-            double sum = 0;
+            float sum = 0;
 
             for (var y = 0; y < inputHeight; y++)
             {
@@ -52,14 +52,14 @@ namespace Neuro.Extensions
             return sum;
         }
 
-        public static double[,] Rot180(this double[,] input)
+        public static float[,] Rot180(this float[,] input)
         {
             if (input == null || input.Length == 0)
                 return input;
 
             var height = input.GetLength(0);
             var width = input.GetLength(1);
-            var result = new double[height, width];
+            var result = new float[height, width];
 
             for (var y = 0; y < height; y++)
                 for (var x = 0; x < height; x++)
@@ -68,7 +68,7 @@ namespace Neuro.Extensions
             return result;
         }
 
-        public static double[,] Сonvolution(this double[,] matrix, double[,] kernel, int step = 1)
+        public static float[,] Сonvolution(this float[,] matrix, float[,] kernel, int step = 1)
         {
             if (matrix == null || matrix.Length == 0)
                 throw new ArgumentNullException("Matrix is empty");
@@ -86,7 +86,7 @@ namespace Neuro.Extensions
             var outputHeight = matrixHeight - kernelHeight + step;
             var outputWidth = matrixWidth - kernelWidth + step;
 
-            var output = new double[outputHeight, outputWidth];
+            var output = new float[outputHeight, outputWidth];
 
             for (var y = 0; y < outputHeight; y++)
                 for (var x = 0; x < outputWidth; x++)
@@ -97,14 +97,14 @@ namespace Neuro.Extensions
             return output;
         }
 
-        public static double[,] Multiply(this double[,] matrix, double value)
+        public static float[,] Multiply(this float[,] matrix, float value)
         {
             if (matrix == null || matrix.Length == 0)
                 throw new ArgumentNullException("Matrix is empty");
 
             var matrixHeight = matrix.GetLength(0);
             var matrixWidth = matrix.GetLength(1);
-            var output = new double[matrixHeight, matrixWidth];
+            var output = new float[matrixHeight, matrixWidth];
 
             for (var y = 0; y < matrixHeight; y++)
                 for (var x = 0; x < matrixWidth; x++)
@@ -113,7 +113,7 @@ namespace Neuro.Extensions
             return output;
         }
 
-        public static double[,] Multiply(this double[,] matrix, Func<double, double> func)
+        public static float[,] Multiply(this float[,] matrix, Func<float, float> func)
         {
             if (matrix == null || matrix.Length == 0)
                 throw new ArgumentNullException("Matrix is empty");
@@ -123,7 +123,7 @@ namespace Neuro.Extensions
 
             var matrixHeight = matrix.GetLength(0);
             var matrixWidth = matrix.GetLength(1);
-            var output = new double[matrixHeight, matrixWidth];
+            var output = new float[matrixHeight, matrixWidth];
 
             for (var y = 0; y < matrixHeight; y++)
                 for (var x = 0; x < matrixWidth; x++)

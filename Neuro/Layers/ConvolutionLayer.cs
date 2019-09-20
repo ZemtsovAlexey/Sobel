@@ -13,7 +13,7 @@ namespace Neuro.Layers
         public LayerType Type { get; set; } = LayerType.Convolution;
         public ActivationType ActivationFunctionType { get; }
         public ConvolutionNeuron[] Neurons { get; set; }
-        public Matrix[] Outputs { get; private set; }
+        public Matrix[] Outputs { get; set; }
         public int OutputWidht { get; private set; }
         public int OutputHeight { get; private set; }
         public int KernelSize { get; private set; }
@@ -23,11 +23,13 @@ namespace Neuro.Layers
         public ConvolutionNeuron this[int index] => Neurons[index];
 
         private IActivationFunction _function;
+        private bool _useGpu;
         
-        public ConvolutionLayer(ActivationType activationType, int neuronsCount, int kernelSize = 3, bool useReferences = false)
+        public ConvolutionLayer(ActivationType activationType, int neuronsCount, int kernelSize = 3, bool useReferences = false, bool useGpu = false)
         {
             ActivationFunctionType = activationType;
             _function = activationType.Get();
+            _useGpu = useGpu;
             KernelSize = kernelSize;
             Neurons = new ConvolutionNeuron[neuronsCount];
             Outputs = new Matrix[neuronsCount];
@@ -70,7 +72,7 @@ namespace Neuro.Layers
 
         public Matrix[] Compute(Matrix[] input)
         {
-            var outputs = Neurons.AsParallel().Select(n => n.Compute(input)).ToArray();
+            var outputs = Neurons.AsParallel().Select(n => n.Compute(input, _useGpu)).ToArray();
 
             Outputs = outputs;
 

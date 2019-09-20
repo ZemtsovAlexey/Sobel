@@ -10,7 +10,7 @@ namespace ScannerNet.Models
             
         }
 
-        public NetworkSettings(LayerType type, ActivationType? activation, int? neuronsCount, int? kernelSize, double? dropProbability)
+        public NetworkSettings(LayerType type, ActivationType? activation, int? neuronsCount, int? kernelSize, float? dropProbability)
         {
             Type = type;
             Activation = activation;
@@ -34,6 +34,6 @@ namespace ScannerNet.Models
         
         public bool ActivationDisable { get; set; }
 
-        public double? DropProbability { get; set; }
+        public float? DropProbability { get; set; }
     }
 }

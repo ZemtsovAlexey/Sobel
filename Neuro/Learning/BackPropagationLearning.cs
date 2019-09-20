@@ -13,11 +13,11 @@ namespace Neuro.Learning
     public class BackPropagationLearning
     {
         private readonly Network network;
-        private readonly double[][] fullyConnectedNeuronErrors;
+        private readonly float[][] fullyConnectedNeuronErrors;
         private readonly Matrix[][] convNeuronErrors;
         private readonly IFullyConnectedLayer[] fullyConnectedLayers;
 
-        public double LearningRate { get; set; } = 0.01f;
+        public float LearningRate { get; set; } = 0.01f;
 
         public BackPropagationLearning(Network network)
         {
@@ -27,20 +27,20 @@ namespace Neuro.Learning
             fullyConnectedLayers = network.Layers.Where(x => x.Type == LayerType.FullyConnected).Select(x => x as IFullyConnectedLayer).ToArray();
             var softmaxAny = network.Layers.Any(x => x.Type == LayerType.Softmax);
 
-            fullyConnectedNeuronErrors = new double[fullyConnectedLayers.Length + (softmaxAny ? 1 : 0)][];
+            fullyConnectedNeuronErrors = new float[fullyConnectedLayers.Length + (softmaxAny ? 1 : 0)][];
             convNeuronErrors = new Matrix[matrixLayers.Length][];
             
             for (var i = 0; i < fullyConnectedLayers.Length; i++)
-                fullyConnectedNeuronErrors[i] = new double[fullyConnectedLayers[i].NeuronsCount];
+                fullyConnectedNeuronErrors[i] = new float[fullyConnectedLayers[i].NeuronsCount];
             
             if (softmaxAny)
-                fullyConnectedNeuronErrors[fullyConnectedNeuronErrors.Length - 1] = new double[network.Layers.Last().NeuronsCount];
+                fullyConnectedNeuronErrors[fullyConnectedNeuronErrors.Length - 1] = new float[network.Layers.Last().NeuronsCount];
             
             for (var i = 0; i < matrixLayers.Length; i++)
                 convNeuronErrors[i] = new Matrix[matrixLayers[i].Outputs.Length];
         }
 
-        public double Run(double[,] input, double[] output)
+        public float Run(float[,] input, float[] output)
         {
 //            network.Compute(input);
             var error = CalculateFullyConnectedLayersError(output);
@@ -50,20 +50,20 @@ namespace Neuro.Learning
             return error;
         }
         
-        private double CalculateFullyConnectedLayersError(IReadOnlyList<double> desiredOutput)
+        private float CalculateFullyConnectedLayersError(IReadOnlyList<float> desiredOutput)
         {
             var lastLayer = network.Layers.Last();
             var errors = fullyConnectedNeuronErrors[fullyConnectedNeuronErrors.Length - 1];
             var output = (lastLayer as ILinearCompute)?.Outputs;
-            var error = 0d;
-            
+            var error = 0f;
+
             //расчитываем ошибку на последнем слое
             for (var i = 0; i < lastLayer.NeuronsCount; i++)
             {
                 var e = desiredOutput[i] - output[i];
 
                 //function.Alpha = layer[i].Bias;
-                double derivatived = lastLayer.Type == LayerType.Softmax 
+                float derivatived = lastLayer.Type == LayerType.Softmax 
                     ? ((ISoftmaxLayer)lastLayer).Derivative(i) 
                     : ((IFullyConnectedLayer)lastLayer).Function.Derivative(((IFullyConnectedLayer)lastLayer)[i].Output);
 
@@ -85,13 +85,14 @@ namespace Neuro.Learning
                 Parallel.For(0, layer.NeuronsCount, i =>
                 {
                     var sum = layerNext.Neurons.Select((neuron, nIndex) => new { neuron, nIndex }).Sum(x => x.neuron.Weights[i] * errorsNext[x.nIndex]);
+                    //var l2 = layerNext.Neurons.Select((neuron, nIndex) => new { neuron, nIndex }).Sum(x => errorsNext[x.nIndex] * errorsNext[x.nIndex]) * 0.1;
                     var function = layer[i].Function;
 
                     //function.Alpha = layer[i].Bias;
-                    errors[i] = function.Derivative(layer[i].Output) * sum;
+                    errors[i] = function.Derivative(layer[i].Output) * sum/* + l2*/;
                 });
 
-                errors = network.Layers[layer.Index + 1].Type == LayerType.Dropout ? ((IDropoutLayer)network.Layers[layer.Index + 1]).Derivative(errors) : errors;
+//                errors = network.Layers[layer.Index + 1].Type == LayerType.Dropout ? ((IDropoutLayer)network.Layers[layer.Index + 1]).Derivative(errors) : errors;
             }
 
             return error;
@@ -126,7 +127,7 @@ namespace Neuro.Learning
                                 ? prevLayer.Outputs[n] * convolutionLayer.Neurons[n].Function.Derivative
                                 : prevLayer.Outputs[n];
 
-                            var error = new Matrix(new double[prevLayer.Outputs[n].GetLength(0),prevLayer.Outputs[n].GetLength(1)]);
+                            var error = new Matrix(new float[prevLayer.Outputs[n].GetLength(0),prevLayer.Outputs[n].GetLength(1)]);
                             var neurons = layer.Neurons.Select((neuron, i) => new {neuron, index = i});
                                 
                             if (layer.UseReferences)
@@ -135,6 +136,7 @@ namespace Neuro.Learning
                             foreach (var neuron in neurons)
                             {
                                 error += (b[neuron.index].BackConvolution(neuron.neuron.Weights.Rot180())) * fU;
+                                //error += (b[neuron.index].BackConvolutionGPU(neuron.neuron.Weights)) * fU;
                             }
                             
                             prevB[n] = error;
@@ -152,7 +154,7 @@ namespace Neuro.Learning
                             var outputCords = layer.Neurons[n].OutputCords;
                             var kernelSize = layer.Neurons[n].KernelSize;
 
-                            prevB[n] = new Matrix(new double[prevLayer.OutputHeight, prevLayer.OutputWidht]);
+                            prevB[n] = new Matrix(new float[prevLayer.OutputHeight, prevLayer.OutputWidht]);
 
                             // b[l-1] = upsample(b[l]) * f'(u[l-1])
                             for (var y = 0; y < prevLayer.OutputHeight; y++)
@@ -198,7 +200,7 @@ namespace Neuro.Learning
                         var outputHeight = outputs.GetLength(0);
                         var outputWidth = outputs.GetLength(1);
 
-                        convNeuronErrors[convLayers.Count - 1][nIndex] = new Matrix(new double[outputHeight, outputWidth]);
+                        convNeuronErrors[convLayers.Count - 1][nIndex] = new Matrix(new float[outputHeight, outputWidth]);
                         var errors = convNeuronErrors[convLayers.Count - 1][nIndex];
 
                         for (var y = 0; y < outputHeight; y++)
@@ -224,7 +226,6 @@ namespace Neuro.Learning
                     var layer = (IConvolutionLayer) convLayers[layerIndex];
 
                     Parallel.For(0, layer.NeuronsCount, nIndex =>
-//                    for (var nIndex = 0; nIndex < layer.NeuronsCount; nIndex++)
                     {
                         var outputHeight = layer.Neurons[nIndex].Output.GetLength(0);
                         var outputWidth = layer.Neurons[nIndex].Output.GetLength(1);
@@ -232,7 +233,7 @@ namespace Neuro.Learning
                         var activationFunction = layer.Neurons[nIndex].Function;
                         var stride = nIndex * outputHeight * outputWidth;
 
-                        convNeuronErrors[convLayers.Count - 1][nIndex] = new Matrix(new double[outputHeight, outputWidth]);
+                        convNeuronErrors[convLayers.Count - 1][nIndex] = new Matrix(new float[outputHeight, outputWidth]);
                         var errors = convNeuronErrors[convLayers.Count - 1][nIndex];
 
                         for (var y = 0; y < outputHeight; y++)
@@ -269,18 +270,17 @@ namespace Neuro.Learning
                 var layer = (IConvolutionLayer)convLayers[l];
                 var inputs = l == 0 ? matrix : convLayers[l - 1].Outputs.Sum();
 
-                for (var e = 0; e < convNeuronErrors[l].Length; e++)
-                {
+                Parallel.For(0, convNeuronErrors[l].Length, (int e) => {
                     var parentId = layer.Neurons[e].ParentId;
-                    inputs = l > 0 && layer.UseReferences && parentId != null && parentId.Any() ? convLayers[l - 1].Outputs.Where((x, i) => parentId.Contains(i)).ToArray().Sum(): inputs;
-                    
+                    inputs = l > 0 && layer.UseReferences && parentId != null && parentId.Any() ? convLayers[l - 1].Outputs.Where((x, i) => parentId.Contains(i)).ToArray().Sum() : inputs;
+
                     var error = convNeuronErrors[l][e] * LearningRate;
                     var weights = layer.Neurons[e].Weights;
-                    var correction = inputs.Convolution(error.Rot180());
+                    var correction = error.GetLength(0) > 400 && error.GetLength(1) > 400 ? inputs.Convolution2(error.Rot180()) : inputs.Convolution(error.Rot180());
 
                     layer.Neurons[e].Weights = weights + correction;
                     layer.Neurons[e].Bias += correction.Sum();
-                }
+                });
             });
 
             var input = convLayers.Length > 0 ? convLayers.Last().Outputs.To1DArray() : (new [] { matrix }).To1DArray();
@@ -299,7 +299,7 @@ namespace Neuro.Learning
                         var weightsLength = neuron.Weights.Length;
                         var error = fullyConnectedNeuronErrors[l][n];
 
-                        fixed (double* weights = neuron.Weights, x = inputs)
+                        fixed (float* weights = neuron.Weights, x = inputs)
                             for (var i = 0; i < weightsLength; i++)
                             {
                                 weights[i] += LearningRate * error * x[i];
@@ -324,7 +324,7 @@ namespace Neuro.Learning
                         var weightsLength = neuron.Weights.Length;
                         var error = fullyConnectedNeuronErrors.Last()[n];
 
-                        fixed (double* weights = neuron.Weights, x = inputs)
+                        fixed (float* weights = neuron.Weights, x = inputs)
                             for (var i = 0; i < weightsLength; i++)
                             {
                                 weights[i] += LearningRate * error * x[i];

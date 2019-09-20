@@ -12,7 +12,7 @@ namespace Neuro.Layers
         public int Index { get; private set; }
         public LayerType Type { get; set; } = LayerType.Softmax;
         public FullyConnectedNeuron[] Neurons { get; }
-        public double[] Outputs { get; private set; }
+        public float[] Outputs { get; set; }
         public int NeuronsCount => Neurons.Length;
         public FullyConnectedNeuron this[int index] => Neurons[index];
         private IActivationFunction Function { get; }
@@ -22,7 +22,7 @@ namespace Neuro.Layers
             Function = new None();
             neuronsCount = Math.Max(1, neuronsCount);
             Neurons = new FullyConnectedNeuron[neuronsCount];
-            Outputs = new double[neuronsCount];
+            Outputs = new float[neuronsCount];
         }
 
         public SoftmaxLayer(int neuronsCount, int inputsCount)
@@ -35,7 +35,7 @@ namespace Neuro.Layers
                 Neurons[i] = new FullyConnectedNeuron(inputsCount, Function);
             }
 
-            Outputs = new double[neuronsCount];
+            Outputs = new float[neuronsCount];
         }
 
         public void Init(int index, int inputsCount)
@@ -56,10 +56,10 @@ namespace Neuro.Layers
             }
         }
 
-        public double[] Compute(double[] inputs)
+        public float[] Compute(float[] inputs)
         {
             var computed = Neurons.AsParallel().Select(n => n.Compute(inputs)).ToArray();
-            var inputsExp = computed.Select(x => Math.Exp(x)).ToArray();
+            var inputsExp = computed.Select(x => (float)Math.Exp(x)).ToArray();
             var denominator = inputsExp.Sum();
             var outputs = computed.Select((x, i) => inputsExp[i] / denominator).ToArray();
 
@@ -68,9 +68,9 @@ namespace Neuro.Layers
             return outputs;
         }
 
-        public double Derivative(int neuron)
+        public float Derivative(int neuron)
         {
-            double y = Outputs[neuron];
+            float y = Outputs[neuron];
             return y * (1 - y);
         }
     }

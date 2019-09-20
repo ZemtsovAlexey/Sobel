@@ -1642,8 +1642,34 @@ namespace ScannerNet
                         buffer = imageMatrix.FindCords(buffer, x, y, avrBright);
 
                         var cord = new Cord(buffer.Min(b => b.Y), buffer.Max(b => b.Y), buffer.Min(b => b.X), buffer.Max(b => b.X));
+                        var cordWidth = cord.Right - cord.Left;
 
-                        cords.Add(cord);
+                        if (cordWidth < 2)
+                        {
+                            x++;
+                            continue;
+                        }
+                        
+                        var prevCord = cordWidth > 0 
+                            ? cords.FirstOrDefault(c => 
+                                c.Top > cord.Top - 3 && 
+                                c.Top < cord.Top + 3 && 
+                                c.Right > cord.Left - cordWidth * 3 &&
+                                c.Right < cord.Left &&
+                                (c.Right - c.Left) / cordWidth > 2) 
+                            : null;
+
+                        if (prevCord != null)
+                        {
+                            prevCord.Right = cord.Right;
+                        }
+                        else
+                        {
+                            cords.Add(cord);
+                        }
+                        
+//                        cords.Add(cord);
+
                         x = cord.Right + 1;
                     }
                 }
@@ -1654,7 +1680,7 @@ namespace ScannerNet
 
         private static List<MyPoint> FindCords(this byte[,] imageMatrix, List<MyPoint> buffer, int x, int y, byte avrBright = 255 / 2)
         {
-            if (buffer.Count > 200)
+            if (buffer.Count > 300)
             {
                 return buffer;
             }

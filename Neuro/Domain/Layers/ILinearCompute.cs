@@ -4,9 +4,9 @@ namespace Neuro.Layers
 {
     public interface ILinearCompute
     {
-        double[] Outputs { get; }
+        float[] Outputs { get; set; }
 
-        double[] Compute(double[] inputs);
+        float[] Compute(float[] inputs);
         
         FullyConnectedNeuron[] Neurons { get; }
         

@@ -25,6 +25,8 @@ namespace Neuro.Neurons
         
         public int KernelSize { get; set; }
         
+        public float DropProbability { get; set; }
+        
         public List<FullyConnectedNeuronSaveData> FullyConnectedNeurons { get; set; }
         
         public List<ConvNeuronSaveData> ConvNeurons { get; set; }
@@ -33,9 +35,9 @@ namespace Neuro.Neurons
     [Serializable]
     internal class FullyConnectedNeuronSaveData
     {
-        public double[] Weights { get; set; }
+        public float[] Weights { get; set; }
 
-        public double Bias { get; set; }
+        public float Bias { get; set; }
     }
     
     [Serializable]
@@ -43,8 +45,8 @@ namespace Neuro.Neurons
     {
         public int KernelSize { get; set; }
 
-        public double[,] Weights { get; set; } 
+        public float[,] Weights { get; set; } 
 
-        public double Bias { get; set; }
+        public float Bias { get; set; }
     }
 }

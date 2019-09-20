@@ -1,4 +1,5 @@
 using Neuro.Domain.Layers;
+using Neuro.Extensions;
 using Neuro.Models;
 using System;
 using System.Linq;
@@ -13,11 +14,11 @@ namespace Neuro.Layers
 
         public int NeuronsCount { get; }
 
-        public double DropProbability { get; }
+        public float DropProbability { get; set; }
 
         private Random Random = new Random((int)DateTime.Now.Ticks);
 
-        public DropoutLayer(double dropProbability)
+        public DropoutLayer(float dropProbability)
         {
             DropProbability = dropProbability;
         }
@@ -27,13 +28,18 @@ namespace Neuro.Layers
             Index = index;
         }
 
-        public double[] Derivative(double[] inputs)
+        public float[] Derivative(float[] inputs)
         {
+            if (DropProbability <= 0)
+            {
+                return inputs;
+            }
+            
             return inputs.Select((x, i) =>
             {
-                var nextDouble = Random.NextDouble();
+                var nextfloat = Random.NextFloat();
 
-                if (nextDouble < DropProbability)
+                if (nextfloat < DropProbability)
                 {
                     return 0;
                 }

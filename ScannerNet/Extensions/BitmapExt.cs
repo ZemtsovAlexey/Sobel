@@ -40,7 +40,7 @@ namespace ScannerNet.Extensions
             return bitmap;
         }
         
-        public static Bitmap ToBitmap(this double[,] data)
+        public static Bitmap ToBitmap(this float[,] data)
         {
             var height = data.GetLength(0);
             var width = data.GetLength(1);
@@ -101,9 +101,9 @@ namespace ScannerNet.Extensions
             return result;
         }
         
-        public static double[,] GetDoubleMatrix(this Bitmap bitmap, double delimetr = 255f, bool invert = true, bool optimize = true)
+        public static float[,] GetMatrix(this Bitmap bitmap, float delimetr = 255f, bool invert = true, bool optimize = true)
         {
-            var result = new double[bitmap.Height, bitmap.Width];
+            var result = new float[bitmap.Height, bitmap.Width];
             var procesBitmap = (Bitmap)bitmap.Clone();
             var bitmapData = procesBitmap.LockBits(new Rectangle(0, 0, procesBitmap.Width, procesBitmap.Height), ImageLockMode.ReadWrite, procesBitmap.PixelFormat);
             var step = procesBitmap.GetStep();
@@ -178,7 +178,7 @@ namespace ScannerNet.Extensions
             return bitmap.Clone(cloneRect, format);
         }
         
-        public static double[,] GetMapPart(this double[,] map, int x, int y, int width, int height)
+        public static float[,] GetMapPart(this float[,] map, int x, int y, int width, int height)
         {
             x = Math.Max(0, Math.Min(map.GetLength(1), x));
             y = Math.Max(0, Math.Min(map.GetLength(0), y));
@@ -186,7 +186,7 @@ namespace ScannerNet.Extensions
             height = Math.Max(0, Math.Min(y + height, map.GetLength(0) - 1) - y);
             width = Math.Max(0, Math.Min(x + width, map.GetLength(1) - 1) - x);
 
-            var result = new double[height, width];
+            var result = new float[height, width];
 
             Parallel.For(0, height, (int Y) =>
             {
@@ -206,7 +206,7 @@ namespace ScannerNet.Extensions
             return result;
         }
         
-        public static double[,] GetMapPartByCords(this double[,] map, int l, int t, int r, int b)
+        public static float[,] GetMapPartByCords(this float[,] map, int l, int t, int r, int b)
         {
             var x = l;
             var y = t;
@@ -219,7 +219,7 @@ namespace ScannerNet.Extensions
             height = Math.Max(0, Math.Min(y + height, map.GetLength(0) - 1) - y);
             width = Math.Max(0, Math.Min(x + width, map.GetLength(1) - 1) - x);
 
-            var result = new double[height, width];
+            var result = new float[height, width];
 
             Parallel.For(0, height, (int Y) =>
             {
@@ -257,12 +257,12 @@ namespace ScannerNet.Extensions
             return result;
         }
         
-        public static double[,] ToFloatMap(this byte[,] map, double delimetr = 1)
+        public static float[,] ToFloatMap(this byte[,] map, float delimetr = 1)
         {
             var height = map.GetLength(0);
             var width = map.GetLength(1);
             
-            var result = new double[height, width];
+            var result = new float[height, width];
 
             Parallel.For(0, height, Y =>
             {
@@ -275,7 +275,7 @@ namespace ScannerNet.Extensions
             return result;
         }
         
-        public static Bitmap Contrast(this Bitmap image, double value)
+        public static Bitmap Contrast(this Bitmap image, float value)
         {
             value = (100.0f + value) / 100.0f;
             value *= value;
@@ -319,30 +319,30 @@ namespace ScannerNet.Extensions
             return newBitmap;
         }
         
-        private static void GenerateGaussianKernel(int N, double S ,out int Weight, out int [,] GaussianKernel)
+        private static void GenerateGaussianKernel(int N, float S ,out int Weight, out int [,] GaussianKernel)
         {
-            double Sigma = S ;
-            double pi;
-            pi = (double)Math.PI;
+            float Sigma = S ;
+            float pi;
+            pi = (float)Math.PI;
             int i, j;
             int SizeofKernel=N;
             
-            double [,] Kernel = new double [N,N];
+            float [,] Kernel = new float [N,N];
             GaussianKernel = new int [N,N];
-            double[,] OP = new double[N, N];
-            double D1,D2;
+            float[,] OP = new float[N, N];
+            float D1,D2;
 
 
             D1= 1/(2*pi*Sigma*Sigma);
             D2= 2*Sigma*Sigma;
             
-            double min=1000;
+            float min=1000;
 
             for (i = -SizeofKernel / 2; i <= SizeofKernel / 2; i++)
             {
                for (j = -SizeofKernel / 2; j <= SizeofKernel / 2; j++)
                 {
-                    Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] = ((1 / D1) * (double)Math.Exp(-(i * i + j * j) / D2));
+                    Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] = ((1 / D1) * (float)Math.Exp(-(i * i + j * j) / D2));
                     if (Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] < min)
                         min = Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j];
 
@@ -357,7 +357,7 @@ namespace ScannerNet.Extensions
                 {
                     for (j = -SizeofKernel / 2; j <= SizeofKernel / 2; j++)
                     {
-                        Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] = (double)Math.Round(Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] * mult, 0);
+                        Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] = (float)Math.Round(Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] * mult, 0);
                         GaussianKernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] = (int)Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j];
                         sum = sum + GaussianKernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j];
                     }
@@ -372,7 +372,7 @@ namespace ScannerNet.Extensions
                 {
                     for (j = -SizeofKernel / 2; j <= SizeofKernel / 2; j++)
                     {
-                        Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] = (double)Math.Round(Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] , 0);
+                        Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] = (float)Math.Round(Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] , 0);
                         GaussianKernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j] = (int)Kernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j];
                         sum = sum + GaussianKernel[SizeofKernel / 2 + i, SizeofKernel / 2 + j];
                     }
@@ -396,7 +396,7 @@ namespace ScannerNet.Extensions
             int i, j,k,l;
             int Limit = KernelSize /2;
 
-            double Sum=0;
+            float Sum=0;
 
 
             Output = Data; // Removes Unwanted Data Omission due to kernel bias while convolution
@@ -412,11 +412,11 @@ namespace ScannerNet.Extensions
 
                         for (l = -Limit; l <= Limit; l++)
                         {
-                            Sum = Sum + ((double)Data[j + l, i + k] * GaussianKernel [Limit + k, Limit + l]); 
+                            Sum = Sum + ((float)Data[j + l, i + k] * GaussianKernel [Limit + k, Limit + l]); 
                             
                         }
                     }
-                    Output[j, i] = (int)(Math.Round(Sum/ (double)KernelWeight));
+                    Output[j, i] = (int)(Math.Round(Sum/ (float)KernelWeight));
                 }
 
             }
@@ -440,7 +440,7 @@ namespace ScannerNet.Extensions
             }
         }
         
-        public static Bitmap ToBlackWite(this Bitmap bitmap, double averege = 120)
+        public static Bitmap ToBlackWite(this Bitmap bitmap, float averege = 120)
         {
             var newBitmap = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
             var height = newBitmap.Height;
@@ -478,7 +478,7 @@ namespace ScannerNet.Extensions
             return newBitmap;
         }
 
-        public unsafe static Bitmap To1bpp3(this Bitmap bitmap, int kernel = 5, double diff = 0.1d)
+        public unsafe static Bitmap To1bpp3(this Bitmap bitmap, int kernel = 5, float diff = 0.1f)
         {
             var newBitmap = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
             var height = newBitmap.Height;
@@ -488,7 +488,7 @@ namespace ScannerNet.Extensions
             var step = newBitmap.GetStep();
             var scanStep = kernel;//Math.Min(height, width) / 20;
 
-            scanStep = scanStep < 10 ? 10 : scanStep;
+            scanStep = scanStep < 3 ? 10 : scanStep;
 //            scanStep = 20;
 
             for (var y = 0; y < height / scanStep; y++)
@@ -516,9 +516,10 @@ namespace ScannerNet.Extensions
                         }
                     }
 
+                    var a = averege / (scanStep * scanStep);
+                    var d = Math.Max(a - min, max - a); // max - min;
                     averege /= scanStep * scanStep;
-                    var d = max - min;
-                    
+
                     for (var kY = 0; kY < scanStep; kY++) 
                     { 
                         var kRow = (byte*)bitmapData.Scan0 + (y * scanStep + kY) * bitmapData.Stride;
@@ -528,11 +529,12 @@ namespace ScannerNet.Extensions
                         {
                             var rowPix = GetPixelBright(kRow, step, step * (x * scanStep + kX));
                             c = rowPix < averege ? byte.MinValue : byte.MaxValue;
+                            c = rowPix > averege - 10 && rowPix < averege + 10 && d < 30 ? (byte)averege : c;
                             
-                            if (d < 15)
+                            /*if (d < 30)
                             {
                                 c = byte.MaxValue;
-                            }
+                            }*/
                             
                             SetPixelBright(newRow, step, step * (x * scanStep + kX), c);
                         }
@@ -545,7 +547,7 @@ namespace ScannerNet.Extensions
             return newBitmap;
         }
         
-        public unsafe static Bitmap To1bpp2(this Bitmap bitmap, int kernel = 5, double diff = 0.1d)
+        public unsafe static Bitmap To1bpp2(this Bitmap bitmap, int kernel = 5, float diff = 0.1f)
         {
             var newBitmap = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
             var height = newBitmap.Height;
@@ -632,7 +634,7 @@ namespace ScannerNet.Extensions
             return newBitmap;
         }
         
-        public unsafe static Bitmap To1bpp(this Bitmap bitmap, int kernel = 5, double diff = 0.1d)
+        public unsafe static Bitmap To1bpp(this Bitmap bitmap, int kernel = 5, float diff = 0.1f)
         {
             var newBitmap = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
             var height = newBitmap.Height;
@@ -720,8 +722,8 @@ namespace ScannerNet.Extensions
 
         public static Bitmap ScaleImage(this Bitmap image, int maxWidth, int maxHeight)
         {
-            var ratioX = (double)maxWidth / image.Width;
-            var ratioY = (double)maxHeight / image.Height;
+            var ratioX = (float)maxWidth / image.Width;
+            var ratioY = (float)maxHeight / image.Height;
             var ratio = Math.Min(ratioX, ratioY);
 
             var newWidth = (int)(image.Width * ratio);
@@ -743,8 +745,8 @@ namespace ScannerNet.Extensions
         
         public static Bitmap ResizeImage1(this Bitmap image, int maxWidth, int maxHeight)
         {
-            var ratioX = (double)maxWidth / image.Width;
-            var ratioY = (double)maxHeight / image.Height;
+            var ratioX = (float)maxWidth / image.Width;
+            var ratioY = (float)maxHeight / image.Height;
             var ratio = Math.Min(ratioX, ratioY);
 
             var newWidth = (int)(image.Width * ratio);

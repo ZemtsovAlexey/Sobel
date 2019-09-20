@@ -378,10 +378,10 @@ namespace Sobel
             return result;
         }
 
-        private static Dictionary<(string text, float forntSize, double rotate, string fontFamaly), Bitmap> cache = 
-            new Dictionary<(string text, float forntSize, double rotate, string fontFamaly), Bitmap>();
+        private static Dictionary<(string text, float forntSize, float rotate, string fontFamaly), Bitmap> cache = 
+            new Dictionary<(string text, float forntSize, float rotate, string fontFamaly), Bitmap>();
         
-        public static Bitmap DrawString(this Bitmap mapBitmap, string text, float fontSize = 100, double rotate = 0, Random random = null)
+        public static Bitmap DrawString(this Bitmap mapBitmap, string text, float fontSize = 100, float rotate = 0, Random random = null)
         {
             var family = new List<string>{ "Calibri", "Arial", "Times New Roman", "MS Gothic", "Bahnschrift SemiLight SemiConde", "Mercury114", "ShtrixFR" };
 //            var family = new List<string>{ "ShtrixFR", "Mercury114" };
@@ -427,10 +427,10 @@ namespace Sobel
             return mapBitmap;
         }
         
-        private static Dictionary<(string text, float forntSize, double rotate, string fontFamaly), double[,]> cache2 = 
-            new Dictionary<(string text, float forntSize, double rotate, string fontFamaly), double[,]>();
+        private static Dictionary<(string text, float forntSize, float rotate, string fontFamaly), float[,]> cache2 = 
+            new Dictionary<(string text, float forntSize, float rotate, string fontFamaly), float[,]>();
         
-        public static double[,] DrawString2(this Bitmap mapBitmap, string text, float fontSize = 100, double rotate = 0, Random random = null)
+        public static float[,] DrawString2(this Bitmap mapBitmap, string text, (int x, int y) pictureSize, float fontSize = 100, float rotate = 0, Random random = null)
         {
             var family = new List<string>{ "Calibri", "Arial", "Times New Roman", "MS Gothic", "Bahnschrift SemiLight SemiConde", "Mercury114", "ShtrixFR" };
 //            var family = new List<string>{ "ShtrixFR", "Mercury114" };
@@ -471,7 +471,7 @@ namespace Sobel
                 g.DrawImage(mapBitmap, new Point(0, 0));
             }
 
-            var map = mapBitmap.CutSymbol((0,0), (0,0)).ResizeImage1(16,16).GetDoubleMatrix(optimize: false);
+            var map = mapBitmap.CutSymbol((0,0), (0,0)).ResizeImage1(pictureSize.x,pictureSize.y).GetMatrix(optimize: false);
 
             cache2.Add((text, fontSize, rotate, fontFamily), map);
             
@@ -546,14 +546,14 @@ namespace Sobel
             return destImage;
         }
 
-        public static double[] ToDoubles(this Bitmap bitmap)
+        public static float[] ToDoubles(this Bitmap bitmap)
         {
             if (bitmap == null)
             {
                 return null;
             }
             
-            var result = new double[bitmap.Height * bitmap.Width];
+            var result = new float[bitmap.Height * bitmap.Width];
             
             for (var y = 0; y < bitmap.Height; y++)
             {
@@ -588,7 +588,7 @@ namespace Sobel
             return result;
         }
 
-        public static Bitmap ToBitmap(this double[] vector, int windth, int height)
+        public static Bitmap ToBitmap(this float[] vector, int windth, int height)
         {
             if (vector.Length != windth * height)
             {
@@ -708,7 +708,7 @@ namespace Sobel
             return (R + G + B) / 3;
         }
         
-        private static Color ToColor(double value)
+        private static Color ToColor(float value)
         {
             int R = Convert.ToByte(value);
 

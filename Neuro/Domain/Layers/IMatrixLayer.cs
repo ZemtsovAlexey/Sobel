@@ -4,7 +4,7 @@ namespace Neuro.Layers
 {
     public interface IMatrixLayer : ILayer
     {
-        Matrix[] Outputs { get; }
+        Matrix[] Outputs { get; set; }
      
         int OutputWidht { get; }
         

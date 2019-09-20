@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.LoadTestImgButton = new System.Windows.Forms.Button();
             this.scaleToNum = new System.Windows.Forms.NumericUpDown();
@@ -56,6 +56,7 @@
             this.textViewPicture = new System.Windows.Forms.PictureBox();
             this.startLearnButton = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.learningStopNumeric = new System.Windows.Forms.NumericUpDown();
             this.learningRateNumeric = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
@@ -71,6 +72,8 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.SaveLayerToButton = new System.Windows.Forms.Button();
+            this.LayerNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.netSettingsApplyButton = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.netSettingsDataGridView = new System.Windows.Forms.DataGridView();
@@ -93,6 +96,7 @@
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.LayerNumericUpDown)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.netSettingsDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.weightsBindingSource)).BeginInit();
@@ -381,6 +385,7 @@
             // groupBox2
             // 
             this.groupBox2.AutoSize = true;
+            this.groupBox2.Controls.Add(this.button1);
             this.groupBox2.Controls.Add(this.learningStopNumeric);
             this.groupBox2.Controls.Add(this.learningRateNumeric);
             this.groupBox2.Controls.Add(this.label11);
@@ -398,10 +403,21 @@
             this.groupBox2.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox2.Size = new System.Drawing.Size(420, 579);
+            this.groupBox2.Size = new System.Drawing.Size(420, 615);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Net settings";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(208, 535);
+            this.button1.Margin = new System.Windows.Forms.Padding(6);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(150, 44);
+            this.button1.TabIndex = 45;
+            this.button1.Text = "Start";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // learningStopNumeric
             // 
@@ -576,23 +592,25 @@
             // 
             // chart1
             // 
-            chartArea3.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.chart1.Legends.Add(legend3);
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
             this.chart1.Location = new System.Drawing.Point(431, 46);
             this.chart1.Margin = new System.Windows.Forms.Padding(4);
             this.chart1.Name = "chart1";
-            series3.ChartArea = "ChartArea1";
-            series3.Legend = "Legend1";
-            series3.Name = "Series1";
-            this.chart1.Series.Add(series3);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chart1.Series.Add(series1);
             this.chart1.Size = new System.Drawing.Size(1600, 563);
             this.chart1.TabIndex = 5;
             this.chart1.Text = "chart1";
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.SaveLayerToButton);
+            this.groupBox4.Controls.Add(this.LayerNumericUpDown);
             this.groupBox4.Controls.Add(this.netSettingsApplyButton);
             this.groupBox4.Controls.Add(this.panel1);
             this.groupBox4.Location = new System.Drawing.Point(1042, 20);
@@ -603,6 +621,24 @@
             this.groupBox4.TabIndex = 52;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Net settings";
+            // 
+            // SaveLayerToButton
+            // 
+            this.SaveLayerToButton.Location = new System.Drawing.Point(138, 537);
+            this.SaveLayerToButton.Margin = new System.Windows.Forms.Padding(6);
+            this.SaveLayerToButton.Name = "SaveLayerToButton";
+            this.SaveLayerToButton.Size = new System.Drawing.Size(150, 44);
+            this.SaveLayerToButton.TabIndex = 45;
+            this.SaveLayerToButton.Text = "SaveTo";
+            this.SaveLayerToButton.UseVisualStyleBackColor = true;
+            this.SaveLayerToButton.Click += new System.EventHandler(this.SaveLayerToButton_Click);
+            // 
+            // LayerNumericUpDown
+            // 
+            this.LayerNumericUpDown.Location = new System.Drawing.Point(9, 543);
+            this.LayerNumericUpDown.Name = "LayerNumericUpDown";
+            this.LayerNumericUpDown.Size = new System.Drawing.Size(120, 31);
+            this.LayerNumericUpDown.TabIndex = 44;
             // 
             // netSettingsApplyButton
             // 
@@ -636,6 +672,7 @@
             this.netSettingsDataGridView.Margin = new System.Windows.Forms.Padding(6);
             this.netSettingsDataGridView.MultiSelect = false;
             this.netSettingsDataGridView.Name = "netSettingsDataGridView";
+            this.netSettingsDataGridView.RowHeadersWidth = 82;
             this.netSettingsDataGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.netSettingsDataGridView.Size = new System.Drawing.Size(984, 494);
             this.netSettingsDataGridView.TabIndex = 1;
@@ -687,7 +724,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(2098, 1270);
+            this.ClientSize = new System.Drawing.Size(2104, 1266);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "BackPropoginationForm";
@@ -709,6 +746,7 @@
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.groupBox4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.LayerNumericUpDown)).EndInit();
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.netSettingsDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.weightsBindingSource)).EndInit();
@@ -769,5 +807,8 @@
         private System.Windows.Forms.Button LoadTestImgButton;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button SaveLayerToButton;
+        private System.Windows.Forms.NumericUpDown LayerNumericUpDown;
+        private System.Windows.Forms.Button button1;
     }
 }

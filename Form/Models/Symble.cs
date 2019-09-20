@@ -2,13 +2,13 @@ namespace Sobel.Models
 {
     public class Symble
     {
-        public Symble(double[,] img, string value)
+        public Symble(float[,] img, string value)
         {
             Img = img;
             Value = value;
         }
 	
-        public double[,] Img { get; set; }
+        public float[,] Img { get; set; }
         
         public string Value {get;set;}	
     }

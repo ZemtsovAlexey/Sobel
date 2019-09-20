@@ -22,7 +22,7 @@ namespace Neuro.Neurons
             KernelSize = kernelSize;
             inputHeight = inHeight;
             inputWidth = inWidth;
-            Outputs = new Matrix(new double[inHeight / kernelSize, inWidth / kernelSize]);
+            Outputs = new Matrix(new float[inHeight / kernelSize, inWidth / kernelSize]);
             OutputCords = new bool[inHeight, inWidth];
         }
         
@@ -32,7 +32,7 @@ namespace Neuro.Neurons
             var outputHeight = Outputs.GetLength(0);
             var outputWidth = Outputs.GetLength(1);
             
-            var outputs = new Matrix(new double[outputHeight, outputWidth]);
+            var outputs = new Matrix(new float[outputHeight, outputWidth]);
             var outputCords = new bool[inputHeight, inputWidth];
             
             //сканируем изображение ядром

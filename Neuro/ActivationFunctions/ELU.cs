@@ -4,18 +4,18 @@ namespace Neuro.ActivationFunctions
 {
     public class ELU : IActivationFunction
     {
-        public double Alpha { get; set; }
-        public double MinRange { get; set; } = 0;
-        public double MaxRange { get; set; } = 1;
+        public float Alpha { get; set; }
+        public float MinRange { get; set; } = 0;
+        public float MaxRange { get; set; } = 1;
         
-        public double Activation(double x)
+        public float Activation(float x)
         {
-            return x >= 0 ? x : (double)Math.Exp(x) - 1;;
+            return x >= 0 ? x : (float)Math.Exp(x) - 1;;
         }
 
-        public double Derivative(double x)
+        public float Derivative(float x)
         {
-            return x >= 0 ? 1 : (double)Math.Exp(x);
+            return x >= 0 ? 1 : (float)Math.Exp(x);
         }
     }
 }
