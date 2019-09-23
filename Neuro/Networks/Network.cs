@@ -363,45 +363,122 @@ namespace Neuro.Networks
 
     public static class NetworkExtensions
     {
-        public static Network AddInputLayer(this Network network, (int X, int Y) shape)
+        public static Network AddInputLayer(this Network network, int shapeX, int shapeY)
         {
-            network.InputWidth = shape.X;
-            network.InputHeight = shape.Y;
+            network.InputWidth = shapeX;
+            network.InputHeight = shapeY;
 
             return network;
         }
 
         public static Network AddConvolutionLayer(this Network network, ActivationType activationType, int neuronsCount, int kernelSize = 3, bool useReferences = false, bool useGpu = false)
         {
-            network.Layers.Add(new ConvolutionLayer(activationType, neuronsCount, kernelSize, useReferences, useGpu));
+            var prevLayer = network.Layers.LastOrDefault();
+            var layer = new ConvolutionLayer(activationType, neuronsCount, kernelSize, useReferences, useGpu);
+            var linksCount = prevLayer?.NeuronsCount > 0 ? layer.NeuronsCount / prevLayer?.NeuronsCount + 1 : 0;
+            var shapeX = network.InputWidth;
+            var shapeY = network.InputHeight;
+            var i = network.Layers.Count;
+
+            if (prevLayer != null && prevLayer is IMatrixLayer)
+            {
+                var prevMatrixLayer = prevLayer as IMatrixLayer;
+
+                shapeX = prevMatrixLayer.OutputWidht;
+                shapeY = prevMatrixLayer.OutputHeight;
+            }
+
+            layer.Init(i, shapeX, shapeY, linksCount ?? 0);
+
+            network.Layers.Add(layer);
 
             return network;
         }
 
         public static Network AddMaxPoolingLayer(this Network network, int kernelSize)
         {
-            network.Layers.Add(new MaxPoolingLayer(kernelSize));
+            var prevLayer = network.Layers.LastOrDefault();
+            var layer = new MaxPoolingLayer(kernelSize);
+            var shapeX = network.InputWidth;
+            var shapeY = network.InputHeight;
+            var i = network.Layers.Count;
+
+            if (prevLayer != null && prevLayer is IMatrixLayer)
+            {
+                var prevMatrixLayer = prevLayer as IMatrixLayer;
+
+                shapeX = prevMatrixLayer.OutputWidht;
+                shapeY = prevMatrixLayer.OutputHeight;
+            }
+
+            if (shapeX % kernelSize != 0 || shapeY % kernelSize != 0)
+            {
+                throw new ArgumentException($"Слой №{i}. Размер входного изображения ({shapeX}x{shapeY}) должен быть кратным размеру ядра ({kernelSize})");
+            }
+
+            layer.Init(i, prevLayer?.NeuronsCount ?? 0, shapeX, shapeY);
+            network.Layers.Add(layer);
 
             return network;
         }
 
         public static Network AddFullyConnectedLayer(this Network network, ActivationType activationType, int neuronsCount)
         {
-            network.Layers.Add(new FullyConnectedLayer(neuronsCount, activationType));
+            var prevLayer = network.Layers.LastOrDefault();
+            var layer = new FullyConnectedLayer(neuronsCount, activationType);
+            var i = network.Layers.Count;
+            var inputLength = 0;
+
+            if (prevLayer != null && prevLayer is IMatrixLayer)
+            {
+                var prevMatrixLayer = prevLayer as IMatrixLayer;
+                inputLength = prevMatrixLayer.OutputWidht * prevMatrixLayer.OutputHeight * (prevLayer?.NeuronsCount ?? 1);
+            }
+
+            if (prevLayer != null && prevLayer is ILinearCompute)
+            {
+                var prevLinearLayer = prevLayer as ILinearCompute;
+                inputLength = prevLinearLayer.Outputs.Length;
+            }
+
+            layer.Init(i, inputLength);
+            network.Layers.Add(layer);
 
             return network;
         }
 
         public static Network AddDropoutLayer(this Network network, float dropProbability)
         {
-            network.Layers.Add(new DropoutLayer(dropProbability));
+            var layer = new DropoutLayer(dropProbability);
+            var i = network.Layers.Count;
+
+            layer.Init(i);
+            network.Layers.Add(layer);
 
             return network;
         }
 
         public static void AddSoftmaxLayer(this Network network, int neuronsCount)
         {
-            network.Layers.Add(new SoftmaxLayer(neuronsCount));
+            var prevLayer = network.Layers.LastOrDefault(x => x.Type != LayerType.Dropout);
+            var layer = new SoftmaxLayer(neuronsCount);
+            var i = network.Layers.Count;
+            var inputLength = 0;
+
+            if (prevLayer != null && prevLayer is IMatrixLayer)
+            {
+                var prevMatrixLayer = prevLayer as IMatrixLayer;
+                inputLength = prevMatrixLayer.OutputWidht * prevMatrixLayer.OutputHeight * (prevLayer?.NeuronsCount ?? 1);
+            }
+
+            if (prevLayer != null && prevLayer is ILinearCompute)
+            {
+                var prevLinearLayer = prevLayer as ILinearCompute;
+                inputLength = prevLinearLayer.Outputs.Length;
+            }
+
+            layer.Init(i, inputLength);
+            network.Layers.Add(layer);
         }
     }
 }

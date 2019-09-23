@@ -41,31 +41,32 @@ namespace Sobel.UI
 
             Network = new Network();
 
-            Network.InitLayers((ImageSize, ImageSize),
+            /*Network.InitLayers((ImageSize, ImageSize),
                 //new DropoutLayer(0.2f),
                 new ConvolutionLayer(ActivationType.BipolarSigmoid, 4, 3, true, false),
                 new MaxPoolingLayer(2),
-                /*new ConvolutionLayer(ActivationType.BipolarSigmoid, 16, 3, true, true),
-                new MaxPoolingLayer(2),*/
+                *//*new ConvolutionLayer(ActivationType.BipolarSigmoid, 16, 3, true, true),
+                new MaxPoolingLayer(2),*//*
                 //new ConvolutionLayer(ActivationType.LeakyReLu, 8, 3, true, false),
                 //new MaxPoolingLayer(2),
                 new FullyConnectedLayer(30, ActivationType.BipolarSigmoid),
                 new DropoutLayer(0.2f),
                 new FullyConnectedLayer(10, ActivationType.BipolarSigmoid),
                 new DropoutLayer(0.3f),
-                /*new FullyConnectedLayer(20, ActivationType.BipolarSigmoid),
-                new DropoutLayer(0.4f),*/
+                *//*new FullyConnectedLayer(20, ActivationType.BipolarSigmoid),
+                new DropoutLayer(0.4f),*//*
                 new SoftmaxLayer(2)
-            );
+            );*/
 
-            /*Network
+            Network
+                .AddInputLayer(ImageSize, ImageSize)
                 .AddConvolutionLayer(ActivationType.BipolarSigmoid, 4, 3, true, false)
                 .AddMaxPoolingLayer(2)
-                .AddFullyConnectedLayer(ActivationType.BipolarSigmoid, 30)
+                .AddFullyConnectedLayer(ActivationType.BipolarSigmoid, 70)
                 .AddDropoutLayer(0.2f)
-                .AddFullyConnectedLayer(ActivationType.BipolarSigmoid, 10)
+                .AddFullyConnectedLayer(ActivationType.BipolarSigmoid, 50)
                 .AddDropoutLayer(0.3f)
-                .AddSoftmaxLayer(2);*/
+                .AddSoftmaxLayer(2);
 
             Network.Randomize();
         }
@@ -168,8 +169,8 @@ namespace Sobel.UI
         private void TeachPhoto()
         {
             Running = true;
-            var falseDirectoryPath = @"C:\Users\zemtsov\Pictures\печать 2\false";
-            var trueDirectoryPath = @"C:\Users\zemtsov\Pictures\печать 2\true";
+            var falseDirectoryPath = @"C:\Users\zemet\OneDrive\Изображения\печать 2\печать 2\false";
+            var trueDirectoryPath = @"C:\Users\zemet\OneDrive\Изображения\печать 2\печать 2\true";
             List<Bitmap> falseImages = new List<Bitmap>();
             List<Bitmap> trueImages = new List<Bitmap>();
             
@@ -353,9 +354,9 @@ namespace Sobel.UI
         private void GetTrueResultsButton_Click(object sender, EventArgs e)
         {
             var docTypeName = "waybills";
-            var saveDirectory = @"C:\Users\zemtsov\Pictures\печать 2\test";
+            var saveDirectory = @"C:\Users\zemet\OneDrive\Изображения\печать 2\печать 2\test";
             var directoryPath = $@"D:\documents types\доки\доки\{docTypeName}";
-            var filesPath = "*.jpg|*.png|*.jpeg".Split('|').SelectMany(filter => System.IO.Directory.GetFiles(directoryPath, filter, SearchOption.AllDirectories)).ToArray();
+            var filesPath = "*.jpg|*.png|*.jpeg".Split('|').SelectMany(filter => Directory.GetFiles(directoryPath, filter, SearchOption.AllDirectories)).ToArray();
             var i = 100;
             var findedResults = 0;
 

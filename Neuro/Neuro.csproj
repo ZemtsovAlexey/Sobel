@@ -13,9 +13,6 @@
     <Reference Include="PresentationCore">
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.1\PresentationCore.dll</HintPath>
     </Reference>
-    <Reference Include="System.Memory, Version=4.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
-      <HintPath>..\..\..\Users\zemtsov\.nuget\packages\system.memory\4.4.0-preview2-25405-01\ref\netstandard2.0\System.Memory.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase">
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.1\WindowsBase.dll</HintPath>
     </Reference>
